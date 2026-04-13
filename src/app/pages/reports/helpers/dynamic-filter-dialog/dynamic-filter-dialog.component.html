@@ -1,0 +1,71 @@
+<h2 mat-dialog-title>{{ config.title }}</h2>
+<mat-dialog-content>
+  <form [formGroup]="form" class="filter-form">
+
+    @if (config.showDepartment !== false) {
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Department</mat-label>
+        <mat-select formControlName="department">
+          <mat-option [value]="null">All Departments</mat-option>
+          @for (d of departments; track d.id) {
+            <mat-option [value]="d.departmentName">{{ d.departmentName }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    }
+
+    @if (config.showDateRange !== false) {
+      <div class="date-row">
+        <mat-form-field appearance="outline" class="date-field">
+          <mat-label>Date From</mat-label>
+          <input matInput [matDatepicker]="pickerFrom" formControlName="dateFrom" />
+          <mat-datepicker-toggle matIconSuffix [for]="pickerFrom"></mat-datepicker-toggle>
+          <mat-datepicker #pickerFrom></mat-datepicker>
+          @if (form.get('dateFrom')?.hasError('required') && form.get('dateFrom')?.touched) {
+            <mat-error>Required</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="date-field">
+          <mat-label>Date To</mat-label>
+          <input matInput [matDatepicker]="pickerTo" formControlName="dateTo" />
+          <mat-datepicker-toggle matIconSuffix [for]="pickerTo"></mat-datepicker-toggle>
+          <mat-datepicker #pickerTo></mat-datepicker>
+          @if (form.get('dateTo')?.hasError('required') && form.get('dateTo')?.touched) {
+            <mat-error>Required</mat-error>
+          }
+        </mat-form-field>
+      </div>
+    }
+
+    @if (config.showUser !== false) {
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>User</mat-label>
+        <mat-select formControlName="user">
+          <mat-option [value]="null">All Users</mat-option>
+          @for (u of users; track u) {
+            <mat-option [value]="u">{{ u }}</mat-option>
+          }
+        </mat-select>
+        @if (loadingUsers) {
+          <mat-hint>Loading users…</mat-hint>
+        } @else if (!form.get('dateFrom')?.value) {
+          <mat-hint>Select dates to filter users</mat-hint>
+        }
+      </mat-form-field>
+    }
+
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="dialogRef.close()">Cancel</button>
+  <button
+    mat-flat-button
+    color="primary"
+    (click)="run()"
+    [disabled]="form.invalid || loadingUsers"
+  >
+    Run Report
+  </button>
+</mat-dialog-actions>

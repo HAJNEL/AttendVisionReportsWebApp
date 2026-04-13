@@ -1,0 +1,93 @@
+<div class="departments-container">
+  <div class="page-header">
+    <h1>Departments</h1>
+    <button mat-flat-button color="primary" (click)="openCreate()" [disabled]="loading">
+      <mat-icon>add</mat-icon>
+      Create Department
+    </button>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="center-spinner">
+    <mat-spinner diameter="48"></mat-spinner>
+  </div>
+
+  <!-- Error -->
+  <div *ngIf="!loading && error" class="error-banner">
+    <mat-icon>error_outline</mat-icon>
+    <span>{{ error }}</span>
+    <button mat-button (click)="load()">Retry</button>
+  </div>
+
+  <!-- Table -->
+  <mat-card class="table-card" *ngIf="!loading && !error">
+    <table mat-table [dataSource]="departments" class="mat-elevation-z0">
+
+      <!-- Department Name -->
+      <ng-container matColumnDef="name">
+        <th mat-header-cell *matHeaderCellDef>Department Name</th>
+        <td mat-cell *matCellDef="let dept">
+          <span class="dept-name">{{ dept.departmentName }}</span>
+        </td>
+      </ng-container>
+
+      <!-- Manager -->
+      <ng-container matColumnDef="manager">
+        <th mat-header-cell *matHeaderCellDef>Manager</th>
+        <td mat-cell *matCellDef="let dept">{{ dept.manager || '—' }}</td>
+      </ng-container>
+
+      <!-- Payment Rate -->
+      <ng-container matColumnDef="rate">
+        <th mat-header-cell *matHeaderCellDef>Rate / hr</th>
+        <td mat-cell *matCellDef="let dept">
+          <span *ngIf="dept.paymentRate !== null" class="rate-chip">
+            R{{ dept.paymentRate | number:'1.2-2' }}
+          </span>
+          <span *ngIf="dept.paymentRate === null" class="muted">—</span>
+        </td>
+      </ng-container>
+
+      <!-- Location -->
+      <ng-container matColumnDef="location">
+        <th mat-header-cell *matHeaderCellDef>Location</th>
+        <td mat-cell *matCellDef="let dept" class="muted">{{ locationOf(dept) }}</td>
+      </ng-container>
+
+      <!-- Actions —— ellipsis menu -->
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef></th>
+        <td mat-cell *matCellDef="let dept" class="actions-cell">
+          <button mat-icon-button [matMenuTriggerFor]="rowMenu" [matMenuTriggerData]="{ dept: dept }"
+                  aria-label="Row actions">
+            <mat-icon>more_vert</mat-icon>
+          </button>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+      <!-- Empty state -->
+      <tr class="mat-row" *matNoDataRow>
+        <td class="no-data-cell" [attr.colspan]="displayedColumns.length">
+          No departments found. Click <em>Create Department</em> to add one.
+        </td>
+      </tr>
+    </table>
+  </mat-card>
+</div>
+
+<!-- Shared row-actions menu -->
+<mat-menu #rowMenu="matMenu">
+  <ng-template matMenuContent let-dept="dept">
+    <button mat-menu-item (click)="openEdit(dept)">
+      <mat-icon>edit</mat-icon>
+      <span>Edit</span>
+    </button>
+    <button mat-menu-item class="delete-item" (click)="confirmDelete(dept)">
+      <mat-icon>delete</mat-icon>
+      <span>Delete</span>
+    </button>
+  </ng-template>
+</mat-menu>

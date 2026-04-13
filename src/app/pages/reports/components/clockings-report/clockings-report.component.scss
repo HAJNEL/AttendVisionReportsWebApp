@@ -1,0 +1,100 @@
+h2[mat-dialog-title] {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.subtitle {
+  font-size: 13px;
+  font-weight: 400;
+  color: #8b949e;
+}
+
+mat-dialog-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 !important;
+}
+
+.center-spinner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 48px;
+}
+
+.error-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 24px;
+  color: #f85149;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 48px;
+  color: #8b949e;
+
+  mat-icon { font-size: 48px; width: 48px; height: 48px; }
+}
+
+.clockings-table {
+  width: 100%;
+  min-width: 700px;
+}
+
+.person-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 4px 0;
+}
+
+.person-name { font-weight: 500; }
+
+.emp-id {
+  font-size: 11px;
+  color: #8b949e;
+}
+
+.muted { color: #8b949e; }
+
+// ── Status badge ─────────────────────────────────────────────────────────────
+.status-badge {
+  display: inline-block;
+  border-radius: 4px;
+  padding: 2px 8px;
+  font-size: 12px;
+  font-weight: 500;
+
+  &.status-check-in   { background: rgba(102,187,106,0.15); color: #66bb6a; }
+  &.status-check-out  { background: rgba(88,166,255,0.15);  color: #58a6ff; }
+  &.status-break-out  { background: rgba(255,167,38,0.15);  color: #ffa726; }
+  &.status-break-in   { background: rgba(255,167,38,0.10);  color: #ffcc80; }
+  &.status-overtime-in  { background: rgba(171,71,188,0.15); color: #ce93d8; }
+  &.status-overtime-out { background: rgba(171,71,188,0.10); color: #ba68c8; }
+  &.status-default    { background: rgba(139,148,158,0.15); color: #8b949e; }
+}
+
+// ── Auth badge ───────────────────────────────────────────────────────────────
+.auth-badge {
+  display: inline-block;
+  border-radius: 4px;
+  padding: 2px 8px;
+  font-size: 12px;
+  font-weight: 500;
+
+  &.auth-success { background: rgba(102,187,106,0.15); color: #66bb6a; }
+  &.auth-failed  { background: rgba(248,81,73,0.15);   color: #f85149; }
+  &.auth-default { background: rgba(139,148,158,0.15); color: #8b949e; }
+}
+
+.footer-label {
+  font-weight: 600;
+  color: #8b949e;
+  padding-top: 12px;
+}

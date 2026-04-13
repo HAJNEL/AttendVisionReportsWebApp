@@ -1,0 +1,38 @@
+:host {
+  display: block;
+  height: 100%;
+  background: #f8f9fa;
+  border-right: 1px solid #dee2e6;
+}
+.sidebar-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+.sidebar-header {
+  padding: 24px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 20px;
+  font-weight: 500;
+  color: #1565c0;
+}
+.sidebar-header mat-icon {
+  font-size: 28px;
+  width: 28px;
+  height: 28px;
+}
+.active-link {
+  background: rgba(21, 101, 192, 0.1);
+  color: #1565c0 !important;
+}
+.active-link mat-icon {
+  color: #1565c0;
+}
+.spacer {
+  flex: 1;
+}
+mat-nav-list a {
+  color: #495057;
+}

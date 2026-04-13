@@ -1,0 +1,105 @@
+h2[mat-dialog-title] {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.subtitle {
+  font-size: 13px;
+  font-weight: 400;
+  color: #8b949e;
+}
+
+mat-dialog-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 !important;
+}
+
+.center-spinner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 48px;
+}
+
+.error-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 24px;
+  color: #f85149;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 48px;
+  color: #8b949e;
+}
+
+.empty-state mat-icon { font-size: 48px; width: 48px; height: 48px; }
+
+.timesheet-table {
+  width: 100%;
+  min-width: 700px;
+}
+
+.person-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 4px 0;
+}
+
+.person-name { font-weight: 500; }
+
+.emp-id {
+  font-size: 11px;
+  color: #8b949e;
+}
+
+.muted { color: #8b949e; }
+.numeric-header { text-align: right; padding-right: 24px; }
+.hours-cell { text-align: right; padding-right: 24px; }
+
+.hours-badge {
+  display: inline-block;
+  background: rgba(88, 166, 255, 0.15);
+  color: #58a6ff;
+  border-radius: 4px;
+  padding: 2px 8px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.hours-badge.zero {
+  background: rgba(139, 148, 158, 0.15);
+  color: #8b949e;
+}
+
+.hours-badge.break {
+  background: rgba(255, 167, 38, 0.15);
+  color: #ffa726;
+}
+
+.hours-badge.net {
+  background: rgba(102, 187, 106, 0.15);
+  color: #66bb6a;
+}
+
+.footer-total.break { color: #ffa726; }
+.footer-total.net   { color: #66bb6a; }
+
+.footer-label {
+  font-weight: 600;
+  color: #e6edf3;
+  padding-top: 12px;
+}
+
+.footer-total {
+  font-weight: 600;
+  color: #58a6ff;
+}

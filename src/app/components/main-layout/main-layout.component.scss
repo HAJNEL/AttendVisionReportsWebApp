@@ -1,0 +1,41 @@
+.layout-container {
+  height: 100vh;
+  background-color: #0d1117;
+}
+.sidebar {
+  width: 250px;
+  border-right: none;
+}
+.content {
+  background-color: #0d1117;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+.mobile-toolbar {
+  background-color: #161b22;
+  color: #c9d1d9;
+  border-bottom: 1px solid #30363d;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.toolbar-title {
+  margin-left: 8px;
+  font-size: 18px;
+  font-weight: 500;
+  color: #58a6ff;
+}
+main {
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+@media (max-width: 599px) {
+  main {
+    padding: 12px;
+  }
+}

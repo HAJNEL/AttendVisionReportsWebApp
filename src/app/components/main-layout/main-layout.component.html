@@ -1,0 +1,24 @@
+<mat-sidenav-container class="layout-container">
+  <mat-sidenav
+    #sidenav
+    [mode]="(isHandset$ | async) ? 'over' : 'side'"
+    [opened]="!(isHandset$ | async)"
+    class="sidebar"
+  >
+    <app-sidebar (navClicked)="onNavClicked(sidenav)"></app-sidebar>
+  </mat-sidenav>
+
+  <mat-sidenav-content class="content">
+    @if (isHandset$ | async) {
+      <mat-toolbar class="mobile-toolbar">
+        <button mat-icon-button (click)="sidenav.toggle()" aria-label="Toggle menu">
+          <mat-icon>menu</mat-icon>
+        </button>
+        <span class="toolbar-title">AttendVision</span>
+      </mat-toolbar>
+    }
+    <main>
+      <router-outlet></router-outlet>
+    </main>
+  </mat-sidenav-content>
+</mat-sidenav-container>

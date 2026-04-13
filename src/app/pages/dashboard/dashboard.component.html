@@ -1,0 +1,256 @@
+<div class="dashboard-container">
+  <div class="page-header">
+    <div class="page-title-row">
+      <h1>Dashboard</h1>
+      <button mat-icon-button (click)="loadAll()" title="Refresh" [disabled]="loading">
+        <mat-icon>refresh</mat-icon>
+      </button>
+    </div>
+    <div class="header-controls">
+      <!-- Collapsible header row -->
+      <div class="controls-header" [class.controls-header-expanded]="filtersExpanded" (click)="toggleFilters()">
+        <span class="controls-title">
+          <mat-icon class="tune-icon">tune</mat-icon>
+          Filters
+        </span>
+        <mat-icon [@rotateChevron]="filtersExpanded ? 'open' : 'closed'" class="chevron-icon">expand_more</mat-icon>
+      </div>
+
+      <!-- Collapsible body -->
+      <div class="controls-body" [@expandCollapse]="filtersExpanded ? 'expanded' : 'collapsed'">
+        <!-- Department filter -->
+        <div class="filter-group">
+          <span class="filter-label">Department</span>
+          <mat-form-field class="dept-select" appearance="outline" subscriptSizing="dynamic">
+            <mat-select [(ngModel)]="selectedDeptId" (ngModelChange)="onDeptChange()">
+              <mat-option [value]="0">All Departments</mat-option>
+              <mat-option *ngFor="let d of departments" [value]="d.id">{{ d.departmentName }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <!-- Employee filter -->
+        <div class="filter-group">
+          <span class="filter-label">Employee</span>
+          <mat-form-field class="dept-select" appearance="outline" subscriptSizing="dynamic">
+            <mat-select [(ngModel)]="selectedEmployee" (ngModelChange)="onEmployeeChange()" [disabled]="employees.length === 0">
+              <mat-option value="">All Employees</mat-option>
+              <mat-option *ngFor="let e of employees" [value]="e">{{ e }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <div class="filter-divider"></div>
+
+        <!-- Time window: period + navigation combined -->
+        <div class="filter-group">
+          <span class="filter-label">Period</span>
+          <div class="time-window">
+            <mat-button-toggle-group
+              [value]="trendPeriod"
+              (change)="setTrendPeriod($event.value)"
+              class="trend-toggle">
+              <mat-button-toggle value="day">Day</mat-button-toggle>
+              <mat-button-toggle value="month">Month</mat-button-toggle>
+              <mat-button-toggle value="year">Year</mat-button-toggle>
+            </mat-button-toggle-group>
+            <div class="trend-nav">
+              <button mat-icon-button (click)="goBack()" [disabled]="loading" aria-label="Previous">
+                <mat-icon>chevron_left</mat-icon>
+              </button>
+              <span class="date-label">{{ dateLabel }}</span>
+              <button mat-icon-button (click)="goForward()" [disabled]="!canGoForward || loading" aria-label="Next">
+                <mat-icon>chevron_right</mat-icon>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="center-spinner">
+    <mat-spinner diameter="48"></mat-spinner>
+  </div>
+
+  <!-- Error -->
+  <div *ngIf="!loading && error" class="error-banner">
+    <mat-icon>error_outline</mat-icon>
+    <span>{{ error }}</span>
+  </div>
+
+  <ng-container *ngIf="!loading && !error">
+
+    <!-- KPI Cards -->
+    <div class="kpi-grid">
+      <mat-card class="kpi-card">
+        <mat-card-content>
+          <div class="kpi-icon-row">
+            <mat-icon class="kpi-icon blue">groups</mat-icon>
+            <span class="kpi-label">Employees</span>
+          </div>
+          <div class="kpi-value">{{ kpis.total_employees }}</div>
+          <div class="kpi-sub">Distinct · {{ kpiPeriodLabel }}</div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="kpi-card">
+        <mat-card-content>
+          <div class="kpi-icon-row">
+            <mat-icon class="kpi-icon green">event_available</mat-icon>
+            <span class="kpi-label">Check-ins</span>
+          </div>
+          <div class="kpi-value">{{ kpis.checkins_today }}</div>
+          <div class="kpi-sub">Distinct · {{ kpiPeriodLabel }}</div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="kpi-card">
+        <mat-card-content>
+          <div class="kpi-icon-row">
+            <mat-icon class="kpi-icon teal">sensor_door</mat-icon>
+            <span class="kpi-label">On-Site</span>
+          </div>
+          <div class="kpi-value">{{ kpis.on_site_now }}</div>
+          <div class="kpi-sub">As of today</div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="kpi-card">
+        <mat-card-content>
+          <div class="kpi-icon-row">
+            <mat-icon class="kpi-icon red">cancel</mat-icon>
+            <span class="kpi-label">Failed Attempts</span>
+          </div>
+          <div class="kpi-value">{{ kpis.failed_today }}</div>
+          <div class="kpi-sub">{{ kpiPeriodLabel }}</div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <!-- Charts row -->
+    <div class="charts-grid">
+
+      <!-- Access Trend -->
+      <mat-card class="chart-card chart-wide">
+        <mat-card-header>
+          <mat-card-title>{{ trendTitle }}</mat-card-title>
+          <mat-card-subtitle>{{ trendSubtitle }}</mat-card-subtitle>
+        </mat-card-header>
+
+        <!-- Status filter — only shown in day view -->
+        <div *ngIf="trendPeriod === 'day'" class="chart-status-filter">
+          <mat-button-toggle-group
+            [value]="trendStatusFilterMulti"
+            class="status-filter-toggle"
+            multiple>
+            <mat-button-toggle value="all" (change)="onTrendStatusToggle($event)">All</mat-button-toggle>
+            <mat-button-toggle value="checkinout" (change)="onTrendStatusToggle($event)">Check In / Out</mat-button-toggle>
+            <mat-button-toggle value="breakinout" (change)="onTrendStatusToggle($event)">Break In / Out</mat-button-toggle>
+            <mat-button-toggle value="unknown" (change)="onTrendStatusToggle($event)">Unknown</mat-button-toggle>
+          </mat-button-toggle-group>
+        </div>
+        <mat-card-content class="chart-content">
+          <div *ngIf="trendLoading" class="trend-spinner-overlay">
+            <mat-spinner diameter="28"></mat-spinner>
+          </div>
+          <canvas *ngIf="trendPeriod === 'day'" baseChart
+            [data]="dayBarData"
+            [options]="dayBarOptions"
+            type="bar">
+          </canvas>
+          <canvas *ngIf="trendPeriod !== 'day'" baseChart
+            [data]="hourlyData"
+            [options]="hourlyOptions"
+            [plugins]="hourlyPlugins"
+            type="line">
+          </canvas>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Today's Visitors -->
+      <mat-card class="chart-card people-card" [class.people-card-locked]="clickLocked">
+        <mat-card-header>
+          <mat-card-title>
+            Today's Visitors
+            <span *ngIf="clickLocked" class="locked-badge" title="Click an empty area of the chart to clear">
+              <mat-icon>filter_alt</mat-icon>
+              Filtered
+              <span *ngIf="selectedBarTime" class="selected-bar-time">({{ selectedBarTime }})</span>
+            </span>
+          </mat-card-title>
+          <mat-card-subtitle>{{ dayPeople.length }} {{ dayPeople.length === 1 ? 'person' : 'people' }}</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content class="people-list-content">
+          <div class="people-list">
+            <div *ngFor="let p of dayPeople"
+                 class="person-row"
+                 [class.person-active]="activePeople.has(p.person)"
+                 (mouseenter)="hoveredPerson = p.person"
+                 (mouseleave)="hoveredPerson = null">
+              <div class="person-name" [title]="p.person">{{ p.person }}</div>
+              <div class="person-meta">
+                <span class="time-range" matTooltip="First and last access time">{{ p.first_time }}–{{ p.last_time }}</span>
+                <span class="duration" *ngIf="p.first_time && p.last_time" matTooltip="Total time on site">{{ getDurationStr(p.first_time, p.last_time) }}</span>
+                <span class="break-time" matTooltip="Total break time">{{ p.break_time }}</span>
+                <span *ngIf="p.work_time" class="work-time" matTooltip="Actual time worked">{{ fmtHours(p.work_time) }}</span>
+                <span *ngIf="fmtHours(p.hours_worked) && !p.work_time" class="hours-worked" matTooltip="Actual time worked">{{ fmtHours(p.hours_worked) }}</span>
+                <span class="status-badge" [ngClass]="'status-' + p.last_status" matTooltip="Last status">{{ statusLabel(p.last_status) }}</span>
+              </div>
+            </div>
+            <div *ngIf="dayPeople.length === 0" class="no-people">No visitors for this day</div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <!-- Issues Table -->
+      <mat-card class="chart-card issues-card chart-full">
+        <mat-card-header>
+          <mat-card-title>Issues</mat-card-title>
+          <mat-card-subtitle *ngIf="!trendLoading">
+            {{ issues.length }} issue{{ issues.length === 1 ? '' : 's' }} detected
+          </mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content class="issues-content">
+          <div *ngIf="trendLoading" class="issues-loading">
+            <mat-spinner diameter="24"></mat-spinner>
+          </div>
+          <ng-container *ngIf="!trendLoading">
+            <div *ngIf="issues.length === 0" class="no-issues">
+              <mat-icon>check_circle</mat-icon>
+              <span>No issues found</span>
+            </div>
+            <div *ngIf="issues.length > 0" class="issues-table-wrap">
+              <table class="issues-table">
+                <thead>
+                  <tr>
+                    <th>Issue</th>
+                    <th>Person</th>
+                    <th *ngIf="trendPeriod !== 'day'">Date</th>
+                    <th *ngIf="trendPeriod !== 'year'">Time</th>
+                    <th>Dept</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let issue of issues" [ngClass]="'issue-row-' + issue.issue_type">
+                    <td>
+                      <span class="issue-badge" [ngClass]="'issue-' + issue.issue_type">
+                        {{ issueLabel(issue.issue_type) }}
+                      </span>
+                    </td>
+                    <td class="issue-person">{{ issue.person }}</td>
+                    <td *ngIf="trendPeriod !== 'day'" class="issue-date">{{ issue.date }}</td>
+                    <td *ngIf="trendPeriod !== 'year'" class="issue-time">{{ issue.time_of }}</td>
+                    <td class="issue-dept">{{ issue.department }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </ng-container>
+        </mat-card-content>
+      </mat-card>
+
+    </div>
+  </ng-container>
+</div>

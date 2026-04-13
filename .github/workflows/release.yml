@@ -1,0 +1,56 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'           # triggers on v1.0.0, v1.2.3, etc.
+  workflow_dispatch:   # allows manual trigger from GitHub UI
+
+jobs:
+  build-windows:
+    name: Build Windows Installer
+    runs-on: windows-latest
+    permissions:
+      contents: write
+
+    steps:
+      # ── Checkout ──────────────────────────────────────────────────────────
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # ── Node / pnpm ───────────────────────────────────────────────────────
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install Node dependencies
+        run: npm install --legacy-peer-deps
+
+      # ── Rust ──────────────────────────────────────────────────────────────
+      - name: Set up Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Rust build artifacts
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: './src-tauri -> target'
+
+      # ── Build ─────────────────────────────────────────────────────────────
+      # DATABASE_URL is needed at compile time ONLY if you use sqlx's
+      # compile-time query checking (query! macro).
+      # If you use query() / query_as() at runtime only, you can omit this.
+      - name: Build Tauri app
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Uncomment and set in repo secrets if you use sqlx compile-time checks:
+          # DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        with:
+          tagName: ${{ github.ref_name }}
+          releaseName: 'AttendVision Reports ${{ github.ref_name }}'
+          releaseBody: |
+            See the [CHANGELOG](https://github.com/${{ github.repository }}/blob/main/CHANGELOG.md) for details.
+          releaseDraft: true      # creates a draft release — publish manually after review
+          prerelease: false

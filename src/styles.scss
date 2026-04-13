@@ -1,0 +1,107 @@
+@use '@angular/material' as mat;
+
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@300;400;600&display=swap');
+
+/* ============================================================
+   Angular Material M3 — dark theme (indigo primary)
+   ============================================================ */
+html {
+  color-scheme: dark;
+  @include mat.theme((
+    color: (
+      primary: mat.$azure-palette,
+      theme-type: dark,
+    ),
+    typography: Roboto,
+    density: 0,
+  ));
+}
+
+html, body { height: 100%; }
+body {
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+  background-color: #0d1117;
+  color: #e6edf3;
+}
+
+/* Fullscreen dialog */
+.fullscreen-dialog .mat-mdc-dialog-container,
+.fullscreen-dialog .mdc-dialog__container,
+.fullscreen-dialog .mdc-dialog__surface {
+  border-radius: 0 !important;
+  max-width: 100vw !important;
+  max-height: 100vh !important;
+}
+
+/* Ensure sidenav surfaces stay dark */
+.mat-drawer-container,
+.mat-sidenav-container {
+  background-color: #0d1117 !important;
+  color: #e6edf3 !important;
+}
+.mat-drawer-content,
+.mat-sidenav-content {
+  background-color: #0d1117 !important;
+}
+
+/* =============================================
+   Login page: force white text on dark inputs
+   These must be global to override MDC styles
+   ============================================= */
+app-login {
+  // Input typed text
+  .mdc-text-field__input {
+    color: #ffffff !important;
+    caret-color: #00b4ff !important;
+  }
+
+  // Floating label (acts as placeholder before focus)
+  .mdc-floating-label,
+  .mat-mdc-floating-label {
+    color: rgba(255, 255, 255, 0.6) !important;
+  }
+
+  // Label when focused
+  .mdc-text-field--focused .mdc-floating-label,
+  .mat-mdc-form-field.mat-focused .mdc-floating-label {
+    color: #00b4ff !important;
+  }
+
+  // Outline border colour
+  .mdc-notched-outline__leading,
+  .mdc-notched-outline__notch,
+  .mdc-notched-outline__trailing {
+    border-color: rgba(0, 180, 255, 0.35) !important;
+  }
+
+  // Outline border on hover
+  .mdc-text-field:hover .mdc-notched-outline__leading,
+  .mdc-text-field:hover .mdc-notched-outline__notch,
+  .mdc-text-field:hover .mdc-notched-outline__trailing {
+    border-color: rgba(0, 180, 255, 0.6) !important;
+  }
+
+  // Outline border on focus
+  .mdc-text-field--focused .mdc-notched-outline__leading,
+  .mdc-text-field--focused .mdc-notched-outline__notch,
+  .mdc-text-field--focused .mdc-notched-outline__trailing {
+    border-color: #00b4ff !important;
+  }
+
+  // Input background transparent (so card background shows)
+  .mdc-text-field--outlined:not(.mdc-text-field--disabled) {
+    background: rgba(0, 20, 50, 0.5) !important;
+  }
+
+  // Icons white
+  .mat-mdc-form-field .mat-icon,
+  .mat-mdc-form-field .mat-mdc-icon-button .mat-icon {
+    color: rgba(255, 255, 255, 0.7) !important;
+  }
+
+  // Error message colour
+  .mat-mdc-form-field-error {
+    color: #ff6b6b !important;
+  }
+}
