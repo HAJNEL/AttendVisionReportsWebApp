@@ -386,7 +386,7 @@ export class DashboardComponent implements OnInit {
         this.dashboardService.getIssues(range.from, range.to, dept, emp),
         this.dashboardService.api.getTimesheetReport(dept, date, date, null),
       ]);
-      console.log('KPI:', kpis);
+      console.log('day people:', dayPeople);
       // Map KPI keys from camelCase to snake_case for UI
       const k: any = kpis;
       const mappedKpis = {
@@ -395,25 +395,8 @@ export class DashboardComponent implements OnInit {
         on_site_now: (k.on_site_now ?? k.onSiteNow) ?? 0,
         failed_today: (k.failed_today ?? k.failedToday) ?? 0,
       };
-      // Map timesheet data for quick lookup
-      const timesheetMap = new Map<string, { break_hours: number; hours_worked: number }>();
-      for (const t of timesheets) {
-        timesheetMap.set(t.person, { break_hours: t.break_hours, hours_worked: t.hours_worked });
-      }
-      // Attach break_time and work_time to each person
-      this.dayPeople = dayPeople.map(p => {
-        const t = timesheetMap.get(p.person);
-        const break_time = t && typeof t.break_hours === 'number' ? t.break_hours : 0;
-        // hours_worked from timesheet if available, else from p
-        const hours_worked = t && typeof t.hours_worked === 'number' ? t.hours_worked : p.hours_worked;
-        let work_time = hours_worked - break_time;
-        if (work_time < 0) work_time = hours_worked; // fallback if data is bad
-        return {
-          ...p,
-          break_time,
-          work_time,
-        };
-      });
+      // Use dayPeople as is (break_time and worked_time are already formatted)
+      this.dayPeople = dayPeople;
       this.kpis = mappedKpis;
       this.rawDayEvents = dayEvents;
       this.dayBarData = this.buildDayEventsChart(this.filterDayEvents(dayEvents));

@@ -193,7 +193,7 @@
               <div class="person-meta">
                 <span class="time-range" matTooltip="First and last access time">{{ p.first_time }}–{{ p.last_time }}</span>
                 <span class="duration" *ngIf="p.first_time && p.last_time" matTooltip="Total time on site">{{ getDurationStr(p.first_time, p.last_time) }}</span>
-                <span class="break-time" matTooltip="Total break time">{{ p.break_time }}</span>
+                <span *ngIf="p.break_time" class="break-time" matTooltip="Total break time">{{ p.break_time }}</span>
                 <span *ngIf="p.work_time" class="work-time" matTooltip="Actual time worked">{{ fmtHours(p.work_time) }}</span>
                 <span *ngIf="fmtHours(p.hours_worked) && !p.work_time" class="hours-worked" matTooltip="Actual time worked">{{ fmtHours(p.hours_worked) }}</span>
                 <span class="status-badge" [ngClass]="'status-' + p.last_status" matTooltip="Last status">{{ statusLabel(p.last_status) }}</span>
