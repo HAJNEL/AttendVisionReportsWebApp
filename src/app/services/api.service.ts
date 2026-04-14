@@ -1,116 +1,24 @@
+import { PermissionDto, CreatePermissionDto, UpdatePermissionDto, AssignPermissionDto } from '../models/permission.model';
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
+import { User, Role, UserRoleAssignment } from '../models/user.model';
+import { Company } from '../models/company.model';
+import { CompanyInput } from '../models/company-input.model';
+import { LoginResponse } from '../models/login-response.model';
+import { DbConfig } from '../models/db-config.model';
+import { DashboardKpis } from '../models/dashboard-kpis.model';
+import { LabeledCount } from '../models/labeled-count.model';
+import { DayAccessRow } from '../models/day-access-row.model';
+import { DayEventRow } from '../models/day-event-row.model';
+import { DayPersonRow } from '../models/day-person-row.model';
+import { Department } from '../models/department.model';
+import { DepartmentInput } from '../models/department-input.model';
+import { IssueRow } from '../models/issue-row.model';
+import { ClockingRow } from '../models/clocking-row.model';
+import { TimesheetRow } from '../models/timesheet-row.model';
 
-// ── Interfaces ────────────────────────────────────────────────────────────────
 
-export interface LoginResponse {
-  id: number;
-  username: string;
-  email: string;
-  full_name: string | null;
-  is_admin: boolean;
-}
-
-export interface DbConfig {
-  host: string;
-  port: number;
-  user: string;
-  password: string;
-  database: string;
-}
-
-export interface DashboardKpis {
-  total_employees: number;
-  checkins_today: number;
-  on_site_now: number;
-  failed_today: number;
-}
-
-export interface LabeledCount {
-  label: string;
-  count: number;
-}
-
-export interface DayAccessRow {
-  label: string;
-  count: number;
-  names: string;
-}
-
-export interface DayEventRow {
-  label: string;
-  status: string;
-  count: number;
-  names: string;
-}
-
-export interface DayPersonRow {
-  person: string;
-  department: string;
-  event_count: number;
-  first_time: string;
-  last_time: string;
-  last_status: string;
-  hours_worked: number;
-  break_time?: number;
-  work_time?: number;
-}
-
-export interface Department {
-  id: number;
-  departmentName: string;
-  manager: string | null;
-  paymentRate: number | null;
-  addressLine1: string | null;
-  addressLine2: string | null;
-  city: string | null;
-  state: string | null;
-  postalCode: string | null;
-  country: string | null;
-}
-
-export interface DepartmentInput {
-  departmentName: string;
-  manager: string | null;
-  paymentRate: number | null;
-  addressLine1: string | null;
-  addressLine2: string | null;
-  city: string | null;
-  state: string | null;
-  postalCode: string | null;
-  country: string | null;
-}
-
-export interface IssueRow {
-  date: string;
-  time_of: string;
-  person: string;
-  employee_id: string;
-  department: string;
-  issue_type: string;
-}
-
-export interface ClockingRow {
-  date: string;
-  person: string;
-  employee_id: string;
-  department: string;
-  access_time: string;
-  attendance_status: string;
-  authentication_result: string;
-}
-
-export interface TimesheetRow {
-  person: string;
-  employee_id: string;
-  department: string;
-  date: string;
-  first_entry: string;
-  last_entry: string;
-  hours_worked: number;
-  break_hours: number;
-}
 
 // ── Service ───────────────────────────────────────────────────────────────────
 
@@ -222,4 +130,105 @@ export class ApiService {
   getTimesheetReport(dept: string | null, dateFrom: string, dateTo: string, user: string | null): Promise<TimesheetRow[]> {
     return firstValueFrom(this.http.get<TimesheetRow[]>(`${API_BASE}/reports/timesheet`, { params: { dateFrom, dateTo, ...(dept ? { dept } : {}), ...(user ? { user } : {}) } }));
   }
+
+    // ── Companies ──────────────────────────────────────────────────────────────
+
+  getCompanies(): Promise<Company[]> {
+    return firstValueFrom(this.http.get<Company[]>(`${API_BASE}/companies/`));
+  }
+
+  createCompany(input: CompanyInput): Promise<Company> {
+    return firstValueFrom(this.http.post<Company>(`${API_BASE}/companies/`, input));
+  }
+
+  updateCompany(id: string, input: CompanyInput): Promise<Company> {
+    return firstValueFrom(this.http.put<Company>(`${API_BASE}/companies/${id}`, input));
+  }
+
+  deleteCompany(id: string): Promise<void> {
+    return firstValueFrom(this.http.delete<void>(`${API_BASE}/companies/${id}`));
+  }
+
+
+
+  getUsers() {
+    return this.http.get<User[]>(`${API_BASE}/user`);
+  }
+
+  getUserById(id: string): Promise<User> {
+    return firstValueFrom(this.http.get<User>(`${API_BASE}/user/${id}`));
+  }
+
+  createUser(user: Partial<User>) {
+    return this.http.post<User>(`${API_BASE}/user`, user);
+  }
+
+  updateUser(id: string, user: Partial<User>) {
+    return this.http.put<User>(`${API_BASE}/user/${id}`, user);
+  }
+
+  deleteUser(id: string) {
+    return this.http.delete<void>(`${API_BASE}/user/${id}`);
+  }
+
+  // ── Roles ────────────────────────────────────────────────────────────────
+  getRoles(): Promise<Role[]> {
+    return firstValueFrom(this.http.get<Role[]>(`${API_BASE}/roles`));
+  }
+
+  createRole(role: Partial<Role>) {
+    return this.http.post<Role>(`${API_BASE}/roles`, role);
+  }
+
+  updateRole(id: string, role: Partial<Role>) {
+    return this.http.put<Role>(`${API_BASE}/roles/${id}`, role);
+  }
+
+  deleteRole(id: string) {
+    return this.http.delete<void>(`${API_BASE}/roles/${id}`);
+  }
+
+  // ── User-Role Assignment ────────────────────────────────────────────────
+  assignRole(data: UserRoleAssignment) {
+    return this.http.post<void>(`${API_BASE}/roles/assign`, data);
+  }
+
+  removeRole(data: UserRoleAssignment) {
+    return this.http.post<void>(`${API_BASE}/roles/remove`, data);
+  }
+
+    // ── Permissions ───────────────────────────────────────────────────────────
+
+  getAllPermissions(): Promise<PermissionDto[]> {
+    return firstValueFrom(this.http.get<PermissionDto[]>(`${API_BASE}/permissions`));
+  }
+
+  getPermissionById(id: number): Promise<PermissionDto> {
+    return firstValueFrom(this.http.get<PermissionDto>(`${API_BASE}/permissions/${id}`));
+  }
+
+  createPermission(permission: CreatePermissionDto): Promise<PermissionDto> {
+    return firstValueFrom(this.http.post<PermissionDto>(`${API_BASE}/permissions`, permission));
+  }
+
+  updatePermission(id: number, permission: UpdatePermissionDto): Promise<PermissionDto> {
+    return firstValueFrom(this.http.put<PermissionDto>(`${API_BASE}/permissions/${id}`, permission));
+  }
+
+  deletePermission(id: number): Promise<void> {
+    return firstValueFrom(this.http.delete<void>(`${API_BASE}/permissions/${id}`));
+  }
+
+  assignPermissionToRole(dto: AssignPermissionDto): Promise<void> {
+    return firstValueFrom(this.http.post<void>(`${API_BASE}/permissions/assign`, dto));
+  }
+
+  removePermissionFromRole(dto: AssignPermissionDto): Promise<void> {
+    return firstValueFrom(this.http.post<void>(`${API_BASE}/permissions/remove`, dto));
+  }
+
+  getPermissionsForRole(roleId: number): Promise<PermissionDto[]> {
+    return firstValueFrom(this.http.get<PermissionDto[]>(`${API_BASE}/permissions/role/${roleId}`));
+  }
 }
+

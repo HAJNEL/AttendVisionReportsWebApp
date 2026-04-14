@@ -1,0 +1,76 @@
+<div class="roles-container">
+  <div class="page-header">
+    <h1>Roles</h1>
+    <button mat-flat-button color="primary" (click)="openCreateRole()" [disabled]="loading">
+      <mat-icon>add</mat-icon>
+      Create Role
+    </button>
+  </div>
+
+  <div *ngIf="loading" class="center-spinner">
+    <mat-spinner diameter="48"></mat-spinner>
+  </div>
+
+  <div *ngIf="!loading && error" class="error-banner">
+    <mat-icon>error_outline</mat-icon>
+    <span>{{ error }}</span>
+    <button mat-button (click)="load()">Retry</button>
+  </div>
+
+  <mat-card class="table-card" *ngIf="!loading && !error">
+    <table mat-table [dataSource]="roles" class="mat-elevation-z0">
+
+      <!-- Role Name -->
+      <ng-container matColumnDef="name">
+        <th mat-header-cell *matHeaderCellDef>Role Name</th>
+        <td mat-cell *matCellDef="let role">
+          <span class="role-name">{{ role.name }}</span>
+        </td>
+      </ng-container>
+
+      <!-- Description -->
+      <ng-container matColumnDef="description">
+        <th mat-header-cell *matHeaderCellDef>Description</th>
+        <td mat-cell *matCellDef="let role">{{ role.description || '—' }}</td>
+      </ng-container>
+
+      <!-- Actions -->
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef class="actions-header-cell"></th>
+        <td mat-cell *matCellDef="let role" class="actions-cell">
+          <button mat-icon-button [matMenuTriggerFor]="rowMenu" [matMenuTriggerData]="{ role: role }" aria-label="Row actions">
+            <mat-icon>more_vert</mat-icon>
+          </button>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+      <!-- Empty state -->
+      <tr class="mat-row" *matNoDataRow>
+        <td class="no-data-cell" [attr.colspan]="displayedColumns.length">
+          No roles found. Click <em>Create Role</em> to add one.
+        </td>
+      </tr>
+    </table>
+
+    <!-- Shared row-actions menu -->
+    <mat-menu #rowMenu="matMenu">
+      <ng-template matMenuContent let-role="role">
+        <button mat-menu-item (click)="openEditRole(role)">
+          <mat-icon>edit</mat-icon>
+          <span>Edit</span>
+        </button>
+        <button mat-menu-item (click)="openPermissionsDialog(role)">
+          <mat-icon>vpn_key</mat-icon>
+          <span>Manage Permissions</span>
+        </button>
+        <button mat-menu-item (click)="confirmDeleteRole(role)">
+          <mat-icon>delete</mat-icon>
+          <span>Delete</span>
+        </button>
+      </ng-template>
+    </mat-menu>
+  </mat-card>
+</div>

@@ -1,0 +1,81 @@
+<div class="permissions-container">
+  <div class="page-header">
+    <h1>Permissions</h1>
+    <button mat-flat-button color="primary" (click)="openAddDialog()">
+      <mat-icon>add</mat-icon>
+      Add Permission
+    </button>
+  </div>
+  <!-- Loading -->
+  <div *ngIf="loading" class="center-spinner">
+    <mat-spinner diameter="48"></mat-spinner>
+  </div>
+
+  <!-- Error -->
+  <div *ngIf="!loading && error" class="error-banner">
+    <mat-icon>error_outline</mat-icon>
+    <span>{{ error }}</span>
+    <button mat-button (click)="loadPermissions()">Retry</button>
+  </div>
+
+  <!-- Table -->
+  <mat-card class="table-card" *ngIf="!loading && !error">
+    <table mat-table [dataSource]="permissions" class="mat-elevation-z0">
+
+      <!-- Name -->
+      <ng-container matColumnDef="name">
+        <th mat-header-cell *matHeaderCellDef>Name</th>
+        <td mat-cell *matCellDef="let perm">
+          <span class="permission-name">{{ perm.name }}</span>
+        </td>
+      </ng-container>
+
+      <!-- Description -->
+      <ng-container matColumnDef="description">
+        <th mat-header-cell *matHeaderCellDef>Description</th>
+        <td mat-cell *matCellDef="let perm">{{ perm.description || '\u2014' }}</td>
+      </ng-container>
+
+      <!-- Unique Code -->
+      <ng-container matColumnDef="uniqueCode">
+        <th mat-header-cell *matHeaderCellDef>Unique Code</th>
+        <td mat-cell *matCellDef="let perm">{{ perm.uniqueCode }}</td>
+      </ng-container>
+
+      <!-- Actions -->
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef></th>
+        <td mat-cell *matCellDef="let perm" class="actions-cell">
+          <button mat-icon-button [matMenuTriggerFor]="rowMenu" [matMenuTriggerData]="{ perm: perm }"
+                  aria-label="Row actions">
+            <mat-icon>more_vert</mat-icon>
+          </button>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="['name', 'description', 'uniqueCode', 'actions']"></tr>
+      <tr mat-row *matRowDef="let row; columns: ['name', 'description', 'uniqueCode', 'actions'];"></tr>
+
+      <!-- Empty state -->
+      <tr class="mat-row" *matNoDataRow>
+        <td class="no-data-cell" [attr.colspan]="4">
+          No permissions found. Click <em>Add Permission</em> to add one.
+        </td>
+      </tr>
+    </table>
+  </mat-card>
+
+  <!-- Shared row-actions menu -->
+  <mat-menu #rowMenu="matMenu">
+    <ng-template matMenuContent let-perm="perm">
+      <button mat-menu-item (click)="openEditDialog(perm)">
+        <mat-icon>edit</mat-icon>
+        <span>Edit</span>
+      </button>
+      <button mat-menu-item class="delete-item" (click)="deletePermission(perm)">
+        <mat-icon>delete</mat-icon>
+        <span>Delete</span>
+      </button>
+    </ng-template>
+  </mat-menu>
+</div>

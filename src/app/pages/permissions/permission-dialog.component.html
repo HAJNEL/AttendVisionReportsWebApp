@@ -1,0 +1,32 @@
+<h2 mat-dialog-title>{{ isEdit ? 'Edit Permission' : 'Add Permission' }}</h2>
+<mat-dialog-content>
+  <form [formGroup]="form" class="permission-form">
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Parent Permission</mat-label>
+      <mat-select formControlName="parentId">
+        <mat-option [value]="null">None</mat-option>
+        <mat-option *ngFor="let perm of allPermissions" [value]="perm.id">{{ perm.name }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Permission Name</mat-label>
+      <input matInput formControlName="name" required />
+      <mat-error *ngIf="form.get('name')?.hasError('required')">Required</mat-error>
+    </mat-form-field>
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Description</mat-label>
+      <textarea matInput formControlName="description" rows="3"></textarea>
+    </mat-form-field>
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Unique Code</mat-label>
+      <input matInput formControlName="uniqueCode" required (input)="form.get('uniqueCode')?.setValue($event.target.value.toLowerCase(), { emitEvent: false })" />
+      <mat-error *ngIf="form.get('uniqueCode')?.hasError('required')">Required</mat-error>
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button (click)="cancel()">Cancel</button>
+  <button mat-flat-button color="primary" (click)="save()" [disabled]="form.invalid">
+    {{ isEdit ? 'Save Changes' : 'Create' }}
+  </button>
+</mat-dialog-actions>

@@ -1,10 +1,13 @@
 import { Injectable } from '@angular/core';
 import { ApiService } from './api.service';
 
-export type {
-  DashboardKpis, LabeledCount, DayAccessRow, Department,
-  DayEventRow, DayPersonRow, IssueRow
-} from './api.service';
+export type { Company } from '../models/company.model';
+export type { DayEventRow } from '../models/day-event-row.model';
+export type { IssueRow } from '../models/issue-row.model';
+export type { LabeledCount } from '../models/labeled-count.model';
+export type { DayAccessRow } from '../models/day-access-row.model';
+export type { Department } from '../models/department.model';
+export type { DashboardKpis } from '../models/dashboard-kpis.model';
 
 @Injectable({ providedIn: 'root' })
 export class DashboardService {

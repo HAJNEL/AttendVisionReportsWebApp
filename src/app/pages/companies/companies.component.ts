@@ -1,3 +1,4 @@
+
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatTableModule } from '@angular/material/table';
@@ -9,16 +10,11 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ApiService } from '../../services/api.service';
-import { Department } from '../../models/department.model';
-import {
-  DeptFormDialogComponent,
-  DeptConfirmDialogComponent,
-} from './dept-dialog.component';
-
-export type DepartmentRow = Department;
+import { Company } from '../../models/company.model';
+import { CompanyFormDialogComponent, CompanyConfirmDialogComponent } from './company-dialog.component';
 
 @Component({
-  selector: 'app-departments',
+  selector: 'app-companies',
   standalone: true,
   imports: [
     CommonModule,
@@ -29,14 +25,14 @@ export type DepartmentRow = Department;
     MatCardModule,
     MatMenuModule,
     MatProgressSpinnerModule,
-    MatSnackBarModule,
+    MatSnackBarModule
   ],
-  templateUrl: './departments.component.html',
-  styleUrl: './departments.component.scss',
+  templateUrl: './companies.component.html',
+  styleUrls: ['./companies.component.scss'],
 })
-export class DepartmentsComponent implements OnInit {
-  displayedColumns = ['name', 'manager', 'rate', 'location', 'companyName', 'actions'];
-  departments: DepartmentRow[] = [];
+export class CompaniesComponent implements OnInit {
+  displayedColumns = ['name', 'description', 'actions'];
+  companies: Company[] = [];
   loading = true;
   error: string | null = null;
 
@@ -50,8 +46,7 @@ export class DepartmentsComponent implements OnInit {
     this.loading = true;
     this.error = null;
     try {
-      this.departments = await this.api.getDepartments();
-      console.log('Loaded departments:', this.departments);
+      this.companies = await this.api.getCompanies();
     } catch (e) {
       this.error = String(e);
     } finally {
@@ -60,59 +55,56 @@ export class DepartmentsComponent implements OnInit {
   }
 
   openCreate(): void {
-    const ref = this.dialog.open(DeptFormDialogComponent, {
-      data: { dept: null },
-      width: '560px',
+    const ref = this.dialog.open(CompanyFormDialogComponent, {
+      data: { company: null },
+      width: '480px',
     });
     ref.afterClosed().subscribe(async (result) => {
       if (!result) return;
       try {
-        const created = await this.api.createDepartment(result);
-        this.departments = [...this.departments, created].sort((a, b) =>
-          a.departmentName.localeCompare(b.departmentName));
-        this.snackBar.open('Department created', 'OK', { duration: 3000 });
+        const created = await this.api.createCompany(result);
+        this.companies = [...this.companies, created].sort((a, b) => a.name.localeCompare(b.name));
+        this.snackBar.open('Company created', 'OK', { duration: 3000 });
       } catch (e) {
         this.snackBar.open(String(e), 'Dismiss', { duration: 5000 });
       }
     });
   }
 
-  openEdit(dept: DepartmentRow): void {
-    const ref = this.dialog.open(DeptFormDialogComponent, {
-      data: { dept },
-      width: '560px',
+  openEdit(company: Company): void {
+    const ref = this.dialog.open(CompanyFormDialogComponent, {
+      data: { company },
+      width: '480px',
     });
     ref.afterClosed().subscribe(async (result) => {
       if (!result) return;
       try {
-        const updated = await this.api.updateDepartment(dept.id, result);
-        this.departments = this.departments.map(d => d.id === dept.id ? updated : d)
-          .sort((a, b) => a.departmentName.localeCompare(b.departmentName));
-        this.snackBar.open('Department saved', 'OK', { duration: 3000 });
+        const updated = await this.api.updateCompany(company.id, result);
+        // If API returns the updated company, use it; otherwise, update local object with dialog result
+        const newCompany = updated ?? { ...company, ...result };
+        this.companies = this.companies.map(c => c.id === company.id ? newCompany : c)
+          .sort((a, b) => a.name.localeCompare(b.name));
+        this.snackBar.open('Company saved', 'OK', { duration: 3000 });
       } catch (e) {
         this.snackBar.open(String(e), 'Dismiss', { duration: 5000 });
       }
     });
   }
 
-  confirmDelete(dept: DepartmentRow): void {
-    const ref = this.dialog.open(DeptConfirmDialogComponent, {
-      data: { name: dept.departmentName },
+  confirmDelete(company: Company): void {
+    const ref = this.dialog.open(CompanyConfirmDialogComponent, {
+      data: { name: company.name },
       width: '400px',
     });
     ref.afterClosed().subscribe(async (confirmed) => {
       if (!confirmed) return;
       try {
-        await this.api.deleteDepartment(dept.id);
-        this.departments = this.departments.filter(d => d.id !== dept.id);
-        this.snackBar.open('Department deleted', 'OK', { duration: 3000 });
+        await this.api.deleteCompany(company.id);
+        this.companies = this.companies.filter(c => c.id !== company.id);
+        this.snackBar.open('Company deleted', 'OK', { duration: 3000 });
       } catch (e) {
         this.snackBar.open(String(e), 'Dismiss', { duration: 5000 });
       }
     });
-  }
-
-  locationOf(dept: DepartmentRow): string {
-    return [dept.addressLine1, dept.addressLine2, dept.city].filter(Boolean).join(', ') || '—';
   }
 }

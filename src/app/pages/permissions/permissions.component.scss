@@ -1,0 +1,118 @@
+// --- Copied and adapted from companies.component.scss for consistency ---
+.permissions-container {
+  padding: 8px;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+
+  h1 {
+    margin: 0;
+    font-weight: 300;
+    color: #e6edf3;
+  }
+}
+
+.center-spinner {
+  display: flex;
+  justify-content: center;
+  padding: 60px 0;
+}
+
+.error-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px;
+  border-radius: 8px;
+  background: rgba(248, 81, 73, 0.12);
+  color: #f85149;
+  margin-bottom: 24px;
+}
+
+.table-card {
+  padding: 0;
+  overflow: hidden;
+  border-radius: 8px;
+}
+
+table {
+  width: 100%;
+}
+
+.mat-mdc-header-row {
+  background: #161b22;
+}
+
+.mat-mdc-header-cell {
+  color: #8b949e;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom-color: #30363d;
+}
+
+.mat-mdc-row {
+  border-bottom-color: #21262d;
+
+  &:hover .mat-mdc-cell {
+    background: rgba(88, 166, 255, 0.05);
+  }
+}
+
+.mat-mdc-cell {
+  color: #c9d1d9;
+  border-bottom-color: #21262d;
+}
+
+.permission-name {
+  font-weight: 500;
+  color: #e6edf3;
+}
+
+.muted {
+  color: #6e7681;
+}
+
+.actions-cell {
+  width: 48px;
+  text-align: right;
+  padding-right: 8px;
+}
+
+.no-data-cell {
+  text-align: center;
+  padding: 40px 16px;
+  color: #6e7681;
+}
+
+// Red tint on the Delete menu item
+::ng-deep .delete-item {
+  color: #f85149 !important;
+  .mat-icon { color: #f85149 !important; }
+}
+
+
+.mat-mdc-header-cell {
+  color: #8b949e;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom-color: #30363d;
+}
+
+.mat-mdc-row {
+  border-bottom-color: #21262d;
+
+  &:hover .mat-mdc-cell {
+    background: rgba(88, 166, 255, 0.05);
+  }
+}
+
+.mat-mdc-cell {
+  color: #c9d1d9;
+  border-bottom-color: #21262d;
+}

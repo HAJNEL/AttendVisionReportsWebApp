@@ -1,0 +1,19 @@
+<h2 mat-dialog-title>Manage Role Permissions</h2>
+<mat-dialog-content>
+  <div *ngIf="loading">
+    <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+  </div>
+  <div *ngIf="error" class="error">{{ error }}</div>
+  <form *ngIf="!loading && !error">
+    <mat-selection-list>
+      <mat-list-option *ngFor="let perm of allPermissions" [selected]="assignedIds.has(perm.id)" (click)="togglePermission(perm)">
+        <span>{{ perm.name }}</span>
+        <small style="margin-left: 8px; color: #888">{{ perm.uniqueCode }}</small>
+      </mat-list-option>
+    </mat-selection-list>
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button (click)="cancel()">Cancel</button>
+  <button mat-raised-button color="primary" (click)="save()">Save</button>
+</mat-dialog-actions>

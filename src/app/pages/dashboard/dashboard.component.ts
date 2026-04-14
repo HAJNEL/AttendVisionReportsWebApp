@@ -12,7 +12,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { BaseChartDirective } from 'ng2-charts';
 import { ChartConfiguration, ChartData, Plugin } from 'chart.js';
-import { DashboardService, DashboardKpis, LabeledCount, Department, DayEventRow, DayPersonRow, IssueRow } from '../../services/dashboard.service';
+import { DayPersonRow } from '../../models/day-person-row.model';
+import { DashboardService, DashboardKpis, LabeledCount, Department, DayEventRow, IssueRow } from '../../services/dashboard.service';
 
 @Component({
   selector: 'app-dashboard',

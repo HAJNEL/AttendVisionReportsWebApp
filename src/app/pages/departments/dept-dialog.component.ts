@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
@@ -7,6 +7,8 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDividerModule } from '@angular/material/divider';
+import { MatSelectModule } from '@angular/material/select';
+import { Company } from '../../models/company.model';
 
 export interface DepartmentRow {
   id: number;
@@ -17,8 +19,10 @@ export interface DepartmentRow {
   address_line2: string | null;
   city: string | null;
   state: string | null;
-  postal_code: string | null;
+  postalCode: string | null;
   country: string | null;
+  serialNo?: string | null;
+  companyId?: string | null;
 }
 
 export interface DeptFormDialogData {
@@ -26,6 +30,8 @@ export interface DeptFormDialogData {
 }
 
 // ─── Create / Edit form dialog ───────────────────────────────────────────────
+
+import { ApiService } from '../../services/api.service';
 
 @Component({
   selector: 'app-dept-form-dialog',
@@ -39,14 +45,27 @@ export interface DeptFormDialogData {
     MatButtonModule,
     MatIconModule,
     MatDividerModule,
+    MatSelectModule,
   ],
   template: `
     <h2 mat-dialog-title>{{ isEdit ? 'Edit Department' : 'Create Department' }}</h2>
     <mat-dialog-content>
       <form [formGroup]="form" class="dept-form">
         <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Department Name *</mat-label>
-          <input matInput formControlName="departmentName" />
+          <mat-label>Serial Number</mat-label>
+          <input matInput formControlName="serialNo" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Company</mat-label>
+          <mat-select formControlName="companyId">
+            <mat-option [value]="null">None</mat-option>
+            <mat-option *ngFor="let c of companies" [value]="c.id">{{ c.name }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Department Name</mat-label>
+          <input matInput formControlName="departmentName" required />
           <mat-error *ngIf="form.get('departmentName')?.hasError('required')">Required</mat-error>
         </mat-form-field>
 
@@ -116,13 +135,15 @@ export interface DeptFormDialogData {
     .zip-field   { flex: 1; }
   `],
 })
-export class DeptFormDialogComponent {
+export class DeptFormDialogComponent implements OnInit {
   isEdit: boolean;
   form: FormGroup;
+  companies: Company[] = [];
 
   constructor(
     public dialogRef: MatDialogRef<DeptFormDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: DeptFormDialogData,
+    private api: ApiService,
   ) {
     this.isEdit = data.dept !== null;
     const d = data.dept;
@@ -134,9 +155,15 @@ export class DeptFormDialogComponent {
       address_line2:   new FormControl(d?.address_line2 ?? ''),
       city:            new FormControl(d?.city ?? ''),
       state:           new FormControl(d?.state ?? ''),
-      postal_code:     new FormControl(d?.postal_code ?? ''),
+      postalCode:      new FormControl(d?.postalCode ?? ''),
       country:         new FormControl(d?.country ?? ''),
+      serialNo:        new FormControl(d?.serialNo ?? ''),
+      companyId:       new FormControl(d?.companyId ?? null),
     });
+  }
+
+  async ngOnInit(): Promise<void> {
+    this.companies = await this.api.getCompanies().catch(() => []);
   }
 
   save(): void {
@@ -147,12 +174,14 @@ export class DeptFormDialogComponent {
       departmentName: v.departmentName,
       manager:        v.manager || null,
       paymentRate:   v.paymentRate !== '' && v.paymentRate !== null ? Number(v.paymentRate) : null,
-      address_line1:  v.address_line1 || null,
-      address_line2:  v.address_line2 || null,
+      addressLine1:   v.address_line1 || null,
+      addressLine2:   v.address_line2 || null,
       city:           v.city || null,
       state:          v.state || null,
-      postal_code:    v.postal_code || null,
+      postalCode:     v.postalCode || null,
       country:        v.country || null,
+      serialNo:       v.serialNo || null,
+      companyId:      v.companyId || null,
     });
   }
 }

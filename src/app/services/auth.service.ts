@@ -1,8 +1,9 @@
 import { Injectable, signal } from '@angular/core';
-import { ApiService, LoginResponse } from './api.service';
+import { ApiService } from './api.service';
+import { LoginResponse } from '../models/login-response.model';
 
 export type User = LoginResponse;
-
+  
 const STORAGE_KEY = 'auth_user';
 
 @Injectable({ providedIn: 'root' })

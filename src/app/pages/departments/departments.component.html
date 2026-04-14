@@ -48,10 +48,20 @@
         </td>
       </ng-container>
 
+
       <!-- Location -->
       <ng-container matColumnDef="location">
         <th mat-header-cell *matHeaderCellDef>Location</th>
         <td mat-cell *matCellDef="let dept" class="muted">{{ locationOf(dept) }}</td>
+      </ng-container>
+
+      <!-- Company Name -->
+      <ng-container matColumnDef="companyName">
+        <th mat-header-cell *matHeaderCellDef>Company</th>
+        <td mat-cell *matCellDef="let dept">
+          <span *ngIf="dept.companyName; else noCompany">{{ dept.companyName }}</span>
+          <ng-template #noCompany><span class="muted">—</span></ng-template>
+        </td>
       </ng-container>
 
       <!-- Actions —— ellipsis menu -->

@@ -30,6 +30,22 @@ import { AuthService } from '../../services/auth.service';
           <mat-icon matListItemIcon>business</mat-icon>
           <span matListItemTitle>Departments</span>
         </a>
+        <a mat-list-item routerLink="/companies" routerLinkActive="active-link" (click)="navClicked.emit()">
+          <mat-icon matListItemIcon>apartment</mat-icon>
+          <span matListItemTitle>Companies</span>
+        </a>
+        <a mat-list-item routerLink="/users" routerLinkActive="active-link" (click)="navClicked.emit()">
+          <mat-icon matListItemIcon>people</mat-icon>
+          <span matListItemTitle>Users</span>
+        </a>
+        <a mat-list-item routerLink="/roles" routerLinkActive="active-link" (click)="navClicked.emit()">
+          <mat-icon matListItemIcon>security</mat-icon>
+          <span matListItemTitle>Roles</span>
+        </a>
+        <a mat-list-item routerLink="/permissions" routerLinkActive="active-link" (click)="navClicked.emit()">
+          <mat-icon matListItemIcon>vpn_key</mat-icon>
+          <span matListItemTitle>Permissions</span>
+        </a>
       </mat-nav-list>
       <div class="spacer"></div>
       <mat-divider></mat-divider>
