@@ -130,35 +130,27 @@ export class RolesComponent implements OnInit {
   }
 
     async openPermissionsDialog(role: Role) {
-    // Get assigned permissions for the role
-    let assigned: any[] = [];
-    try {
-      assigned = (await this.apiService.getPermissionsForRole(+role.id)) ?? [];
-    } catch {}
-    const ref = this.dialog.open(
-      (await import('./role-permissions-dialog.component')).RolePermissionsDialogComponent,
-      {
-        data: { roleId: role.id, assigned },
-        width: '480px',
-      }
-    );
-    ref.afterClosed().subscribe(async (selectedIds: number[]) => {
-      if (!selectedIds) return;
-      // Assign/remove permissions as needed
-      const currentIds = new Set((assigned || []).map(p => p.id));
-      const toAssign = selectedIds.filter(id => !currentIds.has(id));
-      const toRemove = Array.from(currentIds).filter(id => !selectedIds.includes(id));
+      // Get assigned permissions for the role
+      let assigned: any[] = [];
       try {
-        for (const id of toAssign) {
-          await this.apiService.assignPermissionToRole({ roleId: +role.id, permissionId: id });
+        assigned = (await this.apiService.getPermissionsForRole(role.id)) ?? [];
+      } catch {}
+      const ref = this.dialog.open(
+        (await import('./role-permissions-dialog.component')).RolePermissionsDialogComponent,
+        {
+          data: { roleId: role.id, assigned },
+          width: '480px',
         }
-        for (const id of toRemove) {
-          await this.apiService.removePermissionFromRole({ roleId: +role.id, permissionId: id });
+      );
+      ref.afterClosed().subscribe(async (selectedIds: number[]) => {
+        if (!selectedIds) return;
+        try {
+          await this.apiService.bulkAssignPermissionsToRole(role.id, selectedIds);
+          this.snackBar.open('Permissions updated', 'OK', { duration: 3000 });
+        } catch (e: any) {
+          const msg = e?.error?.title || e?.message || 'Failed to update permissions';
+          this.snackBar.open(msg, 'Dismiss', { duration: 5000 });
         }
-        this.snackBar.open('Permissions updated', 'OK', { duration: 3000 });
-      } catch (e) {
-        this.snackBar.open('Failed to update permissions', 'Dismiss', { duration: 5000 });
-      }
-    });
-  }
+      });
+    }
 }

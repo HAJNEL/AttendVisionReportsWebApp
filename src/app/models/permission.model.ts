@@ -21,6 +21,6 @@ export interface UpdatePermissionDto {
 }
 
 export interface AssignPermissionDto {
-  roleId: number;
+  roleId: string;
   permissionId: number;
 }

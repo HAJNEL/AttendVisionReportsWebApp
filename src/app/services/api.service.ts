@@ -219,6 +219,7 @@ export class ApiService {
     return firstValueFrom(this.http.delete<void>(`${API_BASE}/permissions/${id}`));
   }
 
+
   assignPermissionToRole(dto: AssignPermissionDto): Promise<void> {
     return firstValueFrom(this.http.post<void>(`${API_BASE}/permissions/assign`, dto));
   }
@@ -227,8 +228,16 @@ export class ApiService {
     return firstValueFrom(this.http.post<void>(`${API_BASE}/permissions/remove`, dto));
   }
 
-  getPermissionsForRole(roleId: number): Promise<PermissionDto[]> {
+  getPermissionsForRole(roleId: string): Promise<PermissionDto[]> {
     return firstValueFrom(this.http.get<PermissionDto[]>(`${API_BASE}/permissions/role/${roleId}`));
+  }
+
+  getUserPermissions(): Promise<PermissionDto[]> {
+  return firstValueFrom(this.http.get<PermissionDto[]>(`${API_BASE}/user/permissions`));
+}
+
+  bulkAssignPermissionsToRole(roleId: string, permissionIds: number[]): Promise<void> {
+    return firstValueFrom(this.http.post<void>(`${API_BASE}/permissions/assign`, { roleId, permissionIds }));
   }
 }
 

@@ -108,7 +108,7 @@ import { AuthService } from '../../services/auth.service';
 export class SidebarComponent {
   @Output() navClicked = new EventEmitter<void>();
 
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(public authService: AuthService, private router: Router) {}
 
   onLogout(): void {
     this.authService.logout();

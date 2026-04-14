@@ -5,17 +5,33 @@
   </div>
   <mat-divider></mat-divider>
   <mat-nav-list>
-    <a mat-list-item routerLink="/dashboard" routerLinkActive="active-link">
+    <a *ngIf="authService.hasPermission('dashboard')" mat-list-item routerLink="/dashboard" routerLinkActive="active-link">
       <mat-icon matListItemIcon>dashboard</mat-icon>
       <span matListItemTitle>Dashboard</span>
     </a>
-    <a mat-list-item routerLink="/reports" routerLinkActive="active-link">
+    <a *ngIf="authService.hasPermission('reports')" mat-list-item routerLink="/reports" routerLinkActive="active-link">
       <mat-icon matListItemIcon>description</mat-icon>
       <span matListItemTitle>Reports</span>
     </a>
-    <a mat-list-item routerLink="/departments" routerLinkActive="active-link">
+    <a *ngIf="authService.hasPermission('departments')" mat-list-item routerLink="/departments" routerLinkActive="active-link">
       <mat-icon matListItemIcon>business</mat-icon>
       <span matListItemTitle>Departments</span>
+    </a>
+    <a *ngIf="authService.hasPermission('companies')" mat-list-item routerLink="/companies" routerLinkActive="active-link">
+      <mat-icon matListItemIcon>apartment</mat-icon>
+      <span matListItemTitle>Companies</span>
+    </a>
+    <a *ngIf="authService.hasPermission('users')" mat-list-item routerLink="/users" routerLinkActive="active-link">
+      <mat-icon matListItemIcon>people</mat-icon>
+      <span matListItemTitle>Users</span>
+    </a>
+    <a *ngIf="authService.hasPermission('roles')" mat-list-item routerLink="/roles" routerLinkActive="active-link">
+      <mat-icon matListItemIcon>security</mat-icon>
+      <span matListItemTitle>Roles</span>
+    </a>
+    <a *ngIf="authService.hasPermission('permissions')" mat-list-item routerLink="/permissions" routerLinkActive="active-link">
+      <mat-icon matListItemIcon>vpn_key</mat-icon>
+      <span matListItemTitle>Permissions</span>
     </a>
   </mat-nav-list>
   <div class="spacer"></div>

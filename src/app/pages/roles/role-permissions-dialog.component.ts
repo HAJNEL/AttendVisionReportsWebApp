@@ -1,16 +1,32 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatDialogRef, MAT_DIALOG_DATA, MatDialogActions, MatDialogContent } from '@angular/material/dialog';
+import { MatDialogRef, MAT_DIALOG_DATA, MatDialogActions, MatDialogContent, MatDialogModule } from '@angular/material/dialog';
 import { PermissionDto } from '../../models/permission.model';
 import { MatListOption, MatSelectionList } from "@angular/material/list";
 import { MatProgressBar } from "@angular/material/progress-bar";
 import { ApiService } from '../../services/api.service';
+import { ReactiveFormsModule } from '@angular/forms';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-role-permissions-dialog',
   templateUrl: './role-permissions-dialog.component.html',
   styleUrls: ['./role-permissions-dialog.component.scss'],
-  imports: [CommonModule, MatDialogActions, MatListOption, MatSelectionList, MatProgressBar, MatDialogContent]
+    imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    MatDialogModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    MatIconModule,
+    MatProgressBar,
+    MatSelectionList,
+    MatListOption
+],
 })
 export class RolePermissionsDialogComponent implements OnInit {
   allPermissions: PermissionDto[] = [];
@@ -30,6 +46,10 @@ export class RolePermissionsDialogComponent implements OnInit {
     this.loading = true;
     this.apiService.getAllPermissions().then(perms => {
       this.allPermissions = perms;
+      // Ensure assignedIds is up to date with loaded permissions
+      if (this.data.assigned) {
+        this.assignedIds = new Set(this.data.assigned.map(p => p.id));
+      }
       this.loading = false;
     }).catch(() => {
       this.error = 'Failed to load permissions';

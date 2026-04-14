@@ -1,47 +1,7 @@
-/* Ensure actions column is right-aligned */
-.actions-cell {
-  text-align: right;
-}
-.roles-container {
-  padding: 32px 24px;
-}
-.page-header {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  margin-bottom: 24px;
-}
-.table-card {
-  margin-top: 8px;
-  padding: 0;
-}
-.center-spinner {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 180px;
-}
-.error-banner {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  background: #2d2d2d;
-  color: #ff7675;
-  padding: 12px 20px;
-  border-radius: 6px;
-  margin-bottom: 16px;
-}
-.no-data-cell {
-  text-align: center;
-  color: #8b949e;
-  font-style: italic;
-}
-table {
-  width: 100%;
-}
 
-.roles-container {
-  padding: 8px;
+.roles-name {
+  font-weight: 500;
+  color: #e6edf3;
 }
 
 .page-header {
@@ -80,30 +40,62 @@ table {
   border-radius: 8px;
 }
 
-.role-name {
-  font-weight: 500;
-  color: #e6edf3;
-}
-
-.no-data-cell {
-  text-align: center;
-  color: #8b949e;
-  font-style: italic;
-}
-
-.actions-header-cell, .actions-cell {
-  text-align: right !important;
-  justify-content: flex-end;
-}
-.actions-cell {
-  display: flex;
-  align-items: center;
-  gap: 4px;
+table {
+  width: 100%;
 }
 
 .mat-mdc-header-row {
   background: #161b22;
 }
+
+.mat-mdc-header-cell {
+  color: #8b949e;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom-color: #30363d;
+}
+
+.mat-mdc-row {
+  border-bottom-color: #21262d;
+
+  &:hover .mat-mdc-cell {
+    background: rgba(88, 166, 255, 0.05);
+  }
+}
+
+.mat-mdc-cell {
+  color: #c9d1d9;
+  border-bottom-color: #21262d;
+}
+
+.permission-name {
+  font-weight: 500;
+  color: #e6edf3;
+}
+
+.muted {
+  color: #6e7681;
+}
+
+.actions-cell {
+  width: 48px;
+  text-align: right;
+  padding-right: 8px;
+}
+
+.no-data-cell {
+  text-align: center;
+  padding: 40px 16px;
+  color: #6e7681;
+}
+
+// Red tint on the Delete menu item
+::ng-deep .delete-item {
+  color: #f85149 !important;
+  .mat-icon { color: #f85149 !important; }
+}
+
 
 .mat-mdc-header-cell {
   color: #8b949e;
