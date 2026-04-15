@@ -9,6 +9,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatCardModule } from '@angular/material/card';
 import { MatMenuModule } from '@angular/material/menu';
 import { ApiService } from '../../services/api.service';
+import { AuthService } from '../../services/auth.service';
 import { Role } from '../../models/user.model';
 import { RoleDialogComponent } from './role-dialog.component';
 import { RoleConfirmDialogComponent } from './role-confirm-dialog.component';
@@ -40,7 +41,8 @@ export class RolesComponent implements OnInit {
     private api: ApiService,
     private dialog: MatDialog,
     private snackBar: MatSnackBar,
-    private apiService: ApiService
+    private apiService: ApiService,
+    private authService: AuthService
   ) {}
 
   async ngOnInit() {
@@ -146,6 +148,7 @@ export class RolesComponent implements OnInit {
         if (!selectedIds) return;
         try {
           await this.apiService.bulkAssignPermissionsToRole(role.id, selectedIds);
+          await this.authService.refreshPermissions();
           this.snackBar.open('Permissions updated', 'OK', { duration: 3000 });
         } catch (e: any) {
           const msg = e?.error?.title || e?.message || 'Failed to update permissions';

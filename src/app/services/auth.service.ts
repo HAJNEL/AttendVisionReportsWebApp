@@ -7,6 +7,7 @@ export type User = LoginResponse;
   
 const STORAGE_KEY = 'auth_user';
 const PERMISSIONS_KEY = 'auth_permissions';
+const TOKEN_KEY = 'auth_token';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -22,13 +23,16 @@ export class AuthService {
   constructor(private api: ApiService) {}
 
 
-  async login(username: string, password: string): Promise<User> {
-    const user = await this.api.login(username, password);
-    this.currentUser.set(user);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(user));
-    await this.fetchAndStorePermissions();
-    return user;
-  }
+async login(username: string, password: string): Promise<User> {
+  const result = await this.api.login(username, password);
+  const { token, ...user } = result;
+  if (!token) throw new Error('No token in login response');
+  this.currentUser.set(user as User);
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(user));
+  localStorage.setItem(TOKEN_KEY, token);
+  await this.refreshPermissions();
+  return user as User;
+}
 
   async checkUsersExist(): Promise<boolean> {
     return this.api.checkUsersExist();
@@ -41,13 +45,17 @@ export class AuthService {
     password: string;
     fullName?: string;
   }): Promise<User> {
-    const user = await this.api.registerFirstUser(
+    const result = await this.api.registerFirstUser(
       data.username, data.email, data.password, data.fullName ?? null
     );
-    this.currentUser.set(user);
+    // result: { token, ...userFields }
+    const { token, ...user } = result;
+    if (!token) throw new Error('No token in register response');
+    this.currentUser.set(user as User);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(user));
-    await this.fetchAndStorePermissions();
-    return user;
+    localStorage.setItem(TOKEN_KEY, token);
+    await this.refreshPermissions();
+    return user as User;
   }
 
 
@@ -56,6 +64,7 @@ export class AuthService {
     this.permissionCodes.set(new Set());
     localStorage.removeItem(STORAGE_KEY);
     localStorage.removeItem(PERMISSIONS_KEY);
+    localStorage.removeItem(TOKEN_KEY);
   }
 
 
@@ -67,14 +76,19 @@ export class AuthService {
    * Checks if the current user has the given permission code (case-insensitive).
    */
   hasPermission(code: string): boolean {
-    if (!code) return false;
-    return this.permissionCodes().has(code.toLowerCase());
+    if (!code) {
+      return false;
+    }
+    const codes = this.permissionCodes();
+    const result = codes.has(code.toLowerCase());
+    return result;
   }
 
   /**
    * Fetch all permissions for the user from the backend and store unique codes in localStorage.
+   * This method is now public so it can be called after permission changes.
    */
-  private async fetchAndStorePermissions(): Promise<void> {
+  async refreshPermissions(): Promise<void> {
     try {
       const permissions: PermissionDto[] = await this.api.getUserPermissions();
       const allCodes = new Set<string>(
@@ -82,9 +96,12 @@ export class AuthService {
       );
       this.permissionCodes.set(allCodes);
       localStorage.setItem(PERMISSIONS_KEY, JSON.stringify(Array.from(allCodes)));
-    } catch {
+      console.log('[refreshPermissions] Permissions fetched from backend:', permissions);
+      console.log('[refreshPermissions] Codes stored in localStorage:', Array.from(allCodes));
+    } catch (e) {
       this.permissionCodes.set(new Set());
       localStorage.removeItem(PERMISSIONS_KEY);
+      console.error('[refreshPermissions] Failed to fetch permissions:', e);
     }
   }
 

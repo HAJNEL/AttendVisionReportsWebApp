@@ -31,16 +31,16 @@ export class ApiService {
 
   // ── Auth ──────────────────────────────────────────────────────────────────
 
-  login(username: string, password: string): Promise<LoginResponse> {
-    return firstValueFrom(this.http.post<LoginResponse>(`${API_BASE}/auth/login`, { username, password }));
+  login(username: string, password: string): Promise<{ token: string } & LoginResponse> {
+    return firstValueFrom(this.http.post<{ token: string } & LoginResponse>(`${API_BASE}/auth/login`, { username, password }));
   }
 
   checkUsersExist(): Promise<boolean> {
     return firstValueFrom(this.http.get<boolean>(`${API_BASE}/auth/users-exist`));
   }
 
-  registerFirstUser(username: string, email: string, password: string, fullName: string | null): Promise<LoginResponse> {
-    return firstValueFrom(this.http.post<LoginResponse>(`${API_BASE}/auth/register`, { username, email, password, fullName }));
+  registerFirstUser(username: string, email: string, password: string, fullName: string | null): Promise<{ token: string } & LoginResponse> {
+    return firstValueFrom(this.http.post<{ token: string } & LoginResponse>(`${API_BASE}/auth/register`, { username, email, password, fullName }));
   }
 
   // ── DB Config ─────────────────────────────────────────────────────────────

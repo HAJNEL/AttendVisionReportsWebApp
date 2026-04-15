@@ -10,53 +10,7 @@ import { AuthService } from '../../services/auth.service';
   selector: 'app-sidebar',
   standalone: true,
   imports: [CommonModule, RouterModule, MatListModule, MatIconModule, MatDividerModule],
-  template: `
-    <div class="sidebar-container">
-      <div class="sidebar-header">
-        <mat-icon>assessment</mat-icon>
-        <span>AttendVision</span>
-      </div>
-      <mat-divider></mat-divider>
-      <mat-nav-list>
-        <a mat-list-item routerLink="/dashboard" routerLinkActive="active-link" (click)="navClicked.emit()">
-          <mat-icon matListItemIcon>dashboard</mat-icon>
-          <span matListItemTitle>Dashboard</span>
-        </a>
-        <a mat-list-item routerLink="/reports" routerLinkActive="active-link" (click)="navClicked.emit()">
-          <mat-icon matListItemIcon>description</mat-icon>
-          <span matListItemTitle>Reports</span>
-        </a>
-        <a mat-list-item routerLink="/departments" routerLinkActive="active-link" (click)="navClicked.emit()">
-          <mat-icon matListItemIcon>business</mat-icon>
-          <span matListItemTitle>Departments</span>
-        </a>
-        <a mat-list-item routerLink="/companies" routerLinkActive="active-link" (click)="navClicked.emit()">
-          <mat-icon matListItemIcon>apartment</mat-icon>
-          <span matListItemTitle>Companies</span>
-        </a>
-        <a mat-list-item routerLink="/users" routerLinkActive="active-link" (click)="navClicked.emit()">
-          <mat-icon matListItemIcon>people</mat-icon>
-          <span matListItemTitle>Users</span>
-        </a>
-        <a mat-list-item routerLink="/roles" routerLinkActive="active-link" (click)="navClicked.emit()">
-          <mat-icon matListItemIcon>security</mat-icon>
-          <span matListItemTitle>Roles</span>
-        </a>
-        <a mat-list-item routerLink="/permissions" routerLinkActive="active-link" (click)="navClicked.emit()">
-          <mat-icon matListItemIcon>vpn_key</mat-icon>
-          <span matListItemTitle>Permissions</span>
-        </a>
-      </mat-nav-list>
-      <div class="spacer"></div>
-      <mat-divider></mat-divider>
-      <mat-nav-list>
-        <a mat-list-item (click)="onLogout()">
-          <mat-icon matListItemIcon>logout</mat-icon>
-          <span matListItemTitle>Logout</span>
-        </a>
-      </mat-nav-list>
-    </div>
-  `,
+  templateUrl: './sidebar.component.html',
   styles: `
     :host {
       display: block;
