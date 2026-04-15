@@ -37,7 +37,7 @@
   <div class="spacer"></div>
   <mat-divider></mat-divider>
   <mat-nav-list>
-    <a mat-list-item routerLink="/login">
+    <a mat-list-item (click)="onLogout()">
       <mat-icon matListItemIcon>logout</mat-icon>
       <span matListItemTitle>Logout</span>
     </a>
