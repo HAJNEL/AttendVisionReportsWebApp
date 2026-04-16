@@ -23,7 +23,7 @@
           <span class="filter-label">Department</span>
           <mat-form-field class="dept-select" appearance="outline" subscriptSizing="dynamic">
             <mat-select [(ngModel)]="selectedDeptId" (ngModelChange)="onDeptChange()">
-              <mat-option [value]="0">All Departments</mat-option>
+              <mat-option *ngIf="showAllDepartmentsOption" [value]="'all'">All Departments</mat-option>
               <mat-option *ngFor="let d of departments" [value]="d.id">{{ d.departmentName }}</mat-option>
             </mat-select>
           </mat-form-field>

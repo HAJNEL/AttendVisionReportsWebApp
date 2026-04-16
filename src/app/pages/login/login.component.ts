@@ -51,7 +51,8 @@ export class LoginComponent implements OnInit {
     });
 
     this.registerForm = this.fb.group({
-      fullName: ['', [Validators.required, Validators.minLength(2)]],
+      firstName: ['', [Validators.required, Validators.minLength(2)]],
+      lastName: ['', [Validators.required, Validators.minLength(2)]],
       username: ['', [Validators.required, Validators.minLength(3), Validators.pattern(/^\S+$/)]],
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(8)]],
@@ -75,7 +76,8 @@ export class LoginComponent implements OnInit {
   get password() { return this.loginForm.get('password')!; }
 
   // Register form getters
-  get regFullName() { return this.registerForm.get('fullName')!; }
+  get regFirstName() { return this.registerForm.get('firstName')!; }
+  get regLastName() { return this.registerForm.get('lastName')!; }
   get regUsername() { return this.registerForm.get('username')!; }
   get regEmail() { return this.registerForm.get('email')!; }
   get regPassword() { return this.registerForm.get('password')!; }
@@ -114,7 +116,8 @@ export class LoginComponent implements OnInit {
         username: this.regUsername.value,
         email: this.regEmail.value,
         password: this.regPassword.value,
-        fullName: this.regFullName.value,
+        firstName: this.regFirstName.value,
+        lastName: this.regLastName.value,
       });
       this.router.navigate(['/dashboard']);
     } catch (err: unknown) {

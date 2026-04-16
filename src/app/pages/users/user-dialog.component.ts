@@ -80,14 +80,13 @@ import { ApiService } from '../../services/api.service';
           </table>
         </ng-container>
         <mat-checkbox formControlName="isActive">Active</mat-checkbox>
-        <!-- Password Reset Section -->
+        <!-- Password Section -->
         <div class="password-section">
-          <mat-checkbox [checked]="resetPassword" (change)="toggleResetPassword($event)">Reset password</mat-checkbox>
-          <div *ngIf="resetPassword" class="password-fields">
+          <ng-container *ngIf="!isEdit; else editPasswordSection">
             <mat-checkbox [checked]="randomPassword" (change)="toggleRandomPassword($event)">Generate random password</mat-checkbox>
             <mat-form-field appearance="outline" class="full-width">
               <mat-label>Password</mat-label>
-              <input matInput [type]="showPassword ? 'text' : 'password'" [value]="password" (input)="onPasswordInput($event)" [readonly]="randomPassword" />
+              <input matInput [type]="showPassword ? 'text' : 'password'" [value]="password" (input)="onPasswordInput($event)" [readonly]="randomPassword" required />
               <button mat-icon-button matSuffix (click)="toggleShowPassword()" type="button">
                 <mat-icon>{{ showPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
               </button>
@@ -99,7 +98,28 @@ import { ApiService } from '../../services/api.service';
               <span>Password strength: </span>
               <span [ngClass]="passwordStrength">{{ passwordStrength | titlecase }}</span>
             </div>
-          </div>
+            <div *ngIf="!password" class="mat-error" style="margin-top:4px;">Password is required</div>
+          </ng-container>
+          <ng-template #editPasswordSection>
+            <mat-checkbox [checked]="resetPassword" (change)="toggleResetPassword($event)">Reset password</mat-checkbox>
+            <div *ngIf="resetPassword" class="password-fields">
+              <mat-checkbox [checked]="randomPassword" (change)="toggleRandomPassword($event)">Generate random password</mat-checkbox>
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Password</mat-label>
+                <input matInput [type]="showPassword ? 'text' : 'password'" [value]="password" (input)="onPasswordInput($event)" [readonly]="randomPassword" />
+                <button mat-icon-button matSuffix (click)="toggleShowPassword()" type="button">
+                  <mat-icon>{{ showPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+                </button>
+                <button *ngIf="randomPassword" mat-icon-button matSuffix (click)="copyPassword()" type="button">
+                  <mat-icon>content_copy</mat-icon>
+                </button>
+              </mat-form-field>
+              <div class="password-strength">
+                <span>Password strength: </span>
+                <span [ngClass]="passwordStrength">{{ passwordStrength | titlecase }}</span>
+              </div>
+            </div>
+          </ng-template>
         </div>
       </form>
     </mat-dialog-content>
@@ -244,6 +264,8 @@ export class UserDialogComponent {
 
   save(): void {
     if (this.form.invalid) return;
+    // On create, password is required
+    if (!this.isEdit && !this.password) return;
     const v = this.form.getRawValue();
     // Prepare payload to match UpdateUserDto
     const result: any = {
@@ -253,7 +275,11 @@ export class UserDialogComponent {
       isActive: v.isActive,
       roles: Array.isArray(v.roles) ? v.roles.map((r: any) => r.id) : [],
     };
-    if (this.resetPassword) {
+    if (this.isEdit) {
+      if (this.resetPassword) {
+        result.password = this.password;
+      }
+    } else {
       result.password = this.password;
     }
     this.dialogRef.close(result);

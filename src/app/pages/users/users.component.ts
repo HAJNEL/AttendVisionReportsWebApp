@@ -14,8 +14,7 @@ import { User, Role } from '../../models/user.model';
 import { UserConfirmDialogComponent } from './user-confirm-dialog.component';
 import { UserDialogComponent } from './user-dialog.component';
 import { AssignRolesDialogComponent } from './assign-roles-dialog.component';
-
-
+import { AssignDepartmentsDialogComponent } from './assign-departments-dialog.component';
 
 @Component({
   selector: 'app-users',
@@ -35,7 +34,7 @@ import { AssignRolesDialogComponent } from './assign-roles-dialog.component';
   styleUrl: './users.component.scss',
 })
 export class UsersComponent implements OnInit {
-  displayedColumns = ['username', 'email', 'roles', 'actions'];
+  displayedColumns = ['fullname', 'email', 'roles', 'actions'];
   users: User[] = [];
   loading = true;
   error: string | null = null;
@@ -157,4 +156,19 @@ export class UsersComponent implements OnInit {
       }
     });
   }
-}
+
+    async openAssignDepartments(user: User) {
+    const ref = this.dialog.open(AssignDepartmentsDialogComponent, {
+      data: {
+        userId: user.id,
+        userName: user.firstName ? `${user.firstName} ${user.lastName ?? ''}`.trim() : user.email
+      },
+      width: '480px',
+    });
+    ref.afterClosed().subscribe(async (result) => {
+      if (result) {
+        this.snackBar.open('Department assignments updated', 'OK', { duration: 3000 });
+      }
+    });
+  }
+  }

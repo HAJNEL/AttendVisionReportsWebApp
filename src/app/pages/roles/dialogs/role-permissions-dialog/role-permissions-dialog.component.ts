@@ -1,10 +1,10 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogActions, MatDialogContent, MatDialogModule } from '@angular/material/dialog';
-import { PermissionDto } from '../../models/permission.model';
+import { PermissionDto } from '../../../../models/permission.model';
 import { MatListOption, MatSelectionList } from "@angular/material/list";
 import { MatProgressBar } from "@angular/material/progress-bar";
-import { ApiService } from '../../services/api.service';
+import { ApiService } from '../../../../services/api.service';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';

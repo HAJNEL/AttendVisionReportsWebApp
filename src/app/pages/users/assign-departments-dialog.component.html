@@ -1,0 +1,18 @@
+<div class="assign-dept-dialog">
+  <h2>Assign Departments to User</h2>
+  <div class="user-name-label">User: <span class="user-name">{{ data.userName }}</span></div>
+
+  <mat-progress-bar *ngIf="loading" mode="indeterminate"></mat-progress-bar>
+  <div *ngIf="error" class="error">{{ error }}</div>
+
+  <mat-selection-list [multiple]="true" *ngIf="!loading" (selectionChange)="onSelectionChange($event)">
+    <mat-list-option *ngFor="let dept of allDepartments" [value]="dept.id" [selected]="assignedIds.has(dept.id)">
+      {{ dept.departmentName }}
+    </mat-list-option>
+  </mat-selection-list>
+
+  <div class="actions">
+    <button mat-flat-button color="primary" (click)="onSave()">Save</button>
+    <button mat-button (click)="onCancel()">Cancel</button>
+  </div>
+</div>

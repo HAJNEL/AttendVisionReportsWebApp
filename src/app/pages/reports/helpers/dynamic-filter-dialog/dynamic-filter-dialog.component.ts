@@ -34,7 +34,7 @@ export interface ReportFilters {
 }
 
 interface DepartmentOption {
-  id: number;
+  id: string;
   departmentName: string;
 }
 

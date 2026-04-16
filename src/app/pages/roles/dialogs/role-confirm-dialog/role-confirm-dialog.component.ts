@@ -8,14 +8,7 @@ import { MatDialogModule } from '@angular/material/dialog';
   selector: 'app-role-confirm-dialog',
   standalone: true,
   imports: [CommonModule, MatButtonModule, MatDialogModule],
-  template: `
-    <h2 mat-dialog-title>Delete Role</h2>
-    <mat-dialog-content>Are you sure you want to delete <strong>{{ data.name }}</strong>?</mat-dialog-content>
-    <mat-dialog-actions align="end">
-      <button mat-button (click)="onCancel()">Cancel</button>
-      <button mat-flat-button color="warn" (click)="onConfirm()">Delete</button>
-    </mat-dialog-actions>
-  `,
+  templateUrl: './role-confirm-dialog.component.html',
 })
 export class RoleConfirmDialogComponent {
   constructor(

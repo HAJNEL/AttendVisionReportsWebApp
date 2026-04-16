@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { PermissionDto, CreatePermissionDto, UpdatePermissionDto } from '../../models/permission.model';
 import { MatDialog } from '@angular/material/dialog';
-import { PermissionDialogComponent } from './permission-dialog.component';
+import { PermissionDialogComponent } from './dialogs/permission-dialog/permission-dialog.component';
 
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';

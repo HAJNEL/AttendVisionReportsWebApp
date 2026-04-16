@@ -1,3 +1,5 @@
+
+import { DepartmentUserLink } from '../models/department-user-link.model';
 import { PermissionDto, CreatePermissionDto, UpdatePermissionDto, AssignPermissionDto } from '../models/permission.model';
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
@@ -17,8 +19,7 @@ import { DepartmentInput } from '../models/department-input.model';
 import { IssueRow } from '../models/issue-row.model';
 import { ClockingRow } from '../models/clocking-row.model';
 import { TimesheetRow } from '../models/timesheet-row.model';
-
-
+import { CompanyUserLink } from '../models/company-user-link.model';
 
 // ── Service ───────────────────────────────────────────────────────────────────
 
@@ -26,6 +27,29 @@ const API_BASE = 'http://localhost:5150/api'; // use your actual port from launc
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
+  // ── Department-User Links ────────────────────────────────────────────────
+  // DepartmentUsersController endpoints
+  // Use correct endpoint: GET /api/DepartmentUsers/by-department/{departmentId}
+  getUsersForDepartment(departmentId: string): Promise<DepartmentUserLink[]> {
+    return firstValueFrom(this.http.get<DepartmentUserLink[]>(`${API_BASE}/DepartmentUsers/by-department/${departmentId}`));
+  }
+
+  // Use correct endpoint: GET /api/DepartmentUsers/by-user/{userId}
+  getDepartmentsForUser(userId: string): Promise<DepartmentUserLink[]> {
+    return firstValueFrom(this.http.get<DepartmentUserLink[]>(`${API_BASE}/DepartmentUsers/by-user/${userId}`));
+  }
+
+  getAllDepartmentUserLinks(): Promise<DepartmentUserLink[]> {
+    return firstValueFrom(this.http.get<DepartmentUserLink[]>(`${API_BASE}/DepartmentUsers`));
+  }
+
+  createDepartmentUserLink(link: { departmentId: string; userId: string }): Promise<DepartmentUserLink> {
+    return firstValueFrom(this.http.post<DepartmentUserLink>(`${API_BASE}/DepartmentUsers`, link));
+  }
+
+  deleteDepartmentUserLink(linkId: string): Promise<void> {
+    return firstValueFrom(this.http.delete<void>(`${API_BASE}/DepartmentUsers/${linkId}`));
+  }
 
   constructor(private http: HttpClient) {}
 
@@ -39,8 +63,8 @@ export class ApiService {
     return firstValueFrom(this.http.get<boolean>(`${API_BASE}/auth/users-exist`));
   }
 
-  registerFirstUser(username: string, email: string, password: string, fullName: string | null): Promise<{ token: string } & LoginResponse> {
-    return firstValueFrom(this.http.post<{ token: string } & LoginResponse>(`${API_BASE}/auth/register`, { username, email, password, fullName }));
+  registerFirstUser(username: string, email: string, password: string, firstName: string, lastName: string): Promise<{ token: string } & LoginResponse> {
+    return firstValueFrom(this.http.post<{ token: string } & LoginResponse>(`${API_BASE}/auth/register`, { username, email, password, firstName, lastName }));
   }
 
   // ── DB Config ─────────────────────────────────────────────────────────────
@@ -67,12 +91,18 @@ export class ApiService {
     return firstValueFrom(this.http.post<Department>(`${API_BASE}/departments`, input));
   }
 
-  updateDepartment(id: number, input: DepartmentInput): Promise<Department> {
+
+  updateDepartment(id: string, input: DepartmentInput): Promise<Department> {
     return firstValueFrom(this.http.put<Department>(`${API_BASE}/departments/${id}`, input));
   }
 
-  deleteDepartment(id: number): Promise<void> {
+
+  deleteDepartment(id: string): Promise<void> {
     return firstValueFrom(this.http.delete<void>(`${API_BASE}/departments/${id}`));
+  }
+
+  getAllDepartments(): Promise<Department[]> {
+    return firstValueFrom(this.http.get<Department[]>(`${API_BASE}/departments/all`));
   }
 
   // ── Dashboard ─────────────────────────────────────────────────────────────
@@ -148,8 +178,6 @@ export class ApiService {
   deleteCompany(id: string): Promise<void> {
     return firstValueFrom(this.http.delete<void>(`${API_BASE}/companies/${id}`));
   }
-
-
 
   getUsers() {
     return this.http.get<User[]>(`${API_BASE}/user`);
@@ -238,6 +266,35 @@ export class ApiService {
 
   bulkAssignPermissionsToRole(roleId: string, permissionIds: number[]): Promise<void> {
     return firstValueFrom(this.http.post<void>(`${API_BASE}/permissions/assign`, { roleId, permissionIds }));
+  }
+
+    // ── Company-User Links ────────────────────────────────────────────────
+  getUsersForCompany(companyId: string): Promise<CompanyUserLink[]> {
+    return firstValueFrom(this.http.get<CompanyUserLink[]>(`${API_BASE}/company-users/company/${companyId}/users`));
+  }
+
+  getAllCompanyUserLinks(): Promise<CompanyUserLink[]> {
+    return firstValueFrom(this.http.get<CompanyUserLink[]>(`${API_BASE}/company-users`));
+  }
+
+  createCompanyUserLink(link: { companyId: string; userId: string }): Promise<CompanyUserLink> {
+    return firstValueFrom(this.http.post<CompanyUserLink>(`${API_BASE}/company-users`, link));
+  }
+
+  deleteCompanyUserLink(linkId: string): Promise<void> {
+    return firstValueFrom(this.http.delete<void>(`${API_BASE}/company-users/${linkId}`));
+  }
+
+    getDepartmentsForCompany(companyId: string): Promise<Department[]> {
+    return firstValueFrom(this.http.get<Department[]>(`${API_BASE}/company-departments/company/${companyId}/departments`));
+  }
+
+  createCompanyDepartmentLink(link: { companyId: string; departmentId: string }): Promise<void> {
+    return firstValueFrom(this.http.post<void>(`${API_BASE}/company-departments`, link));
+  }
+
+  deleteCompanyDepartmentLink(companyId: string, departmentId: string): Promise<void> {
+    return firstValueFrom(this.http.delete<void>(`${API_BASE}/company-departments/${companyId}/${departmentId}`));
   }
 }
 

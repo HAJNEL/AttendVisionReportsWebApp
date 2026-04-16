@@ -43,10 +43,11 @@ async login(username: string, password: string): Promise<User> {
     username: string;
     email: string;
     password: string;
-    fullName?: string;
+    firstName: string;
+    lastName: string;
   }): Promise<User> {
     const result = await this.api.registerFirstUser(
-      data.username, data.email, data.password, data.fullName ?? null
+      data.username, data.email, data.password, data.firstName, data.lastName
     );
     // result: { token, ...userFields }
     const { token, ...user } = result;

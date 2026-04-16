@@ -11,8 +11,8 @@ import { MatMenuModule } from '@angular/material/menu';
 import { ApiService } from '../../services/api.service';
 import { AuthService } from '../../services/auth.service';
 import { Role } from '../../models/user.model';
-import { RoleDialogComponent } from './role-dialog.component';
-import { RoleConfirmDialogComponent } from './role-confirm-dialog.component';
+import { RoleDialogComponent } from './dialogs/role-dialog/role-dialog.component';
+import { RoleConfirmDialogComponent } from './dialogs/role-confirm-dialog/role-confirm-dialog.component';
 
 @Component({
   selector: 'app-roles',
@@ -138,7 +138,7 @@ export class RolesComponent implements OnInit {
         assigned = (await this.apiService.getPermissionsForRole(role.id)) ?? [];
       } catch {}
       const ref = this.dialog.open(
-        (await import('./role-permissions-dialog.component')).RolePermissionsDialogComponent,
+        (await import('./dialogs/role-permissions-dialog/role-permissions-dialog.component')).RolePermissionsDialogComponent,
         {
           data: { roleId: role.id, assigned },
           width: '480px',

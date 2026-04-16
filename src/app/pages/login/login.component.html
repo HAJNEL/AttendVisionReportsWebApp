@@ -68,11 +68,19 @@
 
           <form [formGroup]="registerForm" (ngSubmit)="onRegister()" novalidate>
             <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Full Name</mat-label>
-              <input matInput formControlName="fullName" placeholder="Enter your full name" autocomplete="name" />
+              <mat-label>First Name</mat-label>
+              <input matInput formControlName="firstName" placeholder="Enter your first name" autocomplete="given-name" />
               <mat-icon matSuffix>badge</mat-icon>
-              @if (regFullName.touched && regFullName.hasError('required')) {
-                <mat-error>Full name is required</mat-error>
+              @if (regFirstName.touched && regFirstName.hasError('required')) {
+                <mat-error>First name is required</mat-error>
+              }
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Last Name</mat-label>
+              <input matInput formControlName="lastName" placeholder="Enter your last name" autocomplete="family-name" />
+              <mat-icon matSuffix>badge</mat-icon>
+              @if (regLastName.touched && regLastName.hasError('required')) {
+                <mat-error>Last name is required</mat-error>
               }
             </mat-form-field>
 

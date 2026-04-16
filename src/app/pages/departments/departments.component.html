@@ -95,6 +95,10 @@
       <mat-icon>edit</mat-icon>
       <span>Edit</span>
     </button>
+    <button mat-menu-item (click)="openAssignUsers(dept)">
+      <mat-icon>group_add</mat-icon>
+      <span>Assign Users</span>
+    </button>
     <button mat-menu-item class="delete-item" (click)="confirmDelete(dept)">
       <mat-icon>delete</mat-icon>
       <span>Delete</span>

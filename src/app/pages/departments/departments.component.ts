@@ -10,6 +10,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ApiService } from '../../services/api.service';
 import { Department } from '../../models/department.model';
+import { AssignDepartmentUsersDialogComponent } from './dialogs/assign-department-users-dialog/assign-department-users-dialog.component';
 import {
   DeptFormDialogComponent,
   DeptConfirmDialogComponent,
@@ -46,11 +47,26 @@ export class DepartmentsComponent implements OnInit {
     await this.load();
   }
 
+  openAssignUsers(dept: DepartmentRow): void {
+    const ref = this.dialog.open(AssignDepartmentUsersDialogComponent, {
+      data: {
+        departmentId: dept.id,
+        departmentName: dept.departmentName
+      },
+      width: '520px',
+    });
+    ref.afterClosed().subscribe(async (result) => {
+      if (result) {
+        this.snackBar.open('User assignments updated', 'OK', { duration: 3000 });
+      }
+    });
+  }
+
   async load(): Promise<void> {
     this.loading = true;
     this.error = null;
     try {
-      this.departments = await this.api.getDepartments();
+      this.departments = await this.api.getAllDepartments();
       console.log('Loaded departments:', this.departments);
     } catch (e) {
       this.error = String(e);

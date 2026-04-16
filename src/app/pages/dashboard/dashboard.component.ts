@@ -76,7 +76,8 @@ export class DashboardComponent implements OnInit {
   }
 
   departments: Department[] = [];
-  selectedDeptId: number = 0;
+  selectedDeptId: string = '';
+  showAllDepartmentsOption = false;
   employees: string[] = [];
   selectedEmployee: string = '';
 
@@ -317,6 +318,23 @@ export class DashboardComponent implements OnInit {
         return ['', ...names.split(', ')];
       },
     };
+
+    // Load departments and employees asynchronously, then set default selection logic
+    this.departments = await this.dashboardService.getDepartments().catch(() => []);
+    this.employees = await this.dashboardService.getEmployees().catch(() => []);
+
+    if (this.departments.length === 1) {
+      this.selectedDeptId = this.departments[0].id;
+      this.showAllDepartmentsOption = false;
+    } else if (this.departments.length > 1) {
+      this.selectedDeptId = 'all';
+      this.showAllDepartmentsOption = true;
+    } else {
+      this.selectedDeptId = '';
+      this.showAllDepartmentsOption = false;
+    }
+
+    await this.loadAll();
 
     // Day bar chart: tooltip shows names per status
     (this.dayBarOptions!.plugins!.tooltip as any).callbacks = {
