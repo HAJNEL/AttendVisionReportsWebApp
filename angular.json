@@ -6,7 +6,7 @@
     "analytics": false
   },
   "projects": {
-    "tauri-app": {
+    "AttendVisionReportsWebApp": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -20,6 +20,7 @@
         "build": {
           "builder": "@angular/build:application",
           "options": {
+            "outputPath": "dist/AttendVisionReportsWebApp",
             "browser": "src/main.ts",
             "polyfills": ["zone.js"],
             "tsConfig": "tsconfig.app.json",
@@ -64,10 +65,10 @@
           },
           "configurations": {
             "production": {
-              "buildTarget": "tauri-app:build:production"
+              "buildTarget": "AttendVisionReportsWebApp:build:production"
             },
             "development": {
-              "buildTarget": "tauri-app:build:development"
+              "buildTarget": "AttendVisionReportsWebApp:build:development"
             }
           },
           "defaultConfiguration": "development"
