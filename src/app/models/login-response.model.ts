@@ -4,4 +4,5 @@ export interface LoginResponse {
   email: string;
   full_name: string | null;
   is_admin: boolean;
+  resetPassword?: boolean;
 }

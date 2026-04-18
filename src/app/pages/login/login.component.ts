@@ -10,6 +10,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AuthService } from '../../services/auth.service';
+import { MatDialog } from '@angular/material/dialog';
+import { PasswordResetDialogComponent } from '../../components/password-reset-dialog/password-reset-dialog.component';
 
 function passwordMatchValidator(control: AbstractControl): ValidationErrors | null {
   const password = control.get('password')?.value;
@@ -29,6 +31,7 @@ function passwordMatchValidator(control: AbstractControl): ValidationErrors | nu
     MatButtonModule,
     MatIconModule,
     MatProgressSpinnerModule,
+    PasswordResetDialogComponent
   ],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss',
@@ -44,7 +47,12 @@ export class LoginComponent implements OnInit {
   loginError = '';
   currentYear = new Date().getFullYear();
 
-  constructor(private fb: FormBuilder, private router: Router, private authService: AuthService) {
+  constructor(
+    private fb: FormBuilder,
+    private router: Router,
+    private authService: AuthService,
+    private dialog: MatDialog
+  ) {
     this.loginForm = this.fb.group({
       username: ['', [Validators.required, Validators.minLength(3)]],
       password: ['', [Validators.required, Validators.minLength(6)]],
@@ -92,6 +100,22 @@ export class LoginComponent implements OnInit {
     this.loginError = '';
     try {
       await this.authService.login(this.username.value, this.password.value);
+      if (this.authService.mustResetPassword()) {
+        const dialogRef = this.dialog.open(PasswordResetDialogComponent, {
+          disableClose: true,
+          data: {
+            onPasswordReset: async (newPassword: string) => {
+              await this.authService.updatePassword(newPassword);
+            }
+          }
+        });
+        const result = await dialogRef.afterClosed().toPromise();
+        if (result) {
+          this.router.navigate(['/dashboard']);
+        }
+        // If dialog was cancelled, do not navigate or log in
+        return;
+      }
       this.router.navigate(['/dashboard']);
     } catch (err: unknown) {
       if (err instanceof HttpErrorResponse) {

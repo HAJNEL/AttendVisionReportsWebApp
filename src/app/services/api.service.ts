@@ -56,8 +56,21 @@ export class ApiService {
 
   // ── Auth ──────────────────────────────────────────────────────────────────
 
+
+  /**
+   * Login endpoint. Returns token and LoginResponse, now includes resetPassword flag.
+   */
   login(username: string, password: string): Promise<{ token: string } & LoginResponse> {
     return firstValueFrom(this.http.post<{ token: string } & LoginResponse>(`${API_BASE}/auth/login`, { username, password }));
+  }
+
+  /**
+   * Update password for current user. Requires JWT token in Authorization header.
+   * POST /api/auth/update-password
+   * @param newPassword The new password to set
+   */
+  updatePassword(newPassword: string): Promise<void> {
+    return firstValueFrom(this.http.post<void>(`${API_BASE}/auth/update-password`, { newPassword }));
   }
 
   checkUsersExist(): Promise<boolean> {

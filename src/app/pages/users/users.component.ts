@@ -11,10 +11,10 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ApiService } from '../../services/api.service';
 import { User, Role } from '../../models/user.model';
-import { UserConfirmDialogComponent } from './user-confirm-dialog.component';
-import { UserDialogComponent } from './user-dialog.component';
-import { AssignRolesDialogComponent } from './assign-roles-dialog.component';
-import { AssignDepartmentsDialogComponent } from './assign-departments-dialog.component';
+import { UserConfirmDialogComponent } from './dialogs/user-confirm-dialog/user-confirm-dialog.component';
+import { UserDialogComponent } from './dialogs/user-dialog/user-dialog.component';
+import { AssignRolesDialogComponent } from './dialogs/assign-roles-dialog/assign-roles-dialog.component';
+import { AssignDepartmentsDialogComponent } from './dialogs/assign-departments-dialog/assign-departments-dialog.component';
 
 @Component({
   selector: 'app-users',

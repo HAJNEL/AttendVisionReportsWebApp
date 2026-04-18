@@ -1,0 +1,30 @@
+{
+  "name": "Attend Vision",
+  "short_name": "AttendVision",
+  "icons": [
+    {
+      "src": "assets/ApplicationLogo/Icon-App-40x40@1x.png",
+      "sizes": "40x40",
+      "type": "image/png"
+    },
+    {
+      "src": "assets/ApplicationLogo/Icon-App-60x60@2x.png",
+      "sizes": "120x120",
+      "type": "image/png"
+    },
+    {
+      "src": "assets/ApplicationLogo/Icon-App-76x76@2x.png",
+      "sizes": "152x152",
+      "type": "image/png"
+    },
+    {
+      "src": "assets/ApplicationLogo/Icon-App-83.5x83.5@2x.png",
+      "sizes": "167x167",
+      "type": "image/png"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#0099cc"
+}

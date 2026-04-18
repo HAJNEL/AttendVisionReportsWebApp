@@ -10,7 +10,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ApiService } from '../../services/api.service';
 import { Company } from '../../models/company.model';
-import { CompanyFormDialogComponent, CompanyConfirmDialogComponent } from './company-dialog.component';
+import { CompanyFormDialogComponent } from './dialogs/company-dialog/company-dialog.component';
 
 @Component({
   selector: 'app-companies',
@@ -91,7 +91,7 @@ export class CompaniesComponent implements OnInit {
   }
 
   confirmDelete(company: Company): void {
-    const ref = this.dialog.open(CompanyConfirmDialogComponent, {
+    const ref = this.dialog.open(CompanyFormDialogComponent, {
       data: { name: company.name },
       width: '400px',
     });

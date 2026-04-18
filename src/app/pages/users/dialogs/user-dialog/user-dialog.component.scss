@@ -1,0 +1,8 @@
+.user-form { display: flex; flex-direction: column; gap: 4px; min-width: 400px; padding-top: 8px; }
+.full-width  { width: 100%; }
+.password-section { margin-top: 16px; }
+.password-fields { margin-left: 24px; margin-top: 8px; }
+.password-strength { font-size: 0.9em; margin-top: 4px; }
+.password-strength.weak { color: #d32f2f; }
+.password-strength.medium { color: #fbc02d; }
+.password-strength.strong { color: #388e3c; }

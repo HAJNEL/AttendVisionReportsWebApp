@@ -8,14 +8,8 @@ import { MatDialogModule } from '@angular/material/dialog';
   selector: 'app-user-confirm-dialog',
   standalone: true,
   imports: [CommonModule, MatButtonModule, MatDialogModule],
-  template: `
-    <h2 mat-dialog-title>Delete User</h2>
-    <mat-dialog-content>Are you sure you want to delete <strong>{{ data.username }}</strong>?</mat-dialog-content>
-    <mat-dialog-actions align="end">
-      <button mat-button (click)="onCancel()">Cancel</button>
-      <button mat-flat-button color="warn" (click)="onConfirm()">Delete</button>
-    </mat-dialog-actions>
-  `,
+  templateUrl: './user-confirm-dialog.component.html',
+  styleUrls: ['./user-confirm-dialog.component.scss'],
 })
 export class UserConfirmDialogComponent {
   constructor(

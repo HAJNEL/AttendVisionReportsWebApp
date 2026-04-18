@@ -5,9 +5,9 @@ import { MatSelectionList, MatListOption } from '@angular/material/list';
 import { MatProgressBar } from '@angular/material/progress-bar';
 import { MatButtonModule } from '@angular/material/button';
 import { ReactiveFormsModule } from '@angular/forms';
-import { ApiService } from '../../services/api.service';
-import { Department } from '../../models/department.model';
-import { DepartmentUserLink } from '../../models/department-user-link.model';
+import { Department } from '../../../../models/department.model';
+import { ApiService } from '../../../../services/api.service';
+import { DepartmentUserLink } from '../../../../models/department-user-link.model';
 
 export interface AssignDepartmentsDialogData {
   userId: string;
@@ -51,7 +51,7 @@ export class AssignDepartmentsDialogComponent implements OnInit, AfterViewInit {
       console.log('[AssignDepartmentsDialog] Departments:', departments);
       console.log('[AssignDepartmentsDialog] DepartmentUserLinks:', links);
       this.allDepartments = departments ?? [];
-      const assigned = links.filter(link => link.userId === this.data.userId);
+      const assigned = links.filter((link: DepartmentUserLink) => link.userId === this.data.userId);
       this.assignedIds = new Set(assigned.map(link => link.departmentId));
       this.loading = false;
       setTimeout(() => this.updateSelectionList(), 0);
@@ -88,14 +88,14 @@ export class AssignDepartmentsDialogComponent implements OnInit, AfterViewInit {
     this.error = null;
     try {
       const links = await this.apiService.getAllDepartmentUserLinks();
-      const currentLinks = links.filter(link => link.userId === this.data.userId);
+      const currentLinks = links.filter((link: DepartmentUserLink) => link.userId === this.data.userId);
       const currentDeptIds = new Set(currentLinks.map(link => link.departmentId));
       const toAdd = Array.from(this.assignedIds).filter(id => !currentDeptIds.has(id));
-      const toRemove = currentLinks.filter(link => !this.assignedIds.has(link.departmentId));
+      const toRemove = currentLinks.filter((link: DepartmentUserLink) => !this.assignedIds.has(link.departmentId));
       for (const deptId of toAdd) {
         await this.apiService.createDepartmentUserLink({ departmentId: deptId, userId: this.data.userId });
       }
-      for (const link of toRemove) {
+      for (const link of toRemove as DepartmentUserLink[]) {
         await this.apiService.deleteDepartmentUserLink(link.id);
       }
       this.dialogRef.close(true);

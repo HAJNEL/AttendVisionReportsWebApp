@@ -1,0 +1,106 @@
+<h2 mat-dialog-title>{{ isEdit ? 'Edit User' : 'Create User' }}</h2>
+<mat-dialog-content>
+  <form [formGroup]="form" class="user-form">
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>First Name</mat-label>
+      <input matInput formControlName="firstName" required />
+      <mat-error *ngIf="form.get('firstName')?.hasError('required')">Required</mat-error>
+    </mat-form-field>
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Last Name</mat-label>
+      <input matInput formControlName="lastName" required />
+      <mat-error *ngIf="form.get('lastName')?.hasError('required')">Required</mat-error>
+    </mat-form-field>
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Username</mat-label>
+      <input matInput formControlName="username" readonly />
+    </mat-form-field>
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Email</mat-label>
+      <input matInput formControlName="email" required />
+      <mat-error *ngIf="form.get('email')?.hasError('required')">Required</mat-error>
+      <mat-error *ngIf="form.get('email')?.hasError('email')">Invalid email</mat-error>
+    </mat-form-field>
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Roles</mat-label>
+      <mat-select formControlName="roles" multiple>
+        <mat-option *ngFor="let role of data.roles" [value]="role">{{ role.name }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <ng-container *ngIf="isEdit && loadedUser">
+      <h3 style="margin-top: 16px;">Assigned Roles</h3>
+      <table class="mat-elevation-z1" style="width:100%;margin-bottom:16px;">
+        <thead>
+          <tr>
+            <th style="text-align:left;">Role Name</th>
+            <th style="text-align:left;">Description</th>
+            <th style="width:40px;"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let role of loadedUser.roles">
+            <td>{{ role.name }}</td>
+            <td>{{ role.description || '-' }}</td>
+            <td>
+              <button mat-icon-button color="warn" (click)="removeRole(role)" [disabled]="removingRoleId === role.id" matTooltip="Remove role">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </ng-container>
+    <mat-checkbox formControlName="isActive">Active</mat-checkbox>
+    <!-- Password Section -->
+    <div class="password-section">
+      <ng-container *ngIf="!isEdit; else editPasswordSection">
+        <mat-checkbox [checked]="randomPassword" (change)="toggleRandomPassword($event)">Generate random password</mat-checkbox>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Password</mat-label>
+          <input matInput [type]="showPassword ? 'text' : 'password'" [value]="password" (input)="onPasswordInput($event)" [readonly]="randomPassword" required />
+          <button mat-icon-button matSuffix (click)="toggleShowPassword()" type="button">
+            <mat-icon>{{ showPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+          </button>
+          <button *ngIf="randomPassword" mat-icon-button matSuffix (click)="copyPassword()" type="button">
+            <mat-icon>content_copy</mat-icon>
+          </button>
+        </mat-form-field>
+        <div class="password-strength">
+          <span>Password strength: </span>
+          <span [ngClass]="passwordStrength">{{ passwordStrength | titlecase }}</span>
+        </div>
+        <div *ngIf="!password" class="mat-error" style="margin-top:4px;">Password is required</div>
+      </ng-container>
+      <ng-template #editPasswordSection>
+        <mat-checkbox [checked]="resetPassword" (change)="toggleResetPassword($event)">Reset password</mat-checkbox>
+        <div *ngIf="resetPassword" class="password-fields">
+          <mat-checkbox [checked]="randomPassword" (change)="toggleRandomPassword($event)">Generate random password</mat-checkbox>
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Password</mat-label>
+            <input matInput [type]="showPassword ? 'text' : 'password'" [value]="password" (input)="onPasswordInput($event)" [readonly]="randomPassword" />
+            <button mat-icon-button matSuffix (click)="toggleShowPassword()" type="button">
+              <mat-icon>{{ showPassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+            </button>
+            <button *ngIf="randomPassword" mat-icon-button matSuffix (click)="copyPassword()" type="button">
+              <mat-icon>content_copy</mat-icon>
+            </button>
+          </mat-form-field>
+          <div class="password-strength">
+            <span>Password strength: </span>
+            <span [ngClass]="passwordStrength">{{ passwordStrength | titlecase }}</span>
+          </div>
+        </div>
+      </ng-template>
+    </div>
+    <mat-checkbox [checked]="resetPassword" (change)="resetPassword = $event.checked" style="margin-bottom: 8px;">
+          Require password reset on next login
+        </mat-checkbox>
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button (click)="dialogRef.close()">Cancel</button>
+  <button mat-flat-button color="primary" (click)="save()" [disabled]="form.invalid">
+    {{ isEdit ? 'Save Changes' : 'Create' }}
+  </button>
+</mat-dialog-actions>

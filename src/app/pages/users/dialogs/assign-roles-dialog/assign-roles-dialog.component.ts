@@ -5,7 +5,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { ReactiveFormsModule, FormGroup, FormControl } from '@angular/forms';
-import { Role } from '../../models/user.model';
+import { Role } from '../../../../models/user.model';
 
 @Component({
   selector: 'app-assign-roles-dialog',
@@ -18,24 +18,8 @@ import { Role } from '../../models/user.model';
     MatButtonModule,
     ReactiveFormsModule,
   ],
-  template: `
-    <h2 mat-dialog-title>Assign Roles</h2>
-    <mat-dialog-content>
-      <form [formGroup]="form">
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Roles</mat-label>
-          <mat-select formControlName="roles" multiple>
-            <mat-option *ngFor="let role of data.roles" [value]="role.id">{{ role.name }}</mat-option>
-          </mat-select>
-        </mat-form-field>
-      </form>
-    </mat-dialog-content>
-    <mat-dialog-actions align="end">
-      <button mat-button (click)="dialogRef.close()">Cancel</button>
-      <button mat-flat-button color="primary" (click)="save()">Save</button>
-    </mat-dialog-actions>
-  `,
-  styles: [`.full-width { width: 100%; }`],
+  templateUrl: './assign-roles-dialog.component.html',
+  styleUrls: ['./assign-roles-dialog.component.scss'],
 })
 export class AssignRolesDialogComponent {
   form: FormGroup;
