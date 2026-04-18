@@ -1,5 +1,6 @@
 
 import { DepartmentUserLink } from '../models/department-user-link.model';
+import { environment } from '../../environments/environment';
 import { PermissionDto, CreatePermissionDto, UpdatePermissionDto, AssignPermissionDto } from '../models/permission.model';
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
@@ -23,7 +24,7 @@ import { CompanyUserLink } from '../models/company-user-link.model';
 
 // ── Service ───────────────────────────────────────────────────────────────────
 
-const API_BASE = 'http://localhost:5150/api'; // use your actual port from launchSettings.json
+const API_BASE = environment.apiUrl;
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
