@@ -1,7 +1,13 @@
-h2[mat-dialog-title] {
+
+h2[mat-dialog-title].dialog-title-row {
   display: flex;
-  flex-direction: column;
-  gap: 2px;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+.spacer {
+  flex: 1 1 auto;
 }
 
 .subtitle {

@@ -1,9 +1,12 @@
 <div class="companies-container">
   <div class="page-header">
     <h1>Companies</h1>
-    <button mat-flat-button color="primary" (click)="openCreate()" [disabled]="loading">
+    <button mat-flat-button color="primary" (click)="openCreate()" [disabled]="loading" class="create-btn desktop-only">
       <mat-icon>add</mat-icon>
       Create Company
+    </button>
+    <button mat-fab color="primary" (click)="openCreate()" [disabled]="loading" class="create-fab mobile-only" aria-label="Create Company">
+      <mat-icon>add</mat-icon>
     </button>
   </div>
 

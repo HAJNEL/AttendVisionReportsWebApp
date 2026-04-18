@@ -32,3 +32,10 @@ table {
   text-align: right;
   padding-right: 16px;
 }
+
+// Hide description column on small screens
+@media (max-width: 600px) {
+  .hide-mobile {
+    display: none !important;
+  }
+}

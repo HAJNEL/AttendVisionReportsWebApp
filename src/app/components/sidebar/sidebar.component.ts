@@ -11,7 +11,8 @@ import { AuthService } from '../../services/auth.service';
   standalone: true,
   imports: [CommonModule, RouterModule, MatListModule, MatIconModule, MatDividerModule],
   templateUrl: './sidebar.component.html',
-  styles: `
+  styles: [
+    `
     :host {
       display: block;
       height: 100%;
@@ -38,6 +39,25 @@ import { AuthService } from '../../services/auth.service';
       height: 28px;
       color: #58a6ff;
     }
+    .sidebar-logo-circle {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2.5px solid #1565c0;
+      background: #fff;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    }
+    .sidebar-logo {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 50% !important;
+      display: block;
+    }
     .active-link {
       background: rgba(88, 166, 255, 0.12) !important;
       color: #58a6ff !important;
@@ -57,15 +77,21 @@ import { AuthService } from '../../services/auth.service';
     mat-divider {
       border-top-color: #30363d !important;
     }
-  `,
+    `
+  ],
 })
 export class SidebarComponent {
   @Output() navClicked = new EventEmitter<void>();
 
   constructor(public authService: AuthService, private router: Router) {}
 
+  handleNavClick(): void {
+    this.navClicked.emit();
+  }
+
   onLogout(): void {
     this.authService.logout();
     this.router.navigate(['/login']);
+    this.handleNavClick();
   }
 }

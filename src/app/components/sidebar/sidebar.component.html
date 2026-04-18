@@ -1,35 +1,37 @@
 <div class="sidebar-container">
   <div class="sidebar-header">
-    <mat-icon>assessment</mat-icon>
+    <div class="sidebar-logo-circle">
+      <img src="assets/ApplicationLogo/Icon-App-40x40@2x.png" alt="AttendVision Logo" width="40" height="40" class="sidebar-logo" />
+    </div>
     <span>AttendVision</span>
   </div>
   <mat-divider></mat-divider>
   <mat-nav-list>
-    <a *ngIf="authService.hasPermission('dashboard')" mat-list-item routerLink="/dashboard" routerLinkActive="active-link">
+    <a *ngIf="authService.hasPermission('dashboard')" mat-list-item routerLink="/dashboard" routerLinkActive="active-link" (click)="handleNavClick()">
       <mat-icon matListItemIcon>dashboard</mat-icon>
       <span matListItemTitle>Dashboard</span>
     </a>
-    <a *ngIf="authService.hasPermission('reports')" mat-list-item routerLink="/reports" routerLinkActive="active-link">
+    <a *ngIf="authService.hasPermission('reports')" mat-list-item routerLink="/reports" routerLinkActive="active-link" (click)="handleNavClick()">
       <mat-icon matListItemIcon>description</mat-icon>
       <span matListItemTitle>Reports</span>
     </a>
-    <a *ngIf="authService.hasPermission('departments')" mat-list-item routerLink="/departments" routerLinkActive="active-link">
+    <a *ngIf="authService.hasPermission('departments')" mat-list-item routerLink="/departments" routerLinkActive="active-link" (click)="handleNavClick()">
       <mat-icon matListItemIcon>business</mat-icon>
       <span matListItemTitle>Departments</span>
     </a>
-    <a *ngIf="authService.hasPermission('companies')" mat-list-item routerLink="/companies" routerLinkActive="active-link">
+    <a *ngIf="authService.hasPermission('companies')" mat-list-item routerLink="/companies" routerLinkActive="active-link" (click)="handleNavClick()">
       <mat-icon matListItemIcon>apartment</mat-icon>
       <span matListItemTitle>Companies</span>
     </a>
-    <a *ngIf="authService.hasPermission('users')" mat-list-item routerLink="/users" routerLinkActive="active-link">
+    <a *ngIf="authService.hasPermission('users')" mat-list-item routerLink="/users" routerLinkActive="active-link" (click)="handleNavClick()">
       <mat-icon matListItemIcon>people</mat-icon>
       <span matListItemTitle>Users</span>
     </a>
-    <a *ngIf="authService.hasPermission('roles')" mat-list-item routerLink="/roles" routerLinkActive="active-link">
+    <a *ngIf="authService.hasPermission('roles')" mat-list-item routerLink="/roles" routerLinkActive="active-link" (click)="handleNavClick()">
       <mat-icon matListItemIcon>security</mat-icon>
       <span matListItemTitle>Roles</span>
     </a>
-    <a *ngIf="authService.hasPermission('permissions')" mat-list-item routerLink="/permissions" routerLinkActive="active-link">
+    <a *ngIf="authService.hasPermission('permissions')" mat-list-item routerLink="/permissions" routerLinkActive="active-link" (click)="handleNavClick()">
       <mat-icon matListItemIcon>vpn_key</mat-icon>
       <span matListItemTitle>Permissions</span>
     </a>

@@ -9,6 +9,26 @@
   align-items: center;
   margin-bottom: 24px;
 
+  .create-btn {
+    display: inline-flex;
+  }
+  .create-fab {
+    display: none;
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 100;
+    box-shadow: 0 4px 16px rgba(21,101,192,0.18);
+  }
+  @media (max-width: 600px) {
+    .create-btn {
+      display: none !important;
+    }
+    .create-fab {
+      display: inline-flex !important;
+    }
+  }
+
   h1 {
     margin: 0;
     font-weight: 300;

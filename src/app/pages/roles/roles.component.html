@@ -1,9 +1,12 @@
 <div class="roles-container">
   <div class="page-header">
     <h1>Roles</h1>
-    <button mat-flat-button color="primary" (click)="openCreateRole()" [disabled]="loading">
+    <button mat-flat-button color="primary" (click)="openCreateRole()" [disabled]="loading" class="create-btn desktop-only">
       <mat-icon>add</mat-icon>
       Create Role
+    </button>
+    <button mat-fab color="primary" (click)="openCreateRole()" [disabled]="loading" class="create-fab mobile-only" aria-label="Create Role">
+      <mat-icon>add</mat-icon>
     </button>
   </div>
 

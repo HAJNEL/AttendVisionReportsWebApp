@@ -1,6 +1,6 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
+import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -8,7 +8,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import * as XLSX from 'xlsx';
-import { ReportFilters } from '../../helpers/dynamic-filter-dialog/dynamic-filter-dialog.component';
+import { ReportFilters, DynamicFilterDialogComponent } from '../../helpers/dynamic-filter-dialog/dynamic-filter-dialog.component';
 import { ApiService } from '../../../../services/api.service';
 
 // ── Issue check definitions ───────────────────────────────────────────────────
@@ -68,7 +68,27 @@ export class IssueReportComponent implements OnInit {
     @Inject(MAT_DIALOG_DATA) public filters: ReportFilters,
     private snackBar: MatSnackBar,
     private api: ApiService,
+    private dialog: MatDialog,
   ) {}
+
+  openFilterDialog(): void {
+    const ref = this.dialog.open(DynamicFilterDialogComponent, {
+      width: '500px',
+      data: {
+        title: 'Issue Report — Parameters',
+        showDepartment: true,
+        showDateRange: true,
+        showUser: false,
+        ...this.filters,
+      },
+    });
+    ref.afterClosed().subscribe((result: ReportFilters | undefined) => {
+      if (result) {
+        this.filters = result;
+        this.load();
+      }
+    });
+  }
 
   async ngOnInit(): Promise<void> {
     await this.load();

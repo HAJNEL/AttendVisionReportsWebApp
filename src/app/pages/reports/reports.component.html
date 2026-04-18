@@ -18,20 +18,25 @@
         <td mat-cell *matCellDef="let report">{{ report.type }}</td>
       </ng-container>
 
-      <!-- Description Column -->
+      <!-- Description Column (hidden on mobile) -->
       <ng-container matColumnDef="description">
-        <th mat-header-cell *matHeaderCellDef>Description</th>
-        <td mat-cell *matCellDef="let report" class="muted">{{ report.description }}</td>
+        <th mat-header-cell *matHeaderCellDef class="hide-mobile">Description</th>
+        <td mat-cell *matCellDef="let report" class="muted hide-mobile">{{ report.description }}</td>
       </ng-container>
 
       <!-- Actions Column -->
       <ng-container matColumnDef="actions">
         <th mat-header-cell *matHeaderCellDef></th>
         <td mat-cell *matCellDef="let report" class="actions-cell">
-          <button mat-flat-button color="primary" (click)="runReport(report)">
-            <mat-icon>play_arrow</mat-icon>
-            Run
+          <button mat-icon-button [matMenuTriggerFor]="reportMenu">
+            <mat-icon>more_vert</mat-icon>
           </button>
+          <mat-menu #reportMenu="matMenu">
+            <button mat-menu-item (click)="runReport(report)">
+              <mat-icon>play_arrow</mat-icon>
+              <span>Run</span>
+            </button>
+          </mat-menu>
         </td>
       </ng-container>
 

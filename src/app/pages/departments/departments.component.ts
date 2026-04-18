@@ -14,9 +14,12 @@ import { AssignDepartmentUsersDialogComponent } from './dialogs/assign-departmen
 import {
   DeptFormDialogComponent,
   DeptConfirmDialogComponent,
-} from './dept-dialog.component';
+} from './dialogs/dept-dialog/dept-dialog.component';
 
 export type DepartmentRow = Department;
+
+
+import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 
 @Component({
   selector: 'app-departments',
@@ -35,15 +38,28 @@ export type DepartmentRow = Department;
   templateUrl: './departments.component.html',
   styleUrl: './departments.component.scss',
 })
+
 export class DepartmentsComponent implements OnInit {
   displayedColumns = ['name', 'manager', 'rate', 'location', 'companyName', 'actions'];
+  mobileColumns = ['name', 'manager', 'actions'];
   departments: DepartmentRow[] = [];
   loading = true;
   error: string | null = null;
+  isMobile = false;
 
-  constructor(private dialog: MatDialog, private snackBar: MatSnackBar, private api: ApiService) {}
+  constructor(
+    private dialog: MatDialog,
+    private snackBar: MatSnackBar,
+    private api: ApiService,
+    private breakpointObserver: BreakpointObserver
+  ) {}
 
   async ngOnInit(): Promise<void> {
+    this.breakpointObserver.observe([Breakpoints.Handset, '(max-width: 600px)'])
+      .subscribe(result => {
+        this.isMobile = result.matches;
+        this.displayedColumns = this.isMobile ? this.mobileColumns : ['name', 'manager', 'rate', 'location', 'companyName', 'actions'];
+      });
     await this.load();
   }
 

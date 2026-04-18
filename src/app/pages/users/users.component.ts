@@ -1,5 +1,6 @@
 
 import { Component, OnInit } from '@angular/core';
+import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { CommonModule } from '@angular/common';
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
@@ -34,14 +35,26 @@ import { AssignDepartmentsDialogComponent } from './dialogs/assign-departments-d
   styleUrl: './users.component.scss',
 })
 export class UsersComponent implements OnInit {
-  displayedColumns = ['fullname', 'email', 'roles', 'actions'];
+  public displayedColumns = ['fullname', 'email', 'roles', 'actions'];
+  public mobileColumns = ['fullname', 'roles', 'actions'];
   users: User[] = [];
   loading = true;
   error: string | null = null;
+  isMobile = false;
 
-  constructor(private api: ApiService, private dialog: MatDialog, private snackBar: MatSnackBar) {}
+  constructor(
+    private api: ApiService,
+    private dialog: MatDialog,
+    private snackBar: MatSnackBar,
+    private breakpointObserver: BreakpointObserver
+  ) {}
 
   async ngOnInit() {
+    this.breakpointObserver.observe([Breakpoints.Handset, '(max-width: 600px)'])
+      .subscribe(result => {
+        this.isMobile = result.matches;
+        this.displayedColumns = this.isMobile ? this.mobileColumns : ['fullname', 'email', 'roles', 'actions'];
+      });
     await this.load();
   }
 

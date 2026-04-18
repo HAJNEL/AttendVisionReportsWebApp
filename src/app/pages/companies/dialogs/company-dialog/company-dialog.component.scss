@@ -1,2 +1,19 @@
-.company-form { display: flex; flex-direction: column; gap: 4px; min-width: 400px; padding-top: 8px; }
+.company-form {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	min-width: 320px;
+	max-width: 100vw;
+	padding-top: 8px;
+}
 .full-width  { width: 100%; }
+
+@media (max-width: 600px) {
+	.company-form {
+		min-width: 0;
+		padding: 0 4px 8px 4px;
+	}
+	.full-width {
+		width: 100% !important;
+	}
+}

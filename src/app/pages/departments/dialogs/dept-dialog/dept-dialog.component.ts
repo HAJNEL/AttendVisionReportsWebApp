@@ -8,7 +8,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatSelectModule } from '@angular/material/select';
-import { Company } from '../../models/company.model';
+import { Company } from '../../../../models/company.model';
 
 export interface DepartmentRow {
   id: number;
@@ -31,7 +31,7 @@ export interface DeptFormDialogData {
 
 // ─── Create / Edit form dialog ───────────────────────────────────────────────
 
-import { ApiService } from '../../services/api.service';
+import { ApiService } from '../../../../services/api.service';
 
 @Component({
   selector: 'app-dept-form-dialog',
@@ -47,93 +47,8 @@ import { ApiService } from '../../services/api.service';
     MatDividerModule,
     MatSelectModule,
   ],
-  template: `
-    <h2 mat-dialog-title>{{ isEdit ? 'Edit Department' : 'Create Department' }}</h2>
-    <mat-dialog-content>
-      <form [formGroup]="form" class="dept-form">
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Serial Number</mat-label>
-          <input matInput formControlName="serialNo" />
-        </mat-form-field>
-
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Company</mat-label>
-          <mat-select formControlName="companyId">
-            <mat-option [value]="null">None</mat-option>
-            <mat-option *ngFor="let c of companies" [value]="c.id">{{ c.name }}</mat-option>
-          </mat-select>
-        </mat-form-field>
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Department Name</mat-label>
-          <input matInput formControlName="departmentName" required />
-          <mat-error *ngIf="form.get('departmentName')?.hasError('required')">Required</mat-error>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Manager</mat-label>
-          <input matInput formControlName="manager" />
-        </mat-form-field>
-
-        <mat-form-field appearance="outline" class="half-width">
-          <mat-label>Payment Rate (hourly)</mat-label>
-          <input matInput type="number" step="0.01" min="0" formControlName="paymentRate" />
-          <span matTextPrefix>R&nbsp;</span>
-        </mat-form-field>
-
-        <mat-divider class="section-divider"></mat-divider>
-        <p class="section-label">Address</p>
-
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Address Line 1</mat-label>
-          <input matInput formControlName="address_line1" />
-        </mat-form-field>
-
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Address Line 2</mat-label>
-          <input matInput formControlName="address_line2" />
-        </mat-form-field>
-
-        <div class="row-fields">
-          <mat-form-field appearance="outline" class="city-field">
-            <mat-label>City</mat-label>
-            <input matInput formControlName="city" />
-          </mat-form-field>
-
-          <mat-form-field appearance="outline" class="state-field">
-            <mat-label>State / Province</mat-label>
-            <input matInput formControlName="state" />
-          </mat-form-field>
-
-          <mat-form-field appearance="outline" class="zip-field">
-            <mat-label>Postal Code</mat-label>
-            <input matInput formControlName="postal_code" />
-          </mat-form-field>
-        </div>
-
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Country</mat-label>
-          <input matInput formControlName="country" />
-        </mat-form-field>
-      </form>
-    </mat-dialog-content>
-    <mat-dialog-actions align="end">
-      <button mat-button (click)="dialogRef.close()">Cancel</button>
-      <button mat-flat-button color="primary" (click)="save()" [disabled]="form.invalid">
-        {{ isEdit ? 'Save Changes' : 'Create' }}
-      </button>
-    </mat-dialog-actions>
-  `,
-  styles: [`
-    .dept-form { display: flex; flex-direction: column; gap: 4px; min-width: 480px; padding-top: 8px; }
-    .full-width  { width: 100%; }
-    .half-width  { width: 50%; }
-    .section-divider { margin: 8px 0 4px; }
-    .section-label { font-size: 12px; color: #8b949e; text-transform: uppercase; letter-spacing: 0.5px; margin: 0 0 4px; }
-    .row-fields { display: flex; gap: 12px; }
-    .city-field  { flex: 2; }
-    .state-field { flex: 2; }
-    .zip-field   { flex: 1; }
-  `],
+  templateUrl: './dept-dialog.component.html',
+  styleUrls: ['./dept-dialog.component.scss'],
 })
 export class DeptFormDialogComponent implements OnInit {
   isEdit: boolean;

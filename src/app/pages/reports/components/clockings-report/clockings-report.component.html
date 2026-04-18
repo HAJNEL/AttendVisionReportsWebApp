@@ -1,5 +1,9 @@
-<h2 mat-dialog-title>
-  Clockings Report
+<h2 mat-dialog-title class="dialog-title-row">
+  <span>Clockings Report</span>
+  <span class="spacer"></span>
+  <button mat-icon-button matTooltip="Change filters" (click)="openFilterDialog()">
+    <mat-icon>filter_alt</mat-icon>
+  </button>
   <span class="subtitle">
     {{ filters.department ?? 'All Departments' }} &middot;
     {{ filters.dateFrom }} – {{ filters.dateTo }}

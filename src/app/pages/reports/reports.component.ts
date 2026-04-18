@@ -4,6 +4,7 @@ import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
+import { MatMenuModule } from '@angular/material/menu';
 import { MatCardModule } from '@angular/material/card';
 import { DynamicFilterDialogComponent, ReportFilters } from './helpers/dynamic-filter-dialog/dynamic-filter-dialog.component';
 import { TimesheetReportComponent } from './components/timesheet-report/timesheet-report.component';
@@ -27,6 +28,7 @@ interface ReportDef {
     MatIconModule,
     MatDialogModule,
     MatCardModule,
+    MatMenuModule,
   ],
   templateUrl: './reports.component.html',
   styleUrl: './reports.component.scss',

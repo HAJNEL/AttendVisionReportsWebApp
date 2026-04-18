@@ -30,8 +30,7 @@ function passwordMatchValidator(control: AbstractControl): ValidationErrors | nu
     MatInputModule,
     MatButtonModule,
     MatIconModule,
-    MatProgressSpinnerModule,
-    PasswordResetDialogComponent
+    MatProgressSpinnerModule
   ],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss',

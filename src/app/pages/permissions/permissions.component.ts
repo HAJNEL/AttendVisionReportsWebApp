@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { PermissionDto, CreatePermissionDto, UpdatePermissionDto } from '../../models/permission.model';
 import { MatDialog } from '@angular/material/dialog';
 import { PermissionDialogComponent } from './dialogs/permission-dialog/permission-dialog.component';
@@ -24,10 +25,22 @@ export class PermissionsComponent implements OnInit {
   permissions: PermissionDto[] = [];
   loading = false;
   error: string | null = null;
+  public displayedColumns = ['name', 'description', 'uniqueCode', 'actions'];
+  public mobileColumns = ['name', 'uniqueCode', 'actions'];
+  isMobile = false;
 
-  constructor(private apiService: ApiService, private dialog: MatDialog) {}
+  constructor(
+    private apiService: ApiService,
+    private dialog: MatDialog,
+    private breakpointObserver: BreakpointObserver
+  ) {}
 
   ngOnInit() {
+    this.breakpointObserver.observe([Breakpoints.Handset, '(max-width: 600px)'])
+      .subscribe(result => {
+        this.isMobile = result.matches;
+        this.displayedColumns = this.isMobile ? this.mobileColumns : ['name', 'description', 'uniqueCode', 'actions'];
+      });
     this.loadPermissions();
   }
 

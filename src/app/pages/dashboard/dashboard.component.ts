@@ -517,9 +517,10 @@ export class DashboardComponent implements OnInit {
         const labels: string[] = [];
         const data: number[]   = [];
         for (let d = 1; d <= daysInMonth; d++) {
-          const key = `${year}-${String(month).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+          const key = `${year}/${String(month).padStart(2, '0')}/${String(d).padStart(2, '0')}`;
           labels.push(String(d));
-          data.push(map.get(key) ?? 0);
+          const value = map.get(key) ?? 0;
+          data.push(value);
         }
         this.hourlyData = this.buildTrafficChart(
           labels.map((label, i) => ({ label, count: data[i] })),

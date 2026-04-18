@@ -1,4 +1,5 @@
 import { Component, Inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors, ReactiveFormsModule } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -15,6 +16,7 @@ function passwordMatchValidator(control: AbstractControl): ValidationErrors | nu
   selector: 'app-password-reset-dialog',
   standalone: true,
   imports: [
+    CommonModule,
     ReactiveFormsModule,
     MatDialogModule,
     MatFormFieldModule,
