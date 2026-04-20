@@ -109,7 +109,7 @@
       <mat-card class="kpi-card">
         <mat-card-content>
           <div class="kpi-icon-row">
-            <mat-icon class="kpi-icon teal">sensor_door</mat-icon>
+            <mat-icon class="kpi-icon teal">meeting_room</mat-icon>
             <span class="kpi-label">On-Site</span>
           </div>
           <div class="kpi-value">{{ kpis.on_site_now }}</div>
@@ -120,10 +120,10 @@
       <mat-card class="kpi-card">
         <mat-card-content>
           <div class="kpi-icon-row">
-            <mat-icon class="kpi-icon red">cancel</mat-icon>
-            <span class="kpi-label">Failed Attempts</span>
+            <mat-icon class="kpi-icon orange">free_breakfast</mat-icon>
+            <span class="kpi-label">ON BREAK</span>
           </div>
-          <div class="kpi-value">{{ kpis.failed_today }}</div>
+          <div class="kpi-value">{{ kpis.on_break_now ?? 0 }}</div>
           <div class="kpi-sub">{{ kpiPeriodLabel }}</div>
         </mat-card-content>
       </mat-card>
@@ -148,7 +148,6 @@
             <mat-button-toggle value="all" (change)="onTrendStatusToggle($event)">All</mat-button-toggle>
             <mat-button-toggle value="checkinout" (change)="onTrendStatusToggle($event)">Check In / Out</mat-button-toggle>
             <mat-button-toggle value="breakinout" (change)="onTrendStatusToggle($event)">Break In / Out</mat-button-toggle>
-            <mat-button-toggle value="unknown" (change)="onTrendStatusToggle($event)">Unknown</mat-button-toggle>
           </mat-button-toggle-group>
         </div>
         <mat-card-content class="chart-content">

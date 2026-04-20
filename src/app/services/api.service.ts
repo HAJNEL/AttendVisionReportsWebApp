@@ -1,4 +1,3 @@
-
 import { DepartmentUserLink } from '../models/department-user-link.model';
 import { environment } from '../../environments/environment';
 import { PermissionDto, CreatePermissionDto, UpdatePermissionDto, AssignPermissionDto } from '../models/permission.model';
@@ -21,6 +20,7 @@ import { IssueRow } from '../models/issue-row.model';
 import { ClockingRow } from '../models/clocking-row.model';
 import { TimesheetRow } from '../models/timesheet-row.model';
 import { CompanyUserLink } from '../models/company-user-link.model';
+import { TimeOverride, CreateTimeOverride, UpdateTimeOverride } from '../models/time-override.model';
 
 // ── Service ───────────────────────────────────────────────────────────────────
 
@@ -28,47 +28,14 @@ const API_BASE = environment.apiUrl;
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
-  // ── Department-User Links ────────────────────────────────────────────────
-  // DepartmentUsersController endpoints
-  // Use correct endpoint: GET /api/DepartmentUsers/by-department/{departmentId}
-  getUsersForDepartment(departmentId: string): Promise<DepartmentUserLink[]> {
-    return firstValueFrom(this.http.get<DepartmentUserLink[]>(`${API_BASE}/DepartmentUsers/by-department/${departmentId}`));
-  }
-
-  // Use correct endpoint: GET /api/DepartmentUsers/by-user/{userId}
-  getDepartmentsForUser(userId: string): Promise<DepartmentUserLink[]> {
-    return firstValueFrom(this.http.get<DepartmentUserLink[]>(`${API_BASE}/DepartmentUsers/by-user/${userId}`));
-  }
-
-  getAllDepartmentUserLinks(): Promise<DepartmentUserLink[]> {
-    return firstValueFrom(this.http.get<DepartmentUserLink[]>(`${API_BASE}/DepartmentUsers`));
-  }
-
-  createDepartmentUserLink(link: { departmentId: string; userId: string }): Promise<DepartmentUserLink> {
-    return firstValueFrom(this.http.post<DepartmentUserLink>(`${API_BASE}/DepartmentUsers`, link));
-  }
-
-  deleteDepartmentUserLink(linkId: string): Promise<void> {
-    return firstValueFrom(this.http.delete<void>(`${API_BASE}/DepartmentUsers/${linkId}`));
-  }
 
   constructor(private http: HttpClient) {}
 
   // ── Auth ──────────────────────────────────────────────────────────────────
-
-
-  /**
-   * Login endpoint. Returns token and LoginResponse, now includes resetPassword flag.
-   */
   login(username: string, password: string): Promise<{ token: string } & LoginResponse> {
     return firstValueFrom(this.http.post<{ token: string } & LoginResponse>(`${API_BASE}/auth/login`, { username, password }));
   }
 
-  /**
-   * Update password for current user. Requires JWT token in Authorization header.
-   * POST /api/auth/update-password
-   * @param newPassword The new password to set
-   */
   updatePassword(newPassword: string): Promise<void> {
     return firstValueFrom(this.http.post<void>(`${API_BASE}/auth/update-password`, { newPassword }));
   }
@@ -309,6 +276,51 @@ export class ApiService {
 
   deleteCompanyDepartmentLink(companyId: string, departmentId: string): Promise<void> {
     return firstValueFrom(this.http.delete<void>(`${API_BASE}/company-departments/${companyId}/${departmentId}`));
+  }
+
+    getOnBreakNow(date: string, department: string | null, employee: string | null = null): Promise<number> {
+    return firstValueFrom(this.http.get<number>(`${API_BASE}/dashboard/on-break-now`, { params: { date, ...(department ? { department } : {}), ...(employee ? { employee } : {}) } }));
+  }
+
+    // ── Department-User Links ────────────────────────────────────────────────
+  // DepartmentUsersController endpoints
+  // Use correct endpoint: GET /api/DepartmentUsers/by-department/{departmentId}
+  getUsersForDepartment(departmentId: string): Promise<DepartmentUserLink[]> {
+    return firstValueFrom(this.http.get<DepartmentUserLink[]>(`${API_BASE}/DepartmentUsers/by-department/${departmentId}`));
+  }
+
+  // Use correct endpoint: GET /api/DepartmentUsers/by-user/{userId}
+  getDepartmentsForUser(userId: string): Promise<DepartmentUserLink[]> {
+    return firstValueFrom(this.http.get<DepartmentUserLink[]>(`${API_BASE}/DepartmentUsers/by-user/${userId}`));
+  }
+
+  getAllDepartmentUserLinks(): Promise<DepartmentUserLink[]> {
+    return firstValueFrom(this.http.get<DepartmentUserLink[]>(`${API_BASE}/DepartmentUsers`));
+  }
+
+  createDepartmentUserLink(link: { departmentId: string; userId: string }): Promise<DepartmentUserLink> {
+    return firstValueFrom(this.http.post<DepartmentUserLink>(`${API_BASE}/DepartmentUsers`, link));
+  }
+
+    deleteDepartmentUserLink(linkId: string): Promise<void> {
+    return firstValueFrom(this.http.delete<void>(`${API_BASE}/DepartmentUsers/${linkId}`));
+  }
+
+    // ── Time Overrides ───────────────────────────────────────────────────────────
+  getTimeOverrides(departmentId: string): Promise<TimeOverride[]> {
+    return firstValueFrom(this.http.get<TimeOverride[]>(`${API_BASE}/timeoverrides`, { params: { departmentId } }));
+  }
+
+  createTimeOverride(data: CreateTimeOverride): Promise<TimeOverride> {
+    return firstValueFrom(this.http.post<TimeOverride>(`${API_BASE}/timeoverrides`, data));
+  }
+
+  updateTimeOverride(id: string, data: UpdateTimeOverride): Promise<TimeOverride> {
+    return firstValueFrom(this.http.put<TimeOverride>(`${API_BASE}/timeoverrides/${id}`, data));
+  }
+
+  deleteTimeOverride(id: string): Promise<void> {
+    return firstValueFrom(this.http.delete<void>(`${API_BASE}/timeoverrides/${id}`));
   }
 }
 

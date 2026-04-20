@@ -40,33 +40,33 @@ import { DashboardService, DashboardKpis, LabeledCount, Department, DayEventRow,
       transition('expanded <=> collapsed', animate('200ms ease-in-out')),
     ]),
     trigger('rotateChevron', [
-      state('open',   style({ transform: 'rotate(180deg)' })),
+      state('open', style({ transform: 'rotate(180deg)' })),
       state('closed', style({ transform: 'rotate(0deg)' })),
       transition('open <=> closed', animate('200ms ease-in-out')),
     ]),
   ],
 })
 export class DashboardComponent implements OnInit {
-    /**
-     * Returns the duration between two time strings (HH:mm:ss or HH:mm) as hh:mm string.
-     */
-    getDurationStr(start: string, end: string): string {
-      if (!start || !end) return '';
-      // Accepts 'HH:mm:ss' or 'HH:mm'
-      const parse = (t: string) => {
-        const [h, m, s] = t.split(':').map(Number);
-        return { h: h || 0, m: m || 0, s: s ?? 0 };
-      };
-      const s = parse(start);
-      const e = parse(end);
-      const startMins = s.h * 60 + s.m + (s.s || 0) / 60;
-      const endMins = e.h * 60 + e.m + (e.s || 0) / 60;
-      let diff = Math.round((endMins - startMins) * 60); // in seconds
-      if (diff < 0) diff += 24 * 60 * 60; // handle overnight
-      const hours = Math.floor(diff / 3600);
-      const mins = Math.floor((diff % 3600) / 60);
-      return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`;
-    }
+  /**
+   * Returns the duration between two time strings (HH:mm:ss or HH:mm) as hh:mm string.
+   */
+  getDurationStr(start: string, end: string): string {
+    if (!start || !end) return '';
+    // Accepts 'HH:mm:ss' or 'HH:mm'
+    const parse = (t: string) => {
+      const [h, m, s] = t.split(':').map(Number);
+      return { h: h || 0, m: m || 0, s: s ?? 0 };
+    };
+    const s = parse(start);
+    const e = parse(end);
+    const startMins = s.h * 60 + s.m + (s.s || 0) / 60;
+    const endMins = e.h * 60 + e.m + (e.s || 0) / 60;
+    let diff = Math.round((endMins - startMins) * 60); // in seconds
+    if (diff < 0) diff += 24 * 60 * 60; // handle overnight
+    const hours = Math.floor(diff / 3600);
+    const mins = Math.floor((diff % 3600) / 60);
+    return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`;
+  }
   loading = true;
   error: string | null = null;
   filtersExpanded = true;
@@ -86,16 +86,16 @@ export class DashboardComponent implements OnInit {
     return this.departments.find(d => d.id === this.selectedDeptId)?.departmentName ?? null;
   }
 
-  kpis: DashboardKpis = { total_employees: 0, checkins_today: 0, on_site_now: 0, failed_today: 0 };
+  kpis: DashboardKpis = { total_employees: 0, checkins_today: 0, on_site_now: 0, failed_today: 0, on_break_now: 0 };
 
   // --- Status colour config ---
   readonly STATUS_CONFIG: Record<string, { label: string; bg: string; border: string }> = {
-    check_in:  { label: 'Check In',  bg: 'rgba(63,185,80,0.75)',   border: '#3fb950' },
-    check_out: { label: 'Check Out', bg: 'rgba(88,166,255,0.75)',  border: '#58a6ff' },
-    break_out: { label: 'Break Out', bg: 'rgba(227,179,65,0.75)',  border: '#e3b341' },
-    break_in:  { label: 'Break In',  bg: 'rgba(163,113,247,0.75)', border: '#a371f7' },
-    failed:    { label: 'Failed',    bg: 'rgba(248,81,73,0.75)',   border: '#f85149' },
-    unknown:   { label: 'Unknown',   bg: 'rgba(139,148,158,0.6)',  border: '#8b949e' },
+    check_in: { label: 'Check In', bg: 'rgba(63,185,80,0.75)', border: '#3fb950' },
+    check_out: { label: 'Check Out', bg: 'rgba(88,166,255,0.75)', border: '#58a6ff' },
+    break_out: { label: 'Break Out', bg: 'rgba(227,179,65,0.75)', border: '#e3b341' },
+    break_in: { label: 'Break In', bg: 'rgba(163,113,247,0.75)', border: '#a371f7' },
+    failed: { label: 'Failed', bg: 'rgba(248,81,73,0.75)', border: '#f85149' },
+    unknown: { label: 'Unknown', bg: 'rgba(139,148,158,0.6)', border: '#8b949e' },
   };
 
   // --- Day events bar chart (trendPeriod === 'day') ---
@@ -144,10 +144,9 @@ export class DashboardComponent implements OnInit {
   private rawDayEvents: DayEventRow[] = [];
 
   private readonly STATUS_FILTER_MAP: Record<string, string[]> = {
-    all:        [],
+    all: [],
     checkinout: ['check_in', 'check_out'],
     breakinout: ['break_out', 'break_in'],
-    unknown:    ['unknown'],
   };
 
   /**
@@ -239,39 +238,39 @@ export class DashboardComponent implements OnInit {
   viewDate = new Date();
   hourlyNames: string[] = [];
 
-  private readonly MONTHS = ['January','February','March','April','May','June',
-                              'July','August','September','October','November','December'];
-  private readonly MONTH_SHORT = ['Jan','Feb','Mar','Apr','May','Jun',
-                                   'Jul','Aug','Sep','Oct','Nov','Dec'];
+  private readonly MONTHS = ['January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'];
+  private readonly MONTH_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
   get kpiPeriodLabel(): string {
     return this.dateLabel;
   }
 
   get dateLabel(): string {
-    if (this.trendPeriod === 'year')  return String(this.viewDate.getFullYear());
+    if (this.trendPeriod === 'year') return String(this.viewDate.getFullYear());
     if (this.trendPeriod === 'month') return `${this.MONTHS[this.viewDate.getMonth()]} ${this.viewDate.getFullYear()}`;
     return `${this.viewDate.getDate()} ${this.MONTHS[this.viewDate.getMonth()]} ${this.viewDate.getFullYear()}`;
   }
 
   get canGoForward(): boolean {
     const t = new Date();
-    if (this.trendPeriod === 'year')  return this.viewDate.getFullYear() < t.getFullYear();
+    if (this.trendPeriod === 'year') return this.viewDate.getFullYear() < t.getFullYear();
     if (this.trendPeriod === 'month') {
       return this.viewDate.getFullYear() < t.getFullYear() ||
-             (this.viewDate.getFullYear() === t.getFullYear() && this.viewDate.getMonth() < t.getMonth());
+        (this.viewDate.getFullYear() === t.getFullYear() && this.viewDate.getMonth() < t.getMonth());
     }
     return this.toDateString(this.viewDate) < this.toDateString(t);
   }
 
   get trendTitle(): string {
-    if (this.trendPeriod === 'day')   return 'Access Trend';
+    if (this.trendPeriod === 'day') return 'Access Trend';
     if (this.trendPeriod === 'month') return 'Access Trend';
     return 'Access Trend';
   }
 
   get trendSubtitle(): string {
-    if (this.trendPeriod === 'day')   return 'Events by status — 15-min buckets';
+    if (this.trendPeriod === 'day') return 'Events by status — 15-min buckets';
     if (this.trendPeriod === 'month') return 'Events per day';
     return 'Events per month';
   }
@@ -306,7 +305,7 @@ export class DashboardComponent implements OnInit {
     },
   };
 
-  constructor(private dashboardService: DashboardService, private cdr: ChangeDetectorRef) {}
+  constructor(private dashboardService: DashboardService, private cdr: ChangeDetectorRef) { }
 
   async ngOnInit(): Promise<void> {
     // Existing line-chart tooltip (month/year views)
@@ -393,28 +392,26 @@ export class DashboardComponent implements OnInit {
     this.loading = true;
     this.error = null;
     const dept = this.selectedDeptName;
-    const emp  = this.selectedEmployee || null;
+    const emp = this.selectedEmployee || null;
     const date = this.toDateString(this.viewDate);
     const range = this.getDateRange();
     try {
-      const [kpis, dayEvents, dayPeople, monthly, issues, timesheets] = await Promise.all([
+      const [kpis, dayEvents, dayPeople, monthly, issues, timesheets, onBreakNow] = await Promise.all([
         this.dashboardService.getKpis(range.from, range.to, dept, emp),
         this.dashboardService.getDayEventsByStatus(date, dept, emp),
         this.dashboardService.getDayPeople(date, dept, emp),
         this.dashboardService.getMonthlyAttendance(dept, emp),
         this.dashboardService.getIssues(range.from, range.to, dept, emp),
         this.dashboardService.api.getTimesheetReport(dept, date, date, null),
+        this.dashboardService.getOnBreakNow(date, dept, emp),
       ]);
-      console.log('day people:', dayPeople);
-      // Map KPI keys from camelCase to snake_case for UI
-      const k: any = kpis;
       const mappedKpis = {
-        total_employees: (k.total_employees ?? k.totalEmployees) ?? 0,
-        checkins_today: (k.checkins_today ?? k.checkinsToday) ?? 0,
-        on_site_now: (k.on_site_now ?? k.onSiteNow) ?? 0,
-        failed_today: (k.failed_today ?? k.failedToday) ?? 0,
+        total_employees: kpis.total_employees ?? 0,
+        checkins_today: kpis.checkins_today ?? 0,
+        on_site_now: kpis.on_site_now ?? 0,
+        failed_today: kpis.failed_today ?? 0,
+        on_break_now: onBreakNow ?? 0,
       };
-      // Use dayPeople as is (break_time and worked_time are already formatted)
       this.dayPeople = dayPeople;
       this.kpis = mappedKpis;
       this.rawDayEvents = dayEvents;
@@ -431,7 +428,7 @@ export class DashboardComponent implements OnInit {
     if (period === this.trendPeriod) return;
     this.trendPeriod = period;
     this.viewDate = new Date(); // reset to today on period switch
-    await this.loadTrendChart();
+    await Promise.all([this.loadTrendChart(), this.loadAll()]);
   }
 
   async onDeptChange(): Promise<void> {
@@ -450,25 +447,32 @@ export class DashboardComponent implements OnInit {
     }
   }
 
-  goBack(): void {
+  async goBack(): Promise<void> {
     const d = new Date(this.viewDate);
-    if (this.trendPeriod === 'year')       d.setFullYear(d.getFullYear() - 1);
+    if (this.trendPeriod === 'year') d.setFullYear(d.getFullYear() - 1);
     else if (this.trendPeriod === 'month') d.setMonth(d.getMonth() - 1);
-    else                                   d.setDate(d.getDate() - 1);
+    else d.setDate(d.getDate() - 1);
     this.viewDate = d;
-    this.loadTrendChart();
-    this.loadAll();
+    await Promise.all([this.loadTrendChart(), this.loadAll()]);
   }
 
-  goForward(): void {
+  async goForward(): Promise<void> {
     if (!this.canGoForward) return;
     const d = new Date(this.viewDate);
-    if (this.trendPeriod === 'year')       d.setFullYear(d.getFullYear() + 1);
+    if (this.trendPeriod === 'year') d.setFullYear(d.getFullYear() + 1);
     else if (this.trendPeriod === 'month') d.setMonth(d.getMonth() + 1);
-    else                                   d.setDate(d.getDate() + 1);
+    else d.setDate(d.getDate() + 1);
     this.viewDate = d;
-    this.loadTrendChart();
-    this.loadAll();
+    await Promise.all([this.loadTrendChart(), this.loadAll()]);
+  }
+
+  private mapKpis(k: any): DashboardKpis {
+    return {
+      total_employees: k.total_employees ?? 0,
+      checkins_today: k.checkins_today ?? 0,
+      on_site_now: k.on_site_now ?? 0,
+      failed_today: k.failed_today ?? 0,
+    };
   }
 
   private toDateString(d: Date): string {
@@ -479,11 +483,11 @@ export class DashboardComponent implements OnInit {
     this.trendLoading = true;
     const xTicks = this.hourlyOptions!.scales!['x']!.ticks as any;
     xTicks.maxTicksLimit = this.trendPeriod === 'day' ? 12
-                         : this.trendPeriod === 'month' ? 16
-                         : 12;
+      : this.trendPeriod === 'month' ? 16
+        : 12;
     try {
       const dept = this.selectedDeptName;
-      const emp  = this.selectedEmployee || null;
+      const emp = this.selectedEmployee || null;
       const date = this.toDateString(this.viewDate);
       const range = this.getDateRange();
       if (this.trendPeriod === 'day') {
@@ -493,14 +497,14 @@ export class DashboardComponent implements OnInit {
           this.dashboardService.getDayPeople(date, dept, emp),
           this.dashboardService.getIssues(range.from, range.to, dept, emp),
         ]);
-        this.kpis = kpis;
+        this.kpis = this.mapKpis(kpis);
         this.rawDayEvents = dayEvents;
         this.dayBarData = this.buildDayEventsChart(this.filterDayEvents(dayEvents));
         this.dayPeople = dayPeople;
         this.issues = issues;
       } else if (this.trendPeriod === 'month') {
         this.hourlyNames = [];
-        const year  = this.viewDate.getFullYear();
+        const year = this.viewDate.getFullYear();
         const month = this.viewDate.getMonth() + 1; // 1-based
         const today = this.toDateString(new Date());
         const [kpis, rows, issues, dayPeople] = await Promise.all([
@@ -509,15 +513,15 @@ export class DashboardComponent implements OnInit {
           this.dashboardService.getIssues(range.from, range.to, dept, emp),
           this.dashboardService.getDayPeople(today, dept, emp),
         ]);
-        this.kpis = kpis;
+        this.kpis = this.mapKpis(kpis);
         this.issues = issues;
         this.dayPeople = dayPeople;
-        const map   = new Map(rows.map(r => [r.label, r.count]));
+        const map = new Map(rows.map(r => [r.label, r.count]));
         const daysInMonth = new Date(year, month, 0).getDate();
         const labels: string[] = [];
-        const data: number[]   = [];
+        const data: number[] = [];
         for (let d = 1; d <= daysInMonth; d++) {
-          const key = `${year}/${String(month).padStart(2, '0')}/${String(d).padStart(2, '0')}`;
+          const key = `${year}-${String(month).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
           labels.push(String(d));
           const value = map.get(key) ?? 0;
           data.push(value);
@@ -527,7 +531,7 @@ export class DashboardComponent implements OnInit {
           r => r.map(x => x.label));
       } else {
         this.hourlyNames = [];
-        const year  = this.viewDate.getFullYear();
+        const year = this.viewDate.getFullYear();
         const today = this.toDateString(new Date());
         const [kpis, rows, issues, dayPeople] = await Promise.all([
           this.dashboardService.getKpis(range.from, range.to, dept, emp),
@@ -535,10 +539,10 @@ export class DashboardComponent implements OnInit {
           this.dashboardService.getIssues(range.from, range.to, dept, emp),
           this.dashboardService.getDayPeople(today, dept, emp),
         ]);
-        this.kpis = kpis;
+        this.kpis = this.mapKpis(kpis);
         this.issues = issues;
         this.dayPeople = dayPeople;
-        const map   = new Map(rows.map(r => [r.label, r.count]));
+        const map = new Map(rows.map(r => [r.label, r.count]));
         const items = this.MONTH_SHORT.map((name, i) => ({
           label: name,
           count: map.get(`${year}-${String(i + 1).padStart(2, '0')}`) ?? 0,
@@ -577,11 +581,11 @@ export class DashboardComponent implements OnInit {
     const labels = Array.from(labelSet).sort();
 
     // Collect statuses in preferred order
-    const statusOrder = ['check_in', 'check_out', 'break_out', 'break_in', 'failed', 'unknown'];
+    const statusOrder = ['check_in', 'check_out', 'break_out', 'break_in', 'failed']; // 'unknown' removed
     const presentStatuses = new Set(rows.map(r => r.status));
     const statuses = [
       ...statusOrder.filter(s => presentStatuses.has(s)),
-      ...Array.from(presentStatuses).filter(s => !statusOrder.includes(s)),
+      ...Array.from(presentStatuses).filter(s => !statusOrder.includes(s) && s !== 'unknown'), // filter out 'unknown'
     ];
 
     // Build map: time-label → status → {count, names}
@@ -599,7 +603,7 @@ export class DashboardComponent implements OnInit {
     this.selectedBarTime = null;
 
     const datasets: ChartData<'bar'>['datasets'] = statuses.map(status => {
-      const cfg = this.STATUS_CONFIG[status] ?? this.STATUS_CONFIG['unknown'];
+      const cfg = this.STATUS_CONFIG[status] ?? { label: status, bg: '#8b949e', border: '#8b949e' };
       return {
         label: cfg.label,
         data: labels.map(l => map.get(l)?.get(status)?.count ?? 0),
@@ -619,8 +623,8 @@ export class DashboardComponent implements OnInit {
 
   issueLabel(type: string): string {
     const map: Record<string, string> = {
-      failed_attempt:  'Failed Attempt',
-      no_checkout:     'No Check-Out',
+      failed_attempt: 'Failed Attempt',
+      no_checkout: 'No Check-Out',
       unmatched_break: 'Unmatched Break',
     };
     return map[type] ?? type;
@@ -637,7 +641,7 @@ export class DashboardComponent implements OnInit {
       const lastDay = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
       return {
         from: `${y}-${String(m).padStart(2, '0')}-01`,
-        to:   `${y}-${String(m).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`,
+        to: `${y}-${String(m).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`,
       };
     }
     const y = d.getFullYear();
@@ -648,9 +652,9 @@ export class DashboardComponent implements OnInit {
     if (h <= 0) return '';
     const totalMin = Math.round(h * 60);
     const hours = Math.floor(totalMin / 60);
-    const mins  = totalMin % 60;
+    const mins = totalMin % 60;
     if (hours === 0) return `${mins}m`;
-    if (mins  === 0) return `${hours}h`;
+    if (mins === 0) return `${hours}h`;
     return `${hours}h ${mins}m`;
   }
 

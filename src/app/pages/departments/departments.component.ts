@@ -11,10 +11,12 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ApiService } from '../../services/api.service';
 import { Department } from '../../models/department.model';
 import { AssignDepartmentUsersDialogComponent } from './dialogs/assign-department-users-dialog/assign-department-users-dialog.component';
+
 import {
   DeptFormDialogComponent,
   DeptConfirmDialogComponent,
 } from './dialogs/dept-dialog/dept-dialog.component';
+import { TimeOverridesDialogComponent } from './dialogs/time-overrides-dialog/time-overrides-dialog.component';
 
 export type DepartmentRow = Department;
 
@@ -34,6 +36,7 @@ import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
     MatMenuModule,
     MatProgressSpinnerModule,
     MatSnackBarModule,
+    TimeOverridesDialogComponent,
   ],
   templateUrl: './departments.component.html',
   styleUrl: './departments.component.scss',
@@ -82,7 +85,7 @@ export class DepartmentsComponent implements OnInit {
     this.loading = true;
     this.error = null;
     try {
-      this.departments = await this.api.getAllDepartments();
+      this.departments = await this.api.getDepartments();
       console.log('Loaded departments:', this.departments);
     } catch (e) {
       this.error = String(e);
@@ -146,5 +149,12 @@ export class DepartmentsComponent implements OnInit {
 
   locationOf(dept: DepartmentRow): string {
     return [dept.addressLine1, dept.addressLine2, dept.city].filter(Boolean).join(', ') || '—';
+  }
+
+  openTimeOverrides(dept: DepartmentRow): void {
+    this.dialog.open(TimeOverridesDialogComponent, {
+      data: { departmentId: dept.id, departmentName: dept.departmentName },
+      width: '600px',
+    });
   }
 }

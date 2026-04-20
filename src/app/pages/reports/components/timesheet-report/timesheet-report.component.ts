@@ -53,7 +53,7 @@ export class TimesheetReportComponent implements OnInit {
     private snackBar: MatSnackBar,
     private api: ApiService,
     private dialog: MatDialog,
-  ) {}
+  ) { }
 
   openFilterDialog(): void {
     const ref = this.dialog.open(DynamicFilterDialogComponent, {
@@ -113,25 +113,33 @@ export class TimesheetReportComponent implements OnInit {
 
   formatHours(h: number): string {
     if (!h || h < 0.01) return '0h 0m';
-    const hrs  = Math.floor(h);
+    const hrs = Math.floor(h);
     const mins = Math.round((h - hrs) * 60);
     return `${hrs}h ${mins}m`;
+  }
+
+  formatHHMM(h: number): string {
+    if (!h || h < 0) return '00:00';
+    const totalMins = Math.round(h * 60);
+    const hrs = Math.floor(totalMins / 60);
+    const mins = totalMins % 60;
+    return `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`;
   }
 
   async exportToExcel(): Promise<void> {
     const dept = this.filters.department ?? 'All Departments';
     const from = this.filters.dateFrom;
-    const to   = this.filters.dateTo;
+    const to = this.filters.dateTo;
     const user = this.filters.user ?? 'All Users';
 
     const data: (string | number)[][] = [
       ['Timesheet Report'],
       ['Department', dept],
-      ['Date From',  from],
-      ['Date To',    to],
-      ['User',       user],
+      ['Date From', from],
+      ['Date To', to],
+      ['User', user],
       [],
-      ['Date', 'Employee', 'Employee ID', 'Department', 'First Entry', 'Last Entry', 'Total Span (h)', 'Break Time (h)', 'Net Hours (h)'],
+      ['Date', 'Employee', 'Employee ID', 'Department', 'First Entry', 'Last Entry', 'Total Span', 'Break Time', 'Net Hours'],
       ...this.rows.map(r => [
         r.date,
         r.person,
@@ -139,16 +147,16 @@ export class TimesheetReportComponent implements OnInit {
         r.department,
         r.first_entry,
         r.last_entry,
-        Math.round(r.hours_worked * 100) / 100,
-        Math.round(r.break_hours * 100) / 100,
-        Math.round(this.netHours(r) * 100) / 100,
+        this.formatHHMM(r.hours_worked),
+        this.formatHHMM(r.break_hours),
+        this.formatHHMM(this.netHours(r)),
       ]),
       [],
       ['', '', '', '', '', '', 'Total Span', 'Total Break', 'Net Hours'],
       ['', '', '', '', '', '',
-        Math.round(this.totalHours * 100) / 100,
-        Math.round(this.totalBreakHours * 100) / 100,
-        Math.round(this.totalNetHours * 100) / 100,
+        this.formatHHMM(this.totalHours),
+        this.formatHHMM(this.totalBreakHours),
+        this.formatHHMM(this.totalNetHours),
       ],
     ];
 

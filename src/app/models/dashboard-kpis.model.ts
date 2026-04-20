@@ -3,4 +3,5 @@ export interface DashboardKpis {
   checkins_today: number;
   on_site_now: number;
   failed_today: number;
+  on_break_now?: number;
 }
