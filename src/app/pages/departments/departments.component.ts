@@ -36,7 +36,6 @@ import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
     MatMenuModule,
     MatProgressSpinnerModule,
     MatSnackBarModule,
-    TimeOverridesDialogComponent,
   ],
   templateUrl: './departments.component.html',
   styleUrl: './departments.component.scss',

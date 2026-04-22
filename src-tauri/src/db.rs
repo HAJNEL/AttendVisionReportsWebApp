@@ -5,7 +5,7 @@ pub struct DashboardKpis {
     pub total_employees: i64,
     pub checkins_today: i64,
     pub on_site_now: i64,
-    pub failed_today: i64,
+    pub on_break_now: i64,
 }
 
 #[derive(Debug)]
@@ -257,7 +257,7 @@ pub async fn get_dashboard_kpis(pool: &PgPool, dept: Option<&str>, date_from: &s
         total_employees: total.0,
         checkins_today: checkins.0,
         on_site_now: on_site.0,
-        failed_today: failed.0,
+        on_break_now: on_break.0,
     })
 }
 

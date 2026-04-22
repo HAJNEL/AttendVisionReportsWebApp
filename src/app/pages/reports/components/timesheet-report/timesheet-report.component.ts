@@ -15,6 +15,7 @@ import { ApiService } from '../../../../services/api.service';
 export interface TimesheetRow {
   person: string;
   employee_id: string;
+  status: string;
   department: string;
   date: string;
   first_entry: string;
@@ -41,7 +42,7 @@ export interface TimesheetRow {
   styleUrl: './timesheet-report.component.scss',
 })
 export class TimesheetReportComponent implements OnInit {
-  displayedColumns = ['date', 'person', 'department', 'first_entry', 'last_entry', 'hours_worked', 'break_hours', 'net_hours'];
+  displayedColumns = ['date', 'person', 'status','employee_id', 'department', 'first_entry', 'last_entry', 'hours_worked', 'break_hours', 'net_hours'];
   rows: TimesheetRow[] = [];
   loading = true;
   error: string | null = null;
@@ -139,11 +140,12 @@ export class TimesheetReportComponent implements OnInit {
       ['Date To', to],
       ['User', user],
       [],
-      ['Date', 'Employee', 'Employee ID', 'Department', 'First Entry', 'Last Entry', 'Total Span', 'Break Time', 'Net Hours'],
+      ['Date', 'Employee', 'Employee ID', 'Status', 'Department', 'First Entry', 'Last Entry', 'Total Span', 'Break Time', 'Net Hours'],
       ...this.rows.map(r => [
         r.date,
         r.person,
         r.employee_id,
+        r.status,
         r.department,
         r.first_entry,
         r.last_entry,
@@ -152,8 +154,8 @@ export class TimesheetReportComponent implements OnInit {
         this.formatHHMM(this.netHours(r)),
       ]),
       [],
-      ['', '', '', '', '', '', 'Total Span', 'Total Break', 'Net Hours'],
-      ['', '', '', '', '', '',
+      ['', '', '', '', '', '', '', 'Total Span', 'Total Break', 'Net Hours'],
+      ['', '', '', '', '', '', '',
         this.formatHHMM(this.totalHours),
         this.formatHHMM(this.totalBreakHours),
         this.formatHHMM(this.totalNetHours),
@@ -162,7 +164,7 @@ export class TimesheetReportComponent implements OnInit {
 
     const ws = XLSX.utils.aoa_to_sheet(data);
     ws['!cols'] = [
-      { wch: 12 }, { wch: 28 }, { wch: 16 },
+      { wch: 12 }, { wch: 28 }, { wch: 16 }, { wch: 14 },
       { wch: 22 }, { wch: 12 }, { wch: 12 }, { wch: 16 }, { wch: 16 }, { wch: 16 },
     ];
     const wb = XLSX.utils.book_new();

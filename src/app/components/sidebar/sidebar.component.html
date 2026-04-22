@@ -27,6 +27,10 @@
       <mat-icon matListItemIcon>people</mat-icon>
       <span matListItemTitle>Users</span>
     </a>
+    <a *ngIf="authService.hasPermission('employee_leave')" mat-list-item routerLink="/employee-leave" routerLinkActive="active-link" (click)="handleNavClick()">
+      <mat-icon matListItemIcon>event_busy</mat-icon>
+      <span matListItemTitle>Employee Leave</span>
+    </a>
     <a *ngIf="authService.hasPermission('roles')" mat-list-item routerLink="/roles" routerLinkActive="active-link" (click)="handleNavClick()">
       <mat-icon matListItemIcon>security</mat-icon>
       <span matListItemTitle>Roles</span>

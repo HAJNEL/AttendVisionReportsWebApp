@@ -1,4 +1,5 @@
-import { DepartmentUserLink } from '../models/department-user-link.model';
+import { EmployeeLeave, CreateEmployeeLeave, UpdateEmployeeLeave, EmployeeLeaveRange } from '../models/employee-leave.model';
+import { DepartmentUserLink, DepartmentEmployee } from '../models/department-user-link.model';
 import { environment } from '../../environments/environment';
 import { PermissionDto, CreatePermissionDto, UpdatePermissionDto, AssignPermissionDto } from '../models/permission.model';
 import { Injectable } from '@angular/core';
@@ -29,7 +30,7 @@ const API_BASE = environment.apiUrl;
 @Injectable({ providedIn: 'root' })
 export class ApiService {
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   // ── Auth ──────────────────────────────────────────────────────────────────
   login(username: string, password: string): Promise<{ token: string } & LoginResponse> {
@@ -88,10 +89,6 @@ export class ApiService {
 
   // ── Dashboard ─────────────────────────────────────────────────────────────
 
-  getEmployees(department: string | null): Promise<string[]> {
-    return firstValueFrom(this.http.get<string[]>(`${API_BASE}/dashboard/employees`, { params: department ? { department } : {} }));
-  }
-
   getDashboardKpis(dateFrom: string, dateTo: string, department: string | null, employee: string | null = null): Promise<DashboardKpis> {
     return firstValueFrom(this.http.get<DashboardKpis>(`${API_BASE}/dashboard/kpis`, { params: { dateFrom, dateTo, ...(department ? { department } : {}), ...(employee ? { employee } : {}) } }));
   }
@@ -142,7 +139,7 @@ export class ApiService {
     return firstValueFrom(this.http.get<TimesheetRow[]>(`${API_BASE}/reports/timesheet`, { params: { dateFrom, dateTo, ...(dept ? { dept } : {}), ...(user ? { user } : {}) } }));
   }
 
-    // ── Companies ──────────────────────────────────────────────────────────────
+  // ── Companies ──────────────────────────────────────────────────────────────
 
   getCompanies(): Promise<Company[]> {
     return firstValueFrom(this.http.get<Company[]>(`${API_BASE}/companies/`));
@@ -206,7 +203,7 @@ export class ApiService {
     return this.http.post<void>(`${API_BASE}/roles/remove`, data);
   }
 
-    // ── Permissions ───────────────────────────────────────────────────────────
+  // ── Permissions ───────────────────────────────────────────────────────────
 
   getAllPermissions(): Promise<PermissionDto[]> {
     return firstValueFrom(this.http.get<PermissionDto[]>(`${API_BASE}/permissions`));
@@ -242,14 +239,14 @@ export class ApiService {
   }
 
   getUserPermissions(): Promise<PermissionDto[]> {
-  return firstValueFrom(this.http.get<PermissionDto[]>(`${API_BASE}/user/permissions`));
-}
+    return firstValueFrom(this.http.get<PermissionDto[]>(`${API_BASE}/user/permissions`));
+  }
 
   bulkAssignPermissionsToRole(roleId: string, permissionIds: number[]): Promise<void> {
     return firstValueFrom(this.http.post<void>(`${API_BASE}/permissions/assign`, { roleId, permissionIds }));
   }
 
-    // ── Company-User Links ────────────────────────────────────────────────
+  // ── Company-User Links ────────────────────────────────────────────────
   getUsersForCompany(companyId: string): Promise<CompanyUserLink[]> {
     return firstValueFrom(this.http.get<CompanyUserLink[]>(`${API_BASE}/company-users/company/${companyId}/users`));
   }
@@ -266,7 +263,7 @@ export class ApiService {
     return firstValueFrom(this.http.delete<void>(`${API_BASE}/company-users/${linkId}`));
   }
 
-    getDepartmentsForCompany(companyId: string): Promise<Department[]> {
+  getDepartmentsForCompany(companyId: string): Promise<Department[]> {
     return firstValueFrom(this.http.get<Department[]>(`${API_BASE}/company-departments/company/${companyId}/departments`));
   }
 
@@ -278,11 +275,11 @@ export class ApiService {
     return firstValueFrom(this.http.delete<void>(`${API_BASE}/company-departments/${companyId}/${departmentId}`));
   }
 
-    getOnBreakNow(date: string, department: string | null, employee: string | null = null): Promise<number> {
+  getOnBreakNow(date: string, department: string | null, employee: string | null = null): Promise<number> {
     return firstValueFrom(this.http.get<number>(`${API_BASE}/dashboard/on-break-now`, { params: { date, ...(department ? { department } : {}), ...(employee ? { employee } : {}) } }));
   }
 
-    // ── Department-User Links ────────────────────────────────────────────────
+  // ── Department-User Links ────────────────────────────────────────────────
   // DepartmentUsersController endpoints
   // Use correct endpoint: GET /api/DepartmentUsers/by-department/{departmentId}
   getUsersForDepartment(departmentId: string): Promise<DepartmentUserLink[]> {
@@ -302,11 +299,11 @@ export class ApiService {
     return firstValueFrom(this.http.post<DepartmentUserLink>(`${API_BASE}/DepartmentUsers`, link));
   }
 
-    deleteDepartmentUserLink(linkId: string): Promise<void> {
+  deleteDepartmentUserLink(linkId: string): Promise<void> {
     return firstValueFrom(this.http.delete<void>(`${API_BASE}/DepartmentUsers/${linkId}`));
   }
 
-    // ── Time Overrides ───────────────────────────────────────────────────────────
+  // ── Time Overrides ───────────────────────────────────────────────────────────
   getTimeOverrides(departmentId: string): Promise<TimeOverride[]> {
     return firstValueFrom(this.http.get<TimeOverride[]>(`${API_BASE}/timeoverrides`, { params: { departmentId } }));
   }
@@ -322,5 +319,48 @@ export class ApiService {
   deleteTimeOverride(id: string): Promise<void> {
     return firstValueFrom(this.http.delete<void>(`${API_BASE}/timeoverrides/${id}`));
   }
-}
 
+  // ── Employee Leave ──────────────────────────────────────────────────────────
+
+  getEmployeeLeaves(): Promise<EmployeeLeave[]> {
+    return firstValueFrom(this.http.get<EmployeeLeave[]>(`${API_BASE}/employeeleave`));
+  }
+
+  getEmployeeLeaveRanges(params?: {
+    departmentId?: string;
+    userId?: string;
+    startDate?: string;
+    endDate?: string;
+  }): Promise<EmployeeLeaveRange[]> {
+    return firstValueFrom(this.http.get<EmployeeLeaveRange[]>(`${API_BASE}/employeeleave/ranges`, { params }));
+  }
+  
+
+  getEmployeeLeaveById(id: string): Promise<EmployeeLeave> {
+    return firstValueFrom(this.http.get<EmployeeLeave>(`${API_BASE}/employeeleave/${id}`));
+  }
+
+  createEmployeeLeave(input: CreateEmployeeLeave): Promise<EmployeeLeave[]> {
+    return firstValueFrom(this.http.post<EmployeeLeave[]>(`${API_BASE}/employeeleave`, input));
+  }
+
+  updateEmployeeLeave(id: string, input: UpdateEmployeeLeave): Promise<EmployeeLeave> {
+    return firstValueFrom(this.http.put<EmployeeLeave>(`${API_BASE}/employeeleave/${id}`, input));
+  }
+
+  deleteEmployeeLeave(id: string): Promise<void> {
+    return firstValueFrom(this.http.delete<void>(`${API_BASE}/employeeleave/${id}`));
+  }
+
+  deleteEmployeeLeaveRange(params: { userId: string; startDate: string; endDate: string }): Promise<number> {
+    return firstValueFrom(this.http.delete<number>(`${API_BASE}/employeeleave/range`, { params }));
+  }
+
+  // ── Filters ─────────────────────────────────────────────────────────────
+
+  getEmployees(departmentId: string | null): Promise<DepartmentEmployee[]> {
+    const params: any = {};
+    if (departmentId && departmentId !== 'all') params.departmentId = departmentId;
+    return firstValueFrom(this.http.get<DepartmentEmployee[]>(`${API_BASE}/filter/employees`, { params }));
+  }
+}

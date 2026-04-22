@@ -1,3 +1,15 @@
+.status-issue {
+  color: #e53935;
+  font-weight: 600;
+}
+.status-worked {
+  color: #43a047;
+  font-weight: 600;
+}
+.status-other {
+  color: #1e88e5;
+  font-weight: 600;
+}
 
 h2[mat-dialog-title].dialog-title-row {
   display: flex;

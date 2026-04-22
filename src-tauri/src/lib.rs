@@ -32,7 +32,7 @@ pub struct DashboardKpisResponse {
     pub total_employees: i64,
     pub checkins_today: i64,
     pub on_site_now: i64,
-    pub failed_today: i64,
+    pub on_break_now: i64,
 }
 
 #[derive(Serialize)]
@@ -263,7 +263,7 @@ async fn get_dashboard_kpis(state: State<'_, AppState>, department: Option<Strin
         total_employees: kpis.total_employees,
         checkins_today: kpis.checkins_today,
         on_site_now: kpis.on_site_now,
-        failed_today: kpis.failed_today,
+        on_break_now: kpis.on_break_now,
     })
 }
 

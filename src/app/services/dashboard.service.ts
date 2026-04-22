@@ -17,7 +17,7 @@ export class DashboardService {
   constructor(public readonly api: ApiService) {}
 
   getDepartments()                                                                      { return this.api.getDepartments(); }
-  getEmployees(dept?: string | null)                                                    { return this.api.getEmployees(dept ?? null); }
+  getEmployees(departmentId?: string | null) { return this.api.getEmployees(departmentId ?? null); }
   getKpis(df: string, dt: string, dept?: string | null, emp?: string | null)           { return this.api.getDashboardKpis(df, dt, dept ?? null, emp ?? null); }
   getHourlyTraffic(date: string, dept?: string | null)                                  { return this.api.getHourlyTraffic(date, dept ?? null); }
   getMonthlyAttendance(dept?: string | null, emp?: string | null)                       { return this.api.getMonthlyAttendance(dept ?? null, emp ?? null); }

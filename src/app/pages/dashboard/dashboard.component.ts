@@ -14,6 +14,7 @@ import { BaseChartDirective } from 'ng2-charts';
 import { ChartConfiguration, ChartData, Plugin } from 'chart.js';
 import { DayPersonRow } from '../../models/day-person-row.model';
 import { DashboardService, DashboardKpis, LabeledCount, Department, DayEventRow, IssueRow } from '../../services/dashboard.service';
+import type { DepartmentEmployee } from '../../models/department-user-link.model';
 
 @Component({
   selector: 'app-dashboard',
@@ -78,7 +79,7 @@ export class DashboardComponent implements OnInit {
   departments: Department[] = [];
   selectedDeptId: string = '';
   showAllDepartmentsOption = false;
-  employees: string[] = [];
+  employees: DepartmentEmployee[] = [];
   selectedEmployee: string = '';
 
   get selectedDeptName(): string | null {
@@ -86,7 +87,7 @@ export class DashboardComponent implements OnInit {
     return this.departments.find(d => d.id === this.selectedDeptId)?.departmentName ?? null;
   }
 
-  kpis: DashboardKpis = { total_employees: 0, checkins_today: 0, on_site_now: 0, failed_today: 0, on_break_now: 0 };
+  kpis: DashboardKpis = { total_employees: 0, checkins_today: 0, on_site_now: 0, on_break_now: 0, failed_today: 0 };
 
   // --- Status colour config ---
   readonly STATUS_CONFIG: Record<string, { label: string; bg: string; border: string }> = {
@@ -405,13 +406,8 @@ export class DashboardComponent implements OnInit {
         this.dashboardService.api.getTimesheetReport(dept, date, date, null),
         this.dashboardService.getOnBreakNow(date, dept, emp),
       ]);
-      const mappedKpis = {
-        total_employees: kpis.total_employees ?? 0,
-        checkins_today: kpis.checkins_today ?? 0,
-        on_site_now: kpis.on_site_now ?? 0,
-        failed_today: kpis.failed_today ?? 0,
-        on_break_now: onBreakNow ?? 0,
-      };
+        // Map KPI fields from API and add on_break_now from separate call
+        const mappedKpis = this.mapKpis({ ...kpis, on_break_now: onBreakNow });
       this.dayPeople = dayPeople;
       this.kpis = mappedKpis;
       this.rawDayEvents = dayEvents;
@@ -433,7 +429,7 @@ export class DashboardComponent implements OnInit {
 
   async onDeptChange(): Promise<void> {
     this.selectedEmployee = '';
-    this.employees = await this.dashboardService.getEmployees(this.selectedDeptName).catch(() => []);;
+    this.employees = await this.dashboardService.getEmployees(this.selectedDeptId && this.selectedDeptId !== 'all' ? this.selectedDeptId : null).catch(() => []);
     await this.loadAll();
     if (this.trendPeriod !== 'day') {
       await this.loadTrendChart();
@@ -467,11 +463,13 @@ export class DashboardComponent implements OnInit {
   }
 
   private mapKpis(k: any): DashboardKpis {
+    // Accept both camelCase (API) and snake_case (legacy/frontend)
     return {
-      total_employees: k.total_employees ?? 0,
-      checkins_today: k.checkins_today ?? 0,
-      on_site_now: k.on_site_now ?? 0,
-      failed_today: k.failed_today ?? 0,
+      total_employees: k.total_employees ?? k.totalEmployees ?? 0,
+      checkins_today: k.checkins_today ?? k.checkinsToday ?? 0,
+      on_site_now: k.on_site_now ?? k.onSiteNow ?? 0,
+      on_break_now: k.on_break_now ?? k.onBreakNow ?? 0,
+      failed_today: k.failed_today ?? k.failedToday ?? 0,
     };
   }
 

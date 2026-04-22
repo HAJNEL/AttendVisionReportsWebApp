@@ -4,3 +4,10 @@ export interface DepartmentUserLink {
   userId: string;
   assignedAt?: string;
 }
+
+export interface DepartmentEmployee {
+  departmentId: string;
+  departmentName: string;
+  name: string;
+  employeeId: string;
+}

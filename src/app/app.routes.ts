@@ -22,6 +22,7 @@ export const routes: Routes = [
       { path: "users", loadComponent: () => import("./pages/users/users.component").then(m => m.UsersComponent) },
       { path: "roles", loadComponent: () => import("./pages/roles/roles.component").then(m => m.RolesComponent) },
       { path: "permissions", loadComponent: () => import("./pages/permissions/permissions.component").then(m => m.PermissionsComponent) },
+      { path: "employee-leave", loadComponent: () => import("./pages/EmployeeLeave/employee-leave.component").then(m => m.EmployeeLeaveComponent) },
       { path: "", redirectTo: "/dashboard", pathMatch: "full" },
     ],
   },

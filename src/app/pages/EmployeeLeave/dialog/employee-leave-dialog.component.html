@@ -1,0 +1,55 @@
+<h2 mat-dialog-title>{{ data?.edit ? 'Edit Leave' : 'Book Leave' }}</h2>
+<mat-dialog-content>
+  <form [formGroup]="form" class="employee-leave-form">
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Department</mat-label>
+      <mat-select formControlName="departmentId">
+        <mat-option *ngIf="showAllDepartmentsOption" value="all">All Departments</mat-option>
+        <mat-option *ngFor="let dept of departments" [value]="dept.id">{{ dept.departmentName }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Employee</mat-label>
+      <mat-select formControlName="employeeId" [disabled]="loadingEmployees || employees.length === 0">
+        <mat-option value="">All Employees</mat-option>
+        <mat-option *ngFor="let emp of employees" [value]="emp.employeeId">{{ emp.name }}</mat-option>
+      </mat-select>
+      <mat-progress-spinner *ngIf="loadingEmployees" diameter="24" mode="indeterminate" style="display:block;margin:8px auto;"></mat-progress-spinner>
+    </mat-form-field>
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Leave Type</mat-label>
+      <mat-select formControlName="leaveType">
+        <mat-option *ngFor="let type of leaveTypes" [value]="type.value">
+          {{ type.label }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <div class="time-fields-row">
+      <mat-form-field appearance="outline" class="half-width">
+        <mat-label>From Time</mat-label>
+        <input matInput type="time" formControlName="fromTime">
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="half-width">
+        <mat-label>To Time</mat-label>
+        <input matInput type="time" formControlName="toTime">
+      </mat-form-field>
+    </div>
+<mat-form-field appearance="outline" class="full-width" [formGroup]="form">
+  <mat-label>Date Range</mat-label>
+  <mat-date-range-input [rangePicker]="picker" formGroupName="dateRange">
+    <input matStartDate placeholder="Start date" formControlName="start">
+    <input matEndDate placeholder="End date" formControlName="end">
+  </mat-date-range-input>
+  <mat-hint>MM/DD/YYYY – MM/DD/YYYY</mat-hint>
+  <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+  <mat-date-range-picker #picker></mat-date-range-picker>
+</mat-form-field>
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button (click)="close()">Cancel</button>
+  <button mat-flat-button color="primary" (click)="save()" [disabled]="form.invalid">
+    {{ data?.edit ? 'Save Changes' : 'Book Leave' }}
+  </button>
+</mat-dialog-actions>
