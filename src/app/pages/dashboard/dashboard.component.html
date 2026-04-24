@@ -82,49 +82,146 @@
 
   <ng-container *ngIf="!loading && !error">
 
+
     <!-- KPI Cards -->
     <div class="kpi-grid">
-      <mat-card class="kpi-card">
+      <mat-card class="kpi-card" [class.selected]="selectedKpi === 'employees'" (click)="onKpiCardClick('employees')">
         <mat-card-content>
           <div class="kpi-icon-row">
             <mat-icon class="kpi-icon blue">groups</mat-icon>
             <span class="kpi-label">Employees</span>
           </div>
-          <div class="kpi-value">{{ kpis.total_employees }}</div>
+          <div class="kpi-value">{{ kpis.totalEmployees }}</div>
           <div class="kpi-sub">Distinct · {{ kpiPeriodLabel }}</div>
         </mat-card-content>
       </mat-card>
 
-      <mat-card class="kpi-card">
+      <mat-card class="kpi-card" [class.selected]="selectedKpi === 'checkins'" (click)="onKpiCardClick('checkins')">
         <mat-card-content>
           <div class="kpi-icon-row">
             <mat-icon class="kpi-icon green">event_available</mat-icon>
             <span class="kpi-label">Check-ins</span>
           </div>
-          <div class="kpi-value">{{ kpis.checkins_today }}</div>
+          <div class="kpi-value">{{ kpis.checkinsToday }}</div>
           <div class="kpi-sub">Distinct · {{ kpiPeriodLabel }}</div>
         </mat-card-content>
       </mat-card>
 
-      <mat-card class="kpi-card">
+      <mat-card class="kpi-card" [class.selected]="selectedKpi === 'onSite'" (click)="onKpiCardClick('onSite')">
         <mat-card-content>
           <div class="kpi-icon-row">
             <mat-icon class="kpi-icon teal">meeting_room</mat-icon>
             <span class="kpi-label">On-Site</span>
           </div>
-          <div class="kpi-value">{{ kpis.on_site_now }}</div>
+          <div class="kpi-value">{{ kpis.onSiteNow }}</div>
           <div class="kpi-sub">As of today</div>
         </mat-card-content>
       </mat-card>
 
-      <mat-card class="kpi-card">
+      <mat-card class="kpi-card" [class.selected]="selectedKpi === 'onBreak'" (click)="onKpiCardClick('onBreak')">
         <mat-card-content>
           <div class="kpi-icon-row">
             <mat-icon class="kpi-icon orange">free_breakfast</mat-icon>
             <span class="kpi-label">ON BREAK</span>
           </div>
-          <div class="kpi-value">{{ kpis.on_break_now ?? 0 }}</div>
+          <div class="kpi-value">{{ kpis.onBreakNow ?? 0 }}</div>
           <div class="kpi-sub">{{ kpiPeriodLabel }}</div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <!-- KPI Details Card -->
+    <div *ngIf="selectedKpi" class="kpi-details-card">
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>
+            <span *ngIf="selectedKpi === 'employees'">Employees Details</span>
+            <span *ngIf="selectedKpi === 'checkins'">Check-ins Details</span>
+            <span *ngIf="selectedKpi === 'onSite'">On-Site Details</span>
+            <span *ngIf="selectedKpi === 'onBreak'">On Break Details</span>
+          </mat-card-title>
+          <button mat-icon-button (click)="closeKpiDetails()" style="margin-left:auto" aria-label="Close details"><mat-icon>close</mat-icon></button>
+        </mat-card-header>
+        <mat-card-content>
+          <table class="kpi-details-table">
+            <thead>
+              <tr *ngIf="selectedKpi === 'employees'">
+                <th>Department</th>
+                <th>Name</th>
+                <th class="mobile-hide">Check-In Time</th>
+                <th class="mobile-hide">Check-Out Time</th>
+                <th>Last Status</th>
+              </tr>
+              <tr *ngIf="selectedKpi === 'checkins'">
+                <th>Department</th>
+                <th>Name</th>
+                <th>Check-In Time</th>
+              </tr>
+              <tr *ngIf="selectedKpi === 'onSite'">
+                <th>Department</th>
+                <th>Name</th>
+                <th>Total Time Worked</th>
+                <th class="mobile-hide">Time Since Last Break</th>
+              </tr>
+              <tr *ngIf="selectedKpi === 'onBreak'">
+                <th>Department</th>
+                <th>Name</th>
+                <th>Break Started</th>
+                <th>Total Time On Break</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Employees Details -->
+              <ng-container *ngIf="selectedKpi === 'employees'">
+                <tr *ngFor="let d of kpis.totalEmployeesDetails">
+                  <td>{{ d.departmentName }}</td>
+                  <td>{{ d.fullName }}</td>
+                  <td class="mobile-hide">{{ d.checkInTime }}</td>
+                  <td class="mobile-hide">{{ d.checkOutTime || '-' }}</td>
+                  <td>{{ d.lastStatus }}</td>
+                </tr>
+              </ng-container>
+              <!-- Check-ins Details -->
+              <ng-container *ngIf="selectedKpi === 'checkins'">
+                <tr *ngFor="let d of kpis.checkinsTodayDetails">
+                  <td>{{ d.departmentName }}</td>
+                  <td>{{ d.fullName }}</td>
+                  <td>{{ d.checkInTime }}</td>
+                </tr>
+              </ng-container>
+              <!-- On-Site Details -->
+              <ng-container *ngIf="selectedKpi === 'onSite'">
+                <tr *ngFor="let d of kpis.onSiteDetails">
+                  <td>{{ d.departmentName }}</td>
+                  <td>{{ d.fullName }}</td>
+                  <td>{{ d.totalTimeWorked }}</td>
+                  <td class="mobile-hide">{{ d.timeSinceLastBreak }}</td>
+                </tr>
+              </ng-container>
+              <!-- On Break Details -->
+              <ng-container *ngIf="selectedKpi === 'onBreak'">
+                <tr *ngFor="let d of kpis.onBreakDetails">
+                  <td>{{ d.departmentName }}</td>
+                  <td>{{ d.fullName }}</td>
+                  <td>{{ d.breakTimeStartedTimeAgo }}</td>
+                  <td>{{ d.totalTimeOnBreak }}</td>
+                </tr>
+              </ng-container>
+              <!-- No details available -->
+              <tr *ngIf="selectedKpi === 'employees' && kpis.totalEmployeesDetails.length === 0">
+                <td colspan="6" style="text-align:center; color:#888">No details available</td>
+              </tr>
+              <tr *ngIf="selectedKpi === 'checkins' && kpis.checkinsTodayDetails.length === 0">
+                <td colspan="6" style="text-align:center; color:#888">No details available</td>
+              </tr>
+              <tr *ngIf="selectedKpi === 'onSite' && kpis.onSiteDetails.length === 0">
+                <td colspan="5" style="text-align:center; color:#888">No details available</td>
+              </tr>
+              <tr *ngIf="selectedKpi === 'onBreak' && kpis.onBreakDetails.length === 0">
+                <td colspan="5" style="text-align:center; color:#888">No details available</td>
+              </tr>
+            </tbody>
+          </table>
         </mat-card-content>
       </mat-card>
     </div>

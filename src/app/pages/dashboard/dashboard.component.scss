@@ -1,3 +1,65 @@
+// Hide columns on mobile for KPI details table
+@media (max-width: 599px) {
+  .kpi-details-table .mobile-hide {
+    display: none !important;
+  }
+}
+.kpi-details-card {
+  margin-bottom: 32px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.kpi-details-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  th, td {
+    padding: 6px 8px;
+    text-align: left;
+    white-space: nowrap;
+  }
+  th {
+    background: #161b22;
+    color: #8b949e;
+    font-weight: 600;
+    border-bottom: 1px solid #30363d;
+  }
+  tr:nth-child(even) td {
+    background: #161b22;
+  }
+}
+
+// Responsive: horizontal scroll on mobile
+.kpi-details-card mat-card-content {
+  overflow-x: auto;
+  padding: 0;
+}
+
+@media (max-width: 900px) {
+  .kpi-details-table {
+    font-size: 13px;
+    th, td {
+      padding: 5px 6px;
+    }
+  }
+}
+
+@media (max-width: 599px) {
+  .kpi-details-card {
+    margin-bottom: 20px;
+  }
+  .kpi-details-table {
+    font-size: 12px;
+    th, td {
+      padding: 4px 4px;
+    }
+  }
+}
+// Space below KPI details card
+.kpi-details-card {
+  margin-bottom: 32px;
+}
 .break-time {
   font-size: 11px;
   font-weight: 600;

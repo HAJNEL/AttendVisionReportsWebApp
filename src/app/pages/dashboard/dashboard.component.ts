@@ -87,7 +87,29 @@ export class DashboardComponent implements OnInit {
     return this.departments.find(d => d.id === this.selectedDeptId)?.departmentName ?? null;
   }
 
-  kpis: DashboardKpis = { total_employees: 0, checkins_today: 0, on_site_now: 0, on_break_now: 0, failed_today: 0 };
+  kpis: DashboardKpis = {
+    totalEmployees: 0,
+    checkinsToday: 0,
+    onSiteNow: 0,
+    onBreakNow: 0,
+    totalEmployeesDetails: [],
+    checkinsTodayDetails: [],
+    onSiteDetails: [],
+    onBreakDetails: [],
+  };
+
+  /** Which KPI card is selected for details, or null */
+  selectedKpi: 'employees' | 'checkins' | 'onSite' | 'onBreak' | null = null;
+
+  /** Handles click on a KPI card */
+  onKpiCardClick(type: 'employees' | 'checkins' | 'onSite' | 'onBreak') {
+    this.selectedKpi = this.selectedKpi === type ? null : type;
+  }
+
+  /** Close the details card */
+  closeKpiDetails() {
+    this.selectedKpi = null;
+  }
 
   // --- Status colour config ---
   readonly STATUS_CONFIG: Record<string, { label: string; bg: string; border: string }> = {
@@ -397,17 +419,14 @@ export class DashboardComponent implements OnInit {
     const date = this.toDateString(this.viewDate);
     const range = this.getDateRange();
     try {
-      const [kpis, dayEvents, dayPeople, monthly, issues, timesheets, onBreakNow] = await Promise.all([
+      const [kpis, dayEvents, dayPeople, issues] = await Promise.all([
         this.dashboardService.getKpis(range.from, range.to, dept, emp),
         this.dashboardService.getDayEventsByStatus(date, dept, emp),
         this.dashboardService.getDayPeople(date, dept, emp),
-        this.dashboardService.getMonthlyAttendance(dept, emp),
-        this.dashboardService.getIssues(range.from, range.to, dept, emp),
-        this.dashboardService.api.getTimesheetReport(dept, date, date, null),
-        this.dashboardService.getOnBreakNow(date, dept, emp),
+        this.dashboardService.getIssues(range.from, range.to, dept, emp)
       ]);
         // Map KPI fields from API and add on_break_now from separate call
-        const mappedKpis = this.mapKpis({ ...kpis, on_break_now: onBreakNow });
+        const mappedKpis = this.mapKpis({ ...kpis });
       this.dayPeople = dayPeople;
       this.kpis = mappedKpis;
       this.rawDayEvents = dayEvents;
@@ -464,12 +483,20 @@ export class DashboardComponent implements OnInit {
 
   private mapKpis(k: any): DashboardKpis {
     // Accept both camelCase (API) and snake_case (legacy/frontend)
+    const totalEmployeesDetails = k.totalEmployeesDetails ?? k.total_employees_details ?? [];
+    const checkinsTodayDetails = k.checkinsTodayDetails ?? k.checkins_today_details ?? [];
+    const onSiteDetails = k.onSiteDetails ?? k.on_site_details ?? [];
+    const onBreakDetails = k.onBreakDetails ?? k.on_break_details ?? [];
+
     return {
-      total_employees: k.total_employees ?? k.totalEmployees ?? 0,
-      checkins_today: k.checkins_today ?? k.checkinsToday ?? 0,
-      on_site_now: k.on_site_now ?? k.onSiteNow ?? 0,
-      on_break_now: k.on_break_now ?? k.onBreakNow ?? 0,
-      failed_today: k.failed_today ?? k.failedToday ?? 0,
+      totalEmployees: totalEmployeesDetails.length,
+      checkinsToday: checkinsTodayDetails.length,
+      onSiteNow: onSiteDetails.length,
+      onBreakNow: onBreakDetails.length,
+      totalEmployeesDetails,
+      checkinsTodayDetails,
+      onSiteDetails,
+      onBreakDetails,
     };
   }
 

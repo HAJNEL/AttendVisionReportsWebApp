@@ -275,10 +275,6 @@ export class ApiService {
     return firstValueFrom(this.http.delete<void>(`${API_BASE}/company-departments/${companyId}/${departmentId}`));
   }
 
-  getOnBreakNow(date: string, department: string | null, employee: string | null = null): Promise<number> {
-    return firstValueFrom(this.http.get<number>(`${API_BASE}/dashboard/on-break-now`, { params: { date, ...(department ? { department } : {}), ...(employee ? { employee } : {}) } }));
-  }
-
   // ── Department-User Links ────────────────────────────────────────────────
   // DepartmentUsersController endpoints
   // Use correct endpoint: GET /api/DepartmentUsers/by-department/{departmentId}
