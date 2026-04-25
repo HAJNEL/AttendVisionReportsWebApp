@@ -15,13 +15,6 @@
     <mat-spinner diameter="48"></mat-spinner>
   </div>
 
-  <!-- Error -->
-  <div *ngIf="!loading && error" class="error-banner">
-    <mat-icon>error_outline</mat-icon>
-    <span>{{ error }}</span>
-    <button mat-button (click)="load()">Retry</button>
-  </div>
-
   <!-- Table -->
   <mat-card class="table-card" *ngIf="!loading && !error">
     <table mat-table [dataSource]="departments" class="mat-elevation-z0">
@@ -40,16 +33,6 @@
         <td mat-cell *matCellDef="let dept">{{ dept.manager || '—' }}</td>
       </ng-container>
 
-      <!-- Payment Rate -->
-      <ng-container matColumnDef="rate">
-        <th mat-header-cell *matHeaderCellDef>Rate / hr</th>
-        <td mat-cell *matCellDef="let dept">
-          <span *ngIf="dept.paymentRate !== null" class="rate-chip">
-            R{{ dept.paymentRate | number:'1.2-2' }}
-          </span>
-          <span *ngIf="dept.paymentRate === null" class="muted">—</span>
-        </td>
-      </ng-container>
 
 
       <!-- Location -->

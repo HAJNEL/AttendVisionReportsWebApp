@@ -14,6 +14,21 @@
       </mat-form-field>
     }
 
+    @if (config.showEmployee !== false) {
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Employee</mat-label>
+        <mat-select formControlName="employeeId" [disabled]="loadingEmployees || employees.length === 0">
+          <mat-option value="">All Employees</mat-option>
+          @for (emp of employees; track emp.employeeId) {
+            <mat-option [value]="emp.employeeId">{{ emp.name }}</mat-option>
+          }
+        </mat-select>
+        @if (loadingEmployees) {
+          <mat-hint>Loading employees…</mat-hint>
+        }
+      </mat-form-field>
+    }
+
     @if (config.showDateRange !== false) {
       <div class="date-row">
         <mat-form-field appearance="outline" class="date-field">
@@ -38,23 +53,6 @@
       </div>
     }
 
-    @if (config.showUser !== false) {
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>User</mat-label>
-        <mat-select formControlName="user">
-          <mat-option [value]="null">All Users</mat-option>
-          @for (u of users; track u) {
-            <mat-option [value]="u">{{ u }}</mat-option>
-          }
-        </mat-select>
-        @if (loadingUsers) {
-          <mat-hint>Loading users…</mat-hint>
-        } @else if (!form.get('dateFrom')?.value) {
-          <mat-hint>Select dates to filter users</mat-hint>
-        }
-      </mat-form-field>
-    }
-
   </form>
 </mat-dialog-content>
 
@@ -64,7 +62,7 @@
     mat-flat-button
     color="primary"
     (click)="run()"
-    [disabled]="form.invalid || loadingUsers"
+    [disabled]="form.invalid || loadingEmployees"
   >
     Run Report
   </button>

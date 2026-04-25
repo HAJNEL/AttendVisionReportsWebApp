@@ -446,13 +446,15 @@ export class DashboardComponent implements OnInit {
     await Promise.all([this.loadTrendChart(), this.loadAll()]);
   }
 
-  async onDeptChange(): Promise<void> {
+  onDeptChange(): void {
     this.selectedEmployee = '';
-    this.employees = await this.dashboardService.getEmployees(this.selectedDeptId && this.selectedDeptId !== 'all' ? this.selectedDeptId : null).catch(() => []);
-    await this.loadAll();
-    if (this.trendPeriod !== 'day') {
-      await this.loadTrendChart();
-    }
+    (async () => {
+      this.employees = await this.dashboardService.getEmployees(this.selectedDeptId && this.selectedDeptId !== 'all' ? this.selectedDeptId : null).catch(() => []);
+      await this.loadAll();
+      if (this.trendPeriod !== 'day') {
+        await this.loadTrendChart();
+      }
+    })();
   }
 
   async onEmployeeChange(): Promise<void> {

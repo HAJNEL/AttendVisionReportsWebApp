@@ -79,7 +79,7 @@ export class ClockingsReportComponent implements OnInit {
         title: 'Clockings Report — Parameters',
         showDepartment: true,
         showDateRange: true,
-        showUser: true,
+        showEmployee: true,
         ...this.filters,
       },
     });
@@ -103,7 +103,7 @@ export class ClockingsReportComponent implements OnInit {
         this.filters.department ?? null,
         this.filters.dateFrom,
         this.filters.dateTo,
-        this.filters.user ?? null,
+        this.filters.employeeId ?? null,
       );
     } catch (e) {
       this.error = String(e);
@@ -124,14 +124,14 @@ export class ClockingsReportComponent implements OnInit {
     const dept = this.filters.department ?? 'All Departments';
     const from = this.filters.dateFrom;
     const to   = this.filters.dateTo;
-    const user = this.filters.user ?? 'All Users';
+    const employeeId = this.filters.employeeId ?? 'All Employees';
 
     const data: (string | number)[][] = [
       ['Clockings Report'],
       ['Department', dept],
       ['Date From',  from],
       ['Date To',    to],
-      ['User',       user],
+      ['Employee ID', employeeId],
       [],
       ['Date', 'Employee', 'Employee ID', 'Department', 'Time', 'Status', 'Auth'],
       ...this.rows.map(r => [

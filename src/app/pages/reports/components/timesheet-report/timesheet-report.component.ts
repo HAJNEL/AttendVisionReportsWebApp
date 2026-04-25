@@ -63,7 +63,7 @@ export class TimesheetReportComponent implements OnInit {
         title: 'Timesheet Report — Parameters',
         showDepartment: true,
         showDateRange: true,
-        showUser: true,
+        showEmployee: true,
         ...this.filters,
       },
     });
@@ -87,7 +87,7 @@ export class TimesheetReportComponent implements OnInit {
         this.filters.department ?? null,
         this.filters.dateFrom,
         this.filters.dateTo,
-        this.filters.user ?? null,
+        this.filters.employeeId ?? null,
       );
     } catch (e) {
       this.error = String(e);
@@ -131,14 +131,14 @@ export class TimesheetReportComponent implements OnInit {
     const dept = this.filters.department ?? 'All Departments';
     const from = this.filters.dateFrom;
     const to = this.filters.dateTo;
-    const user = this.filters.user ?? 'All Users';
+    const employeeId = this.filters.employeeId ?? 'All Users';
 
     const data: (string | number)[][] = [
       ['Timesheet Report'],
       ['Department', dept],
       ['Date From', from],
       ['Date To', to],
-      ['User', user],
+      ['Employee ID', employeeId],
       [],
       ['Date', 'Employee', 'Employee ID', 'Status', 'Department', 'First Entry', 'Last Entry', 'Total Span', 'Break Time', 'Net Hours'],
       ...this.rows.map(r => [

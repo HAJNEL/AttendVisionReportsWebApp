@@ -2,7 +2,6 @@ export interface Department {
   id: string;
   departmentName: string;
   manager: string | null;
-  paymentRate: number | null;
   addressLine1: string | null;
   addressLine2: string | null;
   city: string | null;

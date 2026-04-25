@@ -78,7 +78,7 @@ export class IssueReportComponent implements OnInit {
         title: 'Issue Report — Parameters',
         showDepartment: true,
         showDateRange: true,
-        showUser: false,
+        showEmployee: true,
         ...this.filters,
       },
     });
@@ -102,6 +102,7 @@ export class IssueReportComponent implements OnInit {
         this.filters.dateFrom,
         this.filters.dateTo,
         this.filters.department ?? null,
+        this.filters.employeeId ?? null,
       );
     } catch (e) {
       this.error = String(e);

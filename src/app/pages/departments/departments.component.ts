@@ -42,7 +42,7 @@ import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 })
 
 export class DepartmentsComponent implements OnInit {
-  displayedColumns = ['name', 'manager', 'rate', 'location', 'companyName', 'actions'];
+  displayedColumns = ['name', 'manager', 'location', 'companyName', 'actions'];
   mobileColumns = ['name', 'manager', 'actions'];
   departments: DepartmentRow[] = [];
   loading = true;
@@ -60,7 +60,7 @@ export class DepartmentsComponent implements OnInit {
     this.breakpointObserver.observe([Breakpoints.Handset, '(max-width: 600px)'])
       .subscribe(result => {
         this.isMobile = result.matches;
-        this.displayedColumns = this.isMobile ? this.mobileColumns : ['name', 'manager', 'rate', 'location', 'companyName', 'actions'];
+        this.displayedColumns = this.isMobile ? this.mobileColumns : ['name', 'manager', 'location', 'companyName', 'actions'];
       });
     await this.load();
   }
@@ -112,8 +112,14 @@ export class DepartmentsComponent implements OnInit {
   }
 
   openEdit(dept: DepartmentRow): void {
+    // Map camelCase address fields to snake_case for dialog compatibility
+    const dialogDept = {
+      ...dept,
+      address_line1: (dept as any).addressLine1 ?? '',
+      address_line2: (dept as any).addressLine2 ?? '',
+    };
     const ref = this.dialog.open(DeptFormDialogComponent, {
-      data: { dept },
+      data: { dept: dialogDept },
       width: '560px',
     });
     ref.afterClosed().subscribe(async (result) => {

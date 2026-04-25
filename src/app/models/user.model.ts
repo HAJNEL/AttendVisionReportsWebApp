@@ -1,3 +1,5 @@
+import { PermissionDto } from './permission.model';
+
 export interface User {
   id: string;
   email: string;
@@ -5,9 +7,8 @@ export interface User {
   lastName?: string;
   isActive?: boolean;
   roles?: Role[];
-  resetPassword?: boolean; // Indicates if user must reset password
+  resetPassword?: boolean;
 }
-import { PermissionDto } from './permission.model';
 
 export interface Role {
   id: string;

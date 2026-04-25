@@ -14,10 +14,6 @@ export interface DepartmentRow {
   id: number;
   departmentName: string;
   manager: string | null;
-  paymentRate: number | null;
-  overtimePaymentRate: number | null;
-  overtimeStartAfterTime: string | null;
-  checkInOverrideTime: string | null;
   address_line1: string | null;
   address_line2: string | null;
   city: string | null;
@@ -68,10 +64,6 @@ export class DeptFormDialogComponent implements OnInit {
     this.form = new FormGroup({
       departmentName: new FormControl(d?.departmentName ?? '', Validators.required),
       manager:         new FormControl(d?.manager ?? ''),
-      paymentRate:    new FormControl(d?.paymentRate ?? null),
-      overtimePaymentRate: new FormControl(d?.overtimePaymentRate ?? null),
-      overtimeStartAfterTime: new FormControl(d?.overtimeStartAfterTime ?? ''),
-      checkInOverrideTime: new FormControl(d?.checkInOverrideTime ?? ''),
       address_line1:   new FormControl(d?.address_line1 ?? ''),
       address_line2:   new FormControl(d?.address_line2 ?? ''),
       city:            new FormControl(d?.city ?? ''),
@@ -94,10 +86,6 @@ export class DeptFormDialogComponent implements OnInit {
     this.dialogRef.close({
       departmentName: v.departmentName,
       manager:        v.manager || null,
-      paymentRate:   v.paymentRate !== '' && v.paymentRate !== null ? Number(v.paymentRate) : null,
-      overtimePaymentRate: v.overtimePaymentRate !== '' && v.overtimePaymentRate !== null ? Number(v.overtimePaymentRate) : null,
-      overtimeStartAfterTime: v.overtimeStartAfterTime || null,
-      checkInOverrideTime: v.checkInOverrideTime || null,
       addressLine1:   v.address_line1 || null,
       addressLine2:   v.address_line2 || null,
       city:           v.city || null,

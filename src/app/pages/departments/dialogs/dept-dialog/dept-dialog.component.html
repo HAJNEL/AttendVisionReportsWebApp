@@ -24,11 +24,6 @@
       <input matInput formControlName="manager" />
     </mat-form-field>
 
-    <mat-form-field appearance="outline" class="half-width">
-      <mat-label>Payment Rate (hourly)</mat-label>
-      <input matInput type="number" step="0.01" min="0" formControlName="paymentRate" />
-      <span matTextPrefix>R&nbsp;</span>
-    </mat-form-field>
 
     <mat-divider class="section-divider"></mat-divider>
     <p class="section-label">Address</p>
@@ -56,7 +51,7 @@
 
       <mat-form-field appearance="outline" class="zip-field">
         <mat-label>Postal Code</mat-label>
-        <input matInput formControlName="postal_code" />
+        <input matInput formControlName="postalCode" />
       </mat-form-field>
     </div>
 
@@ -65,27 +60,7 @@
       <input matInput formControlName="country" />
     </mat-form-field>
 
-    <mat-divider class="section-divider"></mat-divider>
-    <p class="section-label">Overtime</p>
 
-    <mat-form-field appearance="outline" class="half-width">
-      <mat-label>Overtime Payment Rate</mat-label>
-      <input matInput type="number" step="0.01" min="0" formControlName="overtimePaymentRate" />
-      <span matTextPrefix>R&nbsp;</span>
-    </mat-form-field>
-
-    <mat-form-field appearance="outline" class="half-width">
-      <mat-label>Overtime Starts After</mat-label>
-      <input matInput type="time" formControlName="overtimeStartAfterTime" />
-    </mat-form-field>
-
-    <mat-divider class="section-divider"></mat-divider>
-    <p class="section-label">Time Overrides</p>
-
-        <mat-form-field appearance="outline" class="half-width">
-      <mat-label>Check-In Override Time</mat-label>
-      <input matInput type="time" formControlName="checkInOverrideTime" />
-    </mat-form-field>
 
   </form>
 </mat-dialog-content>

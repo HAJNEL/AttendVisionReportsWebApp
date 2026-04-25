@@ -123,20 +123,48 @@ export class ApiService {
 
   // ── Reports ───────────────────────────────────────────────────────────────
 
-  getIssues(dateFrom: string, dateTo: string, department: string | null, employee: string | null = null): Promise<IssueRow[]> {
-    return firstValueFrom(this.http.get<IssueRow[]>(`${API_BASE}/reports/issues`, { params: { dateFrom, dateTo, ...(department ? { department } : {}), ...(employee ? { employee } : {}) } }));
+  getIssues(dateFrom: string, dateTo: string, department: string | null, employeeId: string | null = null): Promise<IssueRow[]> {
+    return firstValueFrom(this.http.get<IssueRow[]>(`${API_BASE}/reports/issues`, {
+      params: {
+        dateFrom,
+        dateTo,
+        ...(department ? { department } : {}),
+        ...(employeeId ? { employeeId } : {})
+      }
+    }));
   }
 
-  getClockingsReport(dept: string | null, dateFrom: string, dateTo: string, user: string | null): Promise<ClockingRow[]> {
-    return firstValueFrom(this.http.get<ClockingRow[]>(`${API_BASE}/reports/clockings`, { params: { dateFrom, dateTo, ...(dept ? { dept } : {}), ...(user ? { user } : {}) } }));
+  getClockingsReport(dept: string | null, dateFrom: string, dateTo: string, employeeId: string | null): Promise<ClockingRow[]> {
+    return firstValueFrom(this.http.get<ClockingRow[]>(`${API_BASE}/reports/clockings`, {
+      params: {
+        dateFrom,
+        dateTo,
+        ...(dept ? { dept } : {}),
+        ...(employeeId ? { employeeId } : {})
+      }
+    }));
   }
 
-  getTimesheetUsers(dept: string | null, dateFrom: string, dateTo: string): Promise<string[]> {
-    return firstValueFrom(this.http.get<string[]>(`${API_BASE}/reports/timesheet/users`, { params: { dateFrom, dateTo, ...(dept ? { dept } : {}) } }));
+  getTimesheetUsers(dept: string | null, dateFrom: string, dateTo: string, employeeId: string | null = null): Promise<string[]> {
+    return firstValueFrom(this.http.get<string[]>(`${API_BASE}/reports/timesheet/users`, {
+      params: {
+        dateFrom,
+        dateTo,
+        ...(dept ? { dept } : {}),
+        ...(employeeId ? { employeeId } : {})
+      }
+    }));
   }
 
-  getTimesheetReport(dept: string | null, dateFrom: string, dateTo: string, user: string | null): Promise<TimesheetRow[]> {
-    return firstValueFrom(this.http.get<TimesheetRow[]>(`${API_BASE}/reports/timesheet`, { params: { dateFrom, dateTo, ...(dept ? { dept } : {}), ...(user ? { user } : {}) } }));
+  getTimesheetReport(dept: string | null, dateFrom: string, dateTo: string, employeeId: string | null): Promise<TimesheetRow[]> {
+    return firstValueFrom(this.http.get<TimesheetRow[]>(`${API_BASE}/reports/timesheet`, {
+      params: {
+        dateFrom,
+        dateTo,
+        ...(dept ? { dept } : {}),
+        ...(employeeId ? { employeeId } : {})
+      }
+    }));
   }
 
   // ── Companies ──────────────────────────────────────────────────────────────
