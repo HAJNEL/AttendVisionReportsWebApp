@@ -156,6 +156,10 @@ export class DashboardComponent implements OnInit {
   clickLocked = false;
   /** Stores the selected time label when a bar is selected */
   selectedBarTime: string | null = null;
+  /** When true, clicking person rows toggles them and filters the Access Trend chart */
+  personFilterLocked = false;
+  /** Set of person names manually selected via person rows (active when personFilterLocked = true) */
+  selectedPeople = new Set<string>();
   issues: IssueRow[] = [];
 
   // --- Status filter for the day bar chart ---
@@ -213,7 +217,12 @@ export class DashboardComponent implements OnInit {
     }
 
     this.trendStatusFilterMulti = next;
-    this.dayBarData = this.buildDayEventsChart(this.filterDayEvents(this.rawDayEvents));
+    const statusFiltered = this.filterDayEvents(this.rawDayEvents);
+    const toRender = (this.personFilterLocked && this.selectedPeople.size > 0)
+      ? this.filterDayEventsByPeople(statusFiltered, this.selectedPeople)
+      : statusFiltered;
+    this.dayBarData = this.buildDayEventsChart(toRender);
+    if (this.personFilterLocked) this.activePeople = new Set(this.selectedPeople);
     this.cdr.detectChanges();
   }
 
@@ -374,7 +383,7 @@ export class DashboardComponent implements OnInit {
 
     // Day bar chart: cross-highlight people list on hover
     (this.dayBarOptions as any).onHover = (_: any, elements: any[]) => {
-      if (this.clickLocked) return;
+      if (this.clickLocked || this.personFilterLocked) return;
       const newPeople = this.getPeopleAtElements(elements);
       if (!this.setsEqual(newPeople, this.activePeople)) {
         this.activePeople = newPeople;
@@ -384,6 +393,7 @@ export class DashboardComponent implements OnInit {
 
     // Day bar chart: click locks highlight to specific bar segment
     (this.dayBarOptions as any).onClick = (event: any, elements: any[], chart: any) => {
+      if (this.personFilterLocked) return;
       if (this.clickLocked) {
         // Any subsequent click — release lock
         this.clickLocked = false;
@@ -412,6 +422,8 @@ export class DashboardComponent implements OnInit {
   }
 
   async loadAll(): Promise<void> {
+    this.personFilterLocked = false;
+    this.selectedPeople = new Set();
     this.loading = true;
     this.error = null;
     const dept = this.selectedDeptName;
@@ -507,6 +519,8 @@ export class DashboardComponent implements OnInit {
   }
 
   private async loadTrendChart(): Promise<void> {
+    this.personFilterLocked = false;
+    this.selectedPeople = new Set();
     this.trendLoading = true;
     const xTicks = this.hourlyOptions!.scales!['x']!.ticks as any;
     xTicks.maxTicksLimit = this.trendPeriod === 'day' ? 12
@@ -701,6 +715,55 @@ export class DashboardComponent implements OnInit {
       });
     }
     return names;
+  }
+
+  togglePersonFilterLock(): void {
+    this.personFilterLocked = !this.personFilterLocked;
+    if (!this.personFilterLocked) {
+      // Exiting lock mode — clear selections, restore full unfiltered chart
+      this.selectedPeople = new Set();
+      this.activePeople = new Set();
+      this.dayBarData = this.buildDayEventsChart(this.filterDayEvents(this.rawDayEvents));
+      this.cdr.detectChanges();
+    } else {
+      // Entering lock mode — clear chart-driven bar lock state
+      this.clickLocked = false;
+      this.selectedBarTime = null;
+      this.activePeople = new Set();
+      this.cdr.detectChanges();
+    }
+  }
+
+  onPersonRowClick(name: string): void {
+    if (!this.personFilterLocked) return;
+    const next = new Set(this.selectedPeople);
+    if (next.has(name)) {
+      next.delete(name);
+    } else {
+      next.add(name);
+    }
+    this.selectedPeople = next;
+    const statusFiltered = this.filterDayEvents(this.rawDayEvents);
+    const rows = next.size > 0
+      ? this.filterDayEventsByPeople(statusFiltered, next)
+      : statusFiltered;
+    this.dayBarData = this.buildDayEventsChart(rows);
+    // buildDayEventsChart resets activePeople — restore selection highlight
+    this.activePeople = new Set(next);
+    this.cdr.detectChanges();
+  }
+
+  private filterDayEventsByPeople(rows: DayEventRow[], people: Set<string>): DayEventRow[] {
+    if (!people.size) return rows;
+    return rows
+      .map(row => {
+        const filteredNames = row.names
+          .split(', ')
+          .map(n => n.trim())
+          .filter(n => n && people.has(n));
+        return { ...row, count: filteredNames.length, names: filteredNames.join(', ') };
+      })
+      .filter(r => r.count > 0);
   }
 
   private setsEqual(a: Set<string>, b: Set<string>): boolean {

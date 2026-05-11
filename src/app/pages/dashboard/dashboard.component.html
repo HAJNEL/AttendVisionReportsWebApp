@@ -266,7 +266,7 @@
       </mat-card>
 
       <!-- Today's Visitors -->
-      <mat-card class="chart-card people-card" [class.people-card-locked]="clickLocked">
+      <mat-card class="chart-card people-card" [class.people-card-locked]="clickLocked || personFilterLocked">
         <mat-card-header>
           <mat-card-title>
             Today's Visitors
@@ -275,14 +275,28 @@
               Filtered
               <span *ngIf="selectedBarTime" class="selected-bar-time">({{ selectedBarTime }})</span>
             </span>
+            <span *ngIf="personFilterLocked" class="locked-badge person-filter-badge">
+              <mat-icon>person</mat-icon>
+              {{ selectedPeople.size ? selectedPeople.size + ' selected' : 'Select people' }}
+            </span>
           </mat-card-title>
           <mat-card-subtitle>{{ dayPeople.length }} {{ dayPeople.length === 1 ? 'person' : 'people' }}</mat-card-subtitle>
+          <button mat-icon-button
+                  class="person-lock-btn"
+                  [class.person-lock-active]="personFilterLocked"
+                  (click)="togglePersonFilterLock()"
+                  [title]="personFilterLocked ? 'Exit person filter mode' : 'Filter chart by selected people'">
+            <mat-icon>{{ personFilterLocked ? 'lock' : 'lock_open' }}</mat-icon>
+          </button>
         </mat-card-header>
         <mat-card-content class="people-list-content">
           <div class="people-list">
             <div *ngFor="let p of dayPeople"
                  class="person-row"
                  [class.person-active]="activePeople.has(p.person)"
+                 [class.person-selected]="selectedPeople.has(p.person)"
+                 [class.person-row-selectable]="personFilterLocked"
+                 (click)="onPersonRowClick(p.person)"
                  (mouseenter)="hoveredPerson = p.person"
                  (mouseleave)="hoveredPerson = null">
               <div class="person-name" [title]="p.person">{{ p.person }}</div>

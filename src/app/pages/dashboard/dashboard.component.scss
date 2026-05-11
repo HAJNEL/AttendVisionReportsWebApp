@@ -415,6 +415,22 @@
   }
 }
 
+.person-filter-badge {
+  color: #3fb950 !important;
+  background: rgba(63, 185, 80, 0.12) !important;
+  border-color: rgba(63, 185, 80, 0.3) !important;
+}
+
+.person-lock-btn {
+  margin-left: auto;
+  color: #6e7681;
+  flex-shrink: 0;
+}
+
+.person-lock-active {
+  color: #58a6ff !important;
+}
+
 .people-list-content {
   flex: 1;
   overflow: hidden;
@@ -444,6 +460,11 @@
 
   &:hover { background: rgba(88,166,255,0.07); border-left-color: #58a6ff; }
   &.person-active { background: rgba(88,166,255,0.14); border-left-color: #58a6ff; }
+  &.person-row-selectable { cursor: pointer; }
+  &.person-selected {
+    background: rgba(63,185,80,0.14);
+    border-left-color: #3fb950;
+  }
 }
 
 .person-name {
