@@ -10,6 +10,8 @@ const STORAGE_KEY = 'auth_user';
 const PERMISSIONS_KEY = 'auth_permissions';
 const TOKEN_KEY = 'auth_token';
 const RESET_PASSWORD_KEY = 'reset_password';
+const LAST_ACTIVITY_KEY = 'session_last_activity';
+const SESSION_TIMEOUT_MS = 30 * 60 * 1000; // 30 minutes
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -37,6 +39,7 @@ export class AuthService {
     this.resetPassword.set(!!resetPassword);
     localStorage.setItem(RESET_PASSWORD_KEY, (!!resetPassword).toString());
     await this.refreshPermissions();
+    this.updateActivity();
     return user as User;
   }
 
@@ -78,6 +81,7 @@ export class AuthService {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(user));
     localStorage.setItem(TOKEN_KEY, token);
     await this.refreshPermissions();
+    this.updateActivity();
     return user as User;
   }
 
@@ -90,6 +94,27 @@ export class AuthService {
     localStorage.removeItem(PERMISSIONS_KEY);
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(RESET_PASSWORD_KEY);
+    sessionStorage.removeItem(LAST_ACTIVITY_KEY);
+  }
+
+  /** Records the current timestamp as the last activity time. */
+  updateActivity(): void {
+    sessionStorage.setItem(LAST_ACTIVITY_KEY, Date.now().toString());
+  }
+
+  /**
+   * Returns true if the session_last_activity timestamp is absent
+   * or older than SESSION_TIMEOUT_MS.
+   */
+  isSessionExpired(): boolean {
+    const raw = sessionStorage.getItem(LAST_ACTIVITY_KEY);
+    if (!raw) return true;
+    return Date.now() - parseInt(raw, 10) > SESSION_TIMEOUT_MS;
+  }
+
+  /** Returns true if the user has no stored auth details in localStorage. */
+  hasStoredSession(): boolean {
+    return !!localStorage.getItem(TOKEN_KEY) && !!localStorage.getItem(STORAGE_KEY);
   }
   /**
    * Load resetPassword flag from localStorage.
