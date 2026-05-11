@@ -1,11 +1,21 @@
 use sqlx::{postgres::PgPoolOptions, PgPool, Row};
 
 #[derive(Debug)]
+pub struct OnBreakDetailRow {
+    pub employee_id: String,
+    pub department_name: String,
+    pub full_name: String,
+    pub break_started: String,
+    pub total_time_on_break: String,
+}
+
+#[derive(Debug)]
 pub struct DashboardKpis {
     pub total_employees: i64,
     pub checkins_today: i64,
     pub on_site_now: i64,
     pub on_break_now: i64,
+    pub on_break_details: Vec<OnBreakDetailRow>,
 }
 
 #[derive(Debug)]
@@ -241,23 +251,68 @@ pub async fn get_dashboard_kpis(pool: &PgPool, dept: Option<&str>, date_from: &s
     .fetch_one(pool)
     .await?;
 
-    let failed: (i64,) = sqlx::query_as(
-        "SELECT COUNT(*) FROM access_records \
-         WHERE access_date BETWEEN $1::date AND LEAST($2::date, CURRENT_DATE) \
-         AND attendance_status = '' \
-         AND ($3::text IS NULL OR department = $3)",
+    // Find everyone whose most-recent record today is a break_out.
+    // break_started uses access_time (the raw time column from the reader),
+    // and total_time_on_break is elapsed time since that break_out event.
+    let on_break_rows = sqlx::query(
+        "WITH latest_per_person AS ( \
+           SELECT DISTINCT ON ( \
+               COALESCE(NULLIF(TRIM(person_name), ''), employee_id) \
+             ) \
+             COALESCE(NULLIF(TRIM(person_name), ''), employee_id, 'Unknown') AS full_name, \
+             COALESCE(employee_id, '')                                        AS employee_id, \
+             COALESCE(department, 'Unknown')                                  AS department_name, \
+             attendance_status, \
+             access_time, \
+             access_datetime \
+           FROM access_records \
+           WHERE access_date = CURRENT_DATE \
+             AND employee_id IS NOT NULL \
+             AND ($1::text IS NULL OR department = $1) \
+           ORDER BY \
+             COALESCE(NULLIF(TRIM(person_name), ''), employee_id), \
+             access_datetime DESC \
+         ) \
+         SELECT \
+           employee_id, \
+           department_name, \
+           full_name, \
+           TO_CHAR(access_time, 'HH24:MI') AS break_started, \
+           LPAD( \
+             FLOOR(EXTRACT(EPOCH FROM (NOW() - access_datetime)) / 3600)::int::text, \
+             2, '0' \
+           ) || ':' || \
+           LPAD( \
+             (FLOOR(EXTRACT(EPOCH FROM (NOW() - access_datetime)) / 60) % 60)::int::text, \
+             2, '0' \
+           ) AS total_time_on_break \
+         FROM latest_per_person \
+         WHERE attendance_status = 'break_out' \
+         ORDER BY full_name",
     )
-    .bind(date_from)
-    .bind(date_to)
     .bind(dept)
-    .fetch_one(pool)
+    .fetch_all(pool)
     .await?;
+
+    let on_break_details: Vec<OnBreakDetailRow> = on_break_rows
+        .iter()
+        .map(|r| OnBreakDetailRow {
+            employee_id:       r.get::<String, _>("employee_id"),
+            department_name:   r.get::<String, _>("department_name"),
+            full_name:         r.get::<String, _>("full_name"),
+            break_started:     r.get::<String, _>("break_started"),
+            total_time_on_break: r.get::<String, _>("total_time_on_break"),
+        })
+        .collect();
+
+    let on_break_now = on_break_details.len() as i64;
 
     Ok(DashboardKpis {
         total_employees: total.0,
         checkins_today: checkins.0,
         on_site_now: on_site.0,
-        on_break_now: on_break.0,
+        on_break_now,
+        on_break_details,
     })
 }
 

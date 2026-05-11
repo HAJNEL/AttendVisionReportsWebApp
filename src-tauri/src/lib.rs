@@ -28,11 +28,22 @@ pub struct LoginResponse {
 }
 
 #[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct OnBreakDetailResponse {
+    pub employee_id: String,
+    pub department_name: String,
+    pub full_name: String,
+    pub break_time_started_time_ago: String,
+    pub total_time_on_break: String,
+}
+
+#[derive(Serialize)]
 pub struct DashboardKpisResponse {
     pub total_employees: i64,
     pub checkins_today: i64,
     pub on_site_now: i64,
     pub on_break_now: i64,
+    pub on_break_details: Vec<OnBreakDetailResponse>,
 }
 
 #[derive(Serialize)]
@@ -264,6 +275,13 @@ async fn get_dashboard_kpis(state: State<'_, AppState>, department: Option<Strin
         checkins_today: kpis.checkins_today,
         on_site_now: kpis.on_site_now,
         on_break_now: kpis.on_break_now,
+        on_break_details: kpis.on_break_details.into_iter().map(|r| OnBreakDetailResponse {
+            employee_id:              r.employee_id,
+            department_name:          r.department_name,
+            full_name:                r.full_name,
+            break_time_started_time_ago: r.break_started,
+            total_time_on_break:      r.total_time_on_break,
+        }).collect(),
     })
 }
 
