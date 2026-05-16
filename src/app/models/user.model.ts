@@ -6,8 +6,10 @@ export interface User {
   firstName?: string;
   lastName?: string;
   isActive?: boolean;
-  roles?: Role[];
   resetPassword?: boolean;
+  companyId?: string | null;
+  companyName?: string | null;
+  roles?: Role[];
 }
 
 export interface Role {

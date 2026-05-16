@@ -50,16 +50,35 @@ import type { DepartmentEmployee } from '../../models/department-user-link.model
 export class DashboardComponent implements OnInit {
   /**
    * Returns the duration between two time strings (HH:mm:ss or HH:mm) as hh:mm string.
+   * If end is missing and the filter is set to today, uses the current time as end.
    */
   getDurationStr(start: string, end: string): string {
-    if (!start || !end) return '';
+    // If end is missing and the filter is set to today, use current time
+    if (!start) return '';
+    let effectiveEnd = end;
+    if (!end) {
+      // Check if the filter is set to today
+      const today = new Date();
+      const filterDate = this.viewDate;
+      if (
+        filterDate.getFullYear() === today.getFullYear() &&
+        filterDate.getMonth() === today.getMonth() &&
+        filterDate.getDate() === today.getDate()
+      ) {
+        // Use current time as end in HH:mm:ss format
+        const pad = (n: number) => n.toString().padStart(2, '0');
+        effectiveEnd = `${pad(today.getHours())}:${pad(today.getMinutes())}:${pad(today.getSeconds())}`;
+      } else {
+        return '';
+      }
+    }
     // Accepts 'HH:mm:ss' or 'HH:mm'
     const parse = (t: string) => {
       const [h, m, s] = t.split(':').map(Number);
       return { h: h || 0, m: m || 0, s: s ?? 0 };
     };
     const s = parse(start);
-    const e = parse(end);
+    const e = parse(effectiveEnd);
     const startMins = s.h * 60 + s.m + (s.s || 0) / 60;
     const endMins = e.h * 60 + e.m + (e.s || 0) / 60;
     let diff = Math.round((endMins - startMins) * 60); // in seconds

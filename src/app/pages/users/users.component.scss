@@ -37,6 +37,19 @@
   }
 }
 
+.users-filters {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.filter-field {
+  min-width: 180px;
+  flex: 1 1 180px;
+  max-width: 360px;
+}
+
 .center-spinner {
   display: flex;
   justify-content: center;

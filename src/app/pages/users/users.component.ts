@@ -10,8 +10,13 @@ import { MatCardModule } from '@angular/material/card';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../services/api.service';
 import { User, Role } from '../../models/user.model';
+import { Company } from '../../models/company.model';
 import { UserConfirmDialogComponent } from './dialogs/user-confirm-dialog/user-confirm-dialog.component';
 import { UserDialogComponent } from './dialogs/user-dialog/user-dialog.component';
 import { AssignRolesDialogComponent } from './dialogs/assign-roles-dialog/assign-roles-dialog.component';
@@ -30,17 +35,36 @@ import { AssignDepartmentsDialogComponent } from './dialogs/assign-departments-d
     MatProgressSpinnerModule,
     MatCardModule,
     MatMenuModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    FormsModule,
   ],
   templateUrl: './users.component.html',
   styleUrl: './users.component.scss',
 })
 export class UsersComponent implements OnInit {
-  public displayedColumns = ['fullname', 'email', 'roles', 'actions'];
+  public displayedColumns = ['fullname', 'email', 'roles', 'company', 'actions'];
   public mobileColumns = ['fullname', 'roles', 'actions'];
   users: User[] = [];
+  companies: Company[] = [];
   loading = true;
   error: string | null = null;
   isMobile = false;
+  searchQuery = '';
+  selectedCompanyId = 'all';
+
+  get filteredUsers(): User[] {
+    const q = this.searchQuery.trim().toLowerCase();
+    return this.users.filter(u => {
+      if (this.selectedCompanyId !== 'all' && (u.companyId ?? '') !== this.selectedCompanyId) return false;
+      if (!q) return true;
+      const fullName = u.firstName ? `${u.firstName} ${u.lastName ?? ''}`.trim() : '';
+      return fullName.toLowerCase().includes(q) ||
+        u.email.toLowerCase().includes(q) ||
+        (u.companyName ?? '').toLowerCase().includes(q);
+    });
+  }
 
   constructor(
     private api: ApiService,
@@ -53,8 +77,9 @@ export class UsersComponent implements OnInit {
     this.breakpointObserver.observe([Breakpoints.Handset, '(max-width: 600px)'])
       .subscribe(result => {
         this.isMobile = result.matches;
-        this.displayedColumns = this.isMobile ? this.mobileColumns : ['fullname', 'email', 'roles', 'actions'];
+        this.displayedColumns = this.isMobile ? this.mobileColumns : ['fullname', 'email', 'roles', 'company', 'actions'];
       });
+    this.companies = await this.api.getCompanies().catch(() => []);
     await this.load();
   }
 

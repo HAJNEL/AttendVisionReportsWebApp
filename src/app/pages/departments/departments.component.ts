@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -8,8 +9,12 @@ import { MatCardModule } from '@angular/material/card';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
 import { ApiService } from '../../services/api.service';
 import { Department } from '../../models/department.model';
+import { Company } from '../../models/company.model';
 import { AssignDepartmentUsersDialogComponent } from './dialogs/assign-department-users-dialog/assign-department-users-dialog.component';
 
 import {
@@ -36,6 +41,10 @@ import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
     MatMenuModule,
     MatProgressSpinnerModule,
     MatSnackBarModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    FormsModule,
   ],
   templateUrl: './departments.component.html',
   styleUrl: './departments.component.scss',
@@ -45,9 +54,23 @@ export class DepartmentsComponent implements OnInit {
   displayedColumns = ['name', 'manager', 'location', 'companyName', 'actions'];
   mobileColumns = ['name', 'manager', 'actions'];
   departments: DepartmentRow[] = [];
+  companies: Company[] = [];
   loading = true;
   error: string | null = null;
   isMobile = false;
+  searchQuery = '';
+  selectedCompanyId = 'all';
+
+  get filteredDepartments(): DepartmentRow[] {
+    const q = this.searchQuery.trim().toLowerCase();
+    return this.departments.filter(d => {
+      if (this.selectedCompanyId !== 'all' && ((d as any).companyId ?? '') !== this.selectedCompanyId) return false;
+      if (!q) return true;
+      return d.departmentName.toLowerCase().includes(q) ||
+        (d.manager ?? '').toLowerCase().includes(q) ||
+        ((d as any).companyName ?? '').toLowerCase().includes(q);
+    });
+  }
 
   constructor(
     private dialog: MatDialog,
@@ -62,6 +85,7 @@ export class DepartmentsComponent implements OnInit {
         this.isMobile = result.matches;
         this.displayedColumns = this.isMobile ? this.mobileColumns : ['name', 'manager', 'location', 'companyName', 'actions'];
       });
+    this.companies = await this.api.getCompanies().catch(() => []);
     await this.load();
   }
 

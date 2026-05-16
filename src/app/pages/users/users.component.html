@@ -10,6 +10,22 @@
     </button>
   </div>
 
+  <!-- Filters -->
+  <div class="users-filters">
+    <mat-form-field appearance="outline" class="filter-field">
+      <mat-label>Company</mat-label>
+      <mat-select [(ngModel)]="selectedCompanyId">
+        <mat-option value="all">All Companies</mat-option>
+        <mat-option *ngFor="let c of companies" [value]="c.id">{{ c.name }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field appearance="outline" class="filter-field">
+      <mat-label>Search</mat-label>
+      <input matInput placeholder="Name or Email" [(ngModel)]="searchQuery">
+      <mat-icon matSuffix>search</mat-icon>
+    </mat-form-field>
+  </div>
+
   <!-- Loading -->
   <div *ngIf="loading" class="center-spinner">
     <mat-spinner diameter="48"></mat-spinner>
@@ -24,7 +40,7 @@
 
   <!-- Table -->
   <mat-card class="table-card" *ngIf="!loading && !error">
-    <table mat-table [dataSource]="users" class="mat-elevation-z0">
+    <table mat-table [dataSource]="filteredUsers" class="mat-elevation-z0">
 
       <!-- Username -->
       <ng-container matColumnDef="fullname">
@@ -44,6 +60,12 @@
       <ng-container matColumnDef="roles">
         <th mat-header-cell *matHeaderCellDef>Roles</th>
         <td mat-cell *matCellDef="let user">{{ getRoleNames(user) }}</td>
+      </ng-container>
+
+      <!-- Company -->
+      <ng-container matColumnDef="company">
+        <th mat-header-cell *matHeaderCellDef>Company</th>
+        <td mat-cell *matCellDef="let user">{{ user.companyName || '—' }}</td>
       </ng-container>
 
       <!-- Actions -->
