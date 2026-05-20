@@ -1,12 +1,11 @@
 {
-  "name": "tauri-app",
+  "name": "attend-vision-reports",
   "version": "0.1.5",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "tauri": "tauri",
     "release": "node scripts/release.mjs"
   },
   "private": true,
