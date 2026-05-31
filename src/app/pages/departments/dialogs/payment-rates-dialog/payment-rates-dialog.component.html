@@ -1,0 +1,143 @@
+<h2 mat-dialog-title class="dialog-title-row">
+  <span class="title-icon"><mat-icon>payments</mat-icon></span>
+  <span>
+    Payment Rates
+    <small>{{ data.departmentName }}</small>
+  </span>
+</h2>
+
+<mat-dialog-content>
+  <p class="dialog-subtitle">
+    Configure standard and casual pay rules for this department. Casual rates are matched when an employee_id contains the configured casual key.
+  </p>
+
+  <div *ngIf="infoMessage" class="info-banner">
+    <mat-icon>cloud_off</mat-icon>
+    <span>{{ infoMessage }}</span>
+  </div>
+
+  <div *ngIf="error" class="error-banner">
+    <mat-icon>error_outline</mat-icon>
+    <span>{{ error }}</span>
+  </div>
+
+  <div *ngIf="loading" class="loading-state">
+    <mat-spinner diameter="38"></mat-spinner>
+  </div>
+
+  <div *ngIf="!loading" class="dialog-shell">
+    <mat-card class="section-card composer-card">
+      <div class="section-head">
+        <div>
+          <h3>{{ editingRate ? 'Edit Rate Rule' : 'Add Rate Rule' }}</h3>
+          <p>Set the rate type, amount, and audience for payroll reporting.</p>
+        </div>
+        <button *ngIf="editingRate" mat-stroked-button type="button" (click)="cancelEdit()">Cancel Edit</button>
+      </div>
+
+      <form [formGroup]="form" (ngSubmit)="save()" class="rate-form">
+        <div class="audience-toggle-wrap">
+          <label class="field-label">Applies To</label>
+          <mat-button-toggle-group formControlName="appliesTo" class="audience-toggle-group">
+            <mat-button-toggle *ngFor="let option of appliesToOptions" [value]="option.value">
+              {{ option.label }}
+            </mat-button-toggle>
+          </mat-button-toggle-group>
+          <p class="field-note">
+            {{ isOtherRate ? 'Custom audience. Provide a label.' : 'Standard rules apply to all regular employees in this department.' }}
+          </p>
+
+        </div> <!-- closes .audience-toggle-wrap -->
+
+        <div class="form-grid">
+          <mat-form-field appearance="outline">
+            <mat-label>Rate Type</mat-label>
+            <mat-select formControlName="rateType">
+              <mat-option *ngFor="let type of rateTypes" [value]="type.value">{{ type.label }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Rate Amount</mat-label>
+            <input matInput type="number" min="0.01" step="0.01" formControlName="amount" placeholder="0.00">
+            <mat-error *ngIf="form.controls.amount.hasError('required')">Rate amount is required.</mat-error>
+            <mat-error *ngIf="form.controls.amount.hasError('min')">Rate amount must be greater than 0.</mat-error>
+          </mat-form-field>
+
+          <ng-container *ngIf="isOtherRate">
+            <mat-form-field appearance="outline" class="key-field">
+              <mat-label>Key</mat-label>
+              <input matInput formControlName="matchKey" maxlength="20" placeholder="Key">
+              <mat-error *ngIf="form.controls.matchKey.hasError('required')">Key is required for 'Other'.</mat-error>
+              <mat-error *ngIf="form.controls.matchKey.hasError('maxlength')">Key must be at most 20 characters.</mat-error>
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="other-label-field">
+              <mat-label>Label</mat-label>
+              <input matInput formControlName="otherLabel" maxlength="40" placeholder="Label (e.g. Contractor)">
+              <mat-error *ngIf="form.controls.otherLabel.hasError('required')">Label is required for 'Other'.</mat-error>
+              <mat-error *ngIf="form.controls.otherLabel.hasError('maxlength')">Label must be at most 40 characters.</mat-error>
+            </mat-form-field>
+          </ng-container>
+        </div>
+
+        <div class="cta-row">
+          <button mat-flat-button color="primary" type="submit" [disabled]="saving || form.invalid">
+            <mat-icon>{{ editingRate ? 'save' : 'add_circle' }}</mat-icon>
+            {{ editingRate ? 'Save Rate' : 'Add Rate' }}
+          </button>
+        </div>
+      </form>
+    </mat-card>
+
+    <mat-card class="section-card library-card">
+      <div class="section-head">
+        <div>
+          <h3>Configured Rates</h3>
+          <p>Review active rules and adjust them as your departments evolve.</p>
+        </div>
+        <span class="count-pill">{{ rates.length }}</span>
+      </div>
+
+      <div *ngIf="!rates.length" class="empty-state">
+        <mat-icon>payments</mat-icon>
+        <div>
+          <strong>No payment rates configured yet.</strong>
+          <p>Add a standard or casual rule to start shaping report calculations for this department.</p>
+        </div>
+      </div>
+
+      <div *ngIf="rates.length" class="rate-list">
+        <article *ngFor="let rate of rates; trackBy: trackByRateId" class="rate-item">
+          <div class="rate-main">
+            <div class="pill-row">
+              <span class="type-pill">{{ rateTypeLabel(rate.rateType) }}</span>
+              <span class="audience-pill" [class.other]="rate.appliesTo === 'other'">{{ rate.appliesTo === 'other' ? rate.otherLabel : appliesToLabel(rate.appliesTo) }}</span>
+            </div>
+            <div class="rate-title">{{ displayTitle(rate) }}</div>
+            <div class="rate-description">{{ audienceDescription(rate) }}</div>
+          </div>
+
+          <div class="rate-side">
+            <div class="rate-amount">{{ rate.amount | number:'1.2-2' }}</div>
+            <div class="rate-caption">Configured amount</div>
+          </div>
+
+          <div class="rate-actions">
+            <button mat-stroked-button type="button" (click)="startEdit(rate)">
+              <mat-icon>edit</mat-icon>
+              Edit
+            </button>
+            <button mat-button type="button" class="warn-button" (click)="delete(rate)">
+              <mat-icon>delete</mat-icon>
+              Delete
+            </button>
+          </div>
+        </article>
+      </div>
+    </mat-card>
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button type="button" (click)="close()">Close</button>
+</mat-dialog-actions>

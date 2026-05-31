@@ -3,54 +3,66 @@
   <form [formGroup]="form" class="filter-form">
 
     @if (config.showDepartment !== false) {
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Department</mat-label>
-        <mat-select formControlName="department">
-          <mat-option [value]="null">All Departments</mat-option>
-          @for (d of departments; track d.id) {
-            <mat-option [value]="d.departmentName">{{ d.departmentName }}</mat-option>
-          }
-        </mat-select>
-      </mat-form-field>
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Department</mat-label>
+      <mat-select formControlName="department">
+        <mat-option value="">All Departments</mat-option>
+        @for (d of departments; track d.id) {
+        <mat-option [value]="d.departmentName">{{ d.departmentName }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
     }
 
+
     @if (config.showEmployee !== false) {
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Employee</mat-label>
-        <mat-select formControlName="employeeId" [disabled]="loadingEmployees || employees.length === 0">
-          <mat-option value="">All Employees</mat-option>
-          @for (emp of employees; track emp.employeeId) {
-            <mat-option [value]="emp.employeeId">{{ emp.name }}</mat-option>
-          }
-        </mat-select>
-        @if (loadingEmployees) {
-          <mat-hint>Loading employees…</mat-hint>
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Employee</mat-label>
+      <mat-select formControlName="employeeId">
+        <mat-option value="">All Employees</mat-option>
+        @for (emp of employees; track emp.employeeId) {
+        <mat-option [value]="emp.employeeId">{{ emp.name }}</mat-option>
         }
-      </mat-form-field>
+      </mat-select>
+      @if (loadingEmployees) {
+      <mat-hint>Loading employees…</mat-hint>
+      }
+    </mat-form-field>
+
+    <!-- Employee Type mat-select -->
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Employee Type</mat-label>
+      <mat-select formControlName="employeeType" placeholder="Select employee type">
+        <mat-option value="">All Types</mat-option>
+        @for (type of employeeTypeOptions; track type.value) {
+        <mat-option [value]="type.value">{{ type.label }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
     }
 
     @if (config.showDateRange !== false) {
-      <div class="date-row">
-        <mat-form-field appearance="outline" class="date-field">
-          <mat-label>Date From</mat-label>
-          <input matInput [matDatepicker]="pickerFrom" formControlName="dateFrom" />
-          <mat-datepicker-toggle matIconSuffix [for]="pickerFrom"></mat-datepicker-toggle>
-          <mat-datepicker #pickerFrom></mat-datepicker>
-          @if (form.get('dateFrom')?.hasError('required') && form.get('dateFrom')?.touched) {
-            <mat-error>Required</mat-error>
-          }
-        </mat-form-field>
+    <div class="date-row">
+      <mat-form-field appearance="outline" class="date-field">
+        <mat-label>Date From</mat-label>
+        <input matInput [matDatepicker]="pickerFrom" formControlName="dateFrom" />
+        <mat-datepicker-toggle matIconSuffix [for]="pickerFrom"></mat-datepicker-toggle>
+        <mat-datepicker #pickerFrom></mat-datepicker>
+        @if (form.get('dateFrom')?.hasError('required') && form.get('dateFrom')?.touched) {
+        <mat-error>Required</mat-error>
+        }
+      </mat-form-field>
 
-        <mat-form-field appearance="outline" class="date-field">
-          <mat-label>Date To</mat-label>
-          <input matInput [matDatepicker]="pickerTo" formControlName="dateTo" />
-          <mat-datepicker-toggle matIconSuffix [for]="pickerTo"></mat-datepicker-toggle>
-          <mat-datepicker #pickerTo></mat-datepicker>
-          @if (form.get('dateTo')?.hasError('required') && form.get('dateTo')?.touched) {
-            <mat-error>Required</mat-error>
-          }
-        </mat-form-field>
-      </div>
+      <mat-form-field appearance="outline" class="date-field">
+        <mat-label>Date To</mat-label>
+        <input matInput [matDatepicker]="pickerTo" formControlName="dateTo" />
+        <mat-datepicker-toggle matIconSuffix [for]="pickerTo"></mat-datepicker-toggle>
+        <mat-datepicker #pickerTo></mat-datepicker>
+        @if (form.get('dateTo')?.hasError('required') && form.get('dateTo')?.touched) {
+        <mat-error>Required</mat-error>
+        }
+      </mat-form-field>
+    </div>
     }
 
   </form>
@@ -58,12 +70,7 @@
 
 <mat-dialog-actions align="end">
   <button mat-button (click)="dialogRef.close()">Cancel</button>
-  <button
-    mat-flat-button
-    color="primary"
-    (click)="run()"
-    [disabled]="form.invalid || loadingEmployees"
-  >
+  <button mat-flat-button color="primary" (click)="run()" [disabled]="form.invalid || loadingEmployees">
     Run Report
   </button>
 </mat-dialog-actions>

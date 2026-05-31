@@ -8,6 +8,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatCardModule } from '@angular/material/card';
 import { DynamicFilterDialogComponent, ReportFilters } from './helpers/dynamic-filter-dialog/dynamic-filter-dialog.component';
 import { TimesheetReportComponent } from './components/timesheet-report/timesheet-report.component';
+import { SageTimesheetReportComponent } from './components/sage-timesheet-report/sage-timesheet-report.component';
 import { IssueReportComponent } from './components/issue-report/issue-report.component';
 import { ClockingsReportComponent } from './components/clockings-report/clockings-report.component';
 import { ReportConfig } from '../../models/reports.model';
@@ -37,6 +38,17 @@ export class ReportsComponent {
       description: 'Lists time entries per employee for a selected department and date range.',
       filterConfig: {
         title: 'Timesheet Report — Parameters',
+        showDepartment: true,
+        showDateRange: true,
+        showEmployee: true,
+      },
+    },
+    {
+      id: 'sage-timesheet',
+      name: 'SAGE Timesheets',
+      description: 'SAGE-formatted timesheet export for payroll, filtered by department, employee, and date range.',
+      filterConfig: {
+        title: 'SAGE Timesheets',
         showDepartment: true,
         showDateRange: true,
         showEmployee: true,
@@ -89,6 +101,9 @@ export class ReportsComponent {
           break;
         case 'clockings':
           this.dialog.open(ClockingsReportComponent, dialogConfig);
+          break;
+        case 'sage-timesheet':
+          this.dialog.open(SageTimesheetReportComponent, dialogConfig);
           break;
         case 'timeheet':
         default:

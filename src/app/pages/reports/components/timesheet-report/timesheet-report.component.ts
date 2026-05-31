@@ -88,6 +88,7 @@ export class TimesheetReportComponent implements OnInit {
         this.filters.dateFrom,
         this.filters.dateTo,
         this.filters.employeeId ?? null,
+        this.filters.employeeType ?? null,
       );
     } catch (e) {
       this.error = String(e);

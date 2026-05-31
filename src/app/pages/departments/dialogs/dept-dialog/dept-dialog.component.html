@@ -13,10 +13,16 @@
         <mat-option *ngFor="let c of companies" [value]="c.id">{{ c.name }}</mat-option>
       </mat-select>
     </mat-form-field>
+
     <mat-form-field appearance="outline" class="full-width">
       <mat-label>Department Name</mat-label>
       <input matInput formControlName="departmentName" required />
       <mat-error *ngIf="form.get('departmentName')?.hasError('required')">Required</mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Company Code</mat-label>
+      <input matInput formControlName="companyCode" />
     </mat-form-field>
 
     <mat-form-field appearance="outline" class="full-width">

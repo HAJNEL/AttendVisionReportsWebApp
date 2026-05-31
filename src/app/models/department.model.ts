@@ -10,4 +10,5 @@ export interface Department {
   country: string | null;
   serialNo?: string | null;
   companyId?: string | null;
+  companyCode?: string | null;
 }

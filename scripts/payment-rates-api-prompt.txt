@@ -1,0 +1,150 @@
+Implement support for department payment rates in the backend API that already serves the Angular frontend for AttendVision Reports.
+
+Use the existing linked PostgreSQL database.
+
+Frontend contract already exists and must be preserved:
+
+DepartmentPaymentRate response model:
+{
+  id: string;
+  departmentId: string;
+  rateType: 'hourly' | 'daily' | 'monthly' | 'overtime' | 'custom';
+  amount: number;
+  casualMatchKey: string | null;
+  appliesTo: 'standard' | 'casual';
+  createdAt?: string | null;
+  updatedAt?: string | null;
+}
+
+DepartmentPaymentRateInput request model:
+{
+  rateType: 'hourly' | 'daily' | 'monthly' | 'overtime' | 'custom';
+  amount: number;
+  casualMatchKey: string | null;
+  appliesTo: 'standard' | 'casual';
+}
+
+Required endpoints:
+
+1. GET /api/departments/{departmentId}/payment-rates
+   Return all payment rates for the department ordered by appliesTo asc, rateType asc, createdAt asc.
+
+2. POST /api/departments/{departmentId}/payment-rates
+   Create a new payment rate for the department.
+   Request body is DepartmentPaymentRateInput.
+   Return 201 with the created DepartmentPaymentRate.
+
+3. PUT /api/department-payment-rates/{id}
+   Update an existing payment rate.
+   Request body is DepartmentPaymentRateInput.
+   Return 200 with the updated DepartmentPaymentRate.
+
+4. DELETE /api/department-payment-rates/{id}
+   Delete a payment rate.
+   Return 204.
+
+Validation rules:
+
+- amount must be greater than 0
+- rateType must be one of hourly, daily, monthly, overtime, custom
+- appliesTo must be standard or casual
+- if appliesTo is casual, casualMatchKey is required
+- if appliesTo is standard, casualMatchKey must be null
+- trim casualMatchKey and store it uppercased
+- enforce uniqueness on departmentId + appliesTo + rateType + casualMatchKey
+- return 409 for duplicate rule conflicts
+- return 404 for missing records
+- return 400 for invalid payloads
+
+Database work:
+
+- Run the SQL in DB SETUP Scripts/department_payment_rates table creation.sql
+- Use the table department_payment_rates
+- Use parameterized SQL only
+
+SQL queries to implement:
+
+Get by department:
+SELECT
+    id,
+    department_id,
+    rate_type,
+    amount,
+    casual_match_key,
+    applies_to,
+    created_at,
+    updated_at
+FROM department_payment_rates
+WHERE department_id = $1
+ORDER BY applies_to ASC, rate_type ASC, created_at ASC;
+
+Insert:
+INSERT INTO department_payment_rates (
+    department_id,
+    rate_type,
+    amount,
+    casual_match_key,
+    applies_to
+)
+VALUES ($1, $2, $3, $4, $5)
+RETURNING
+    id,
+    department_id,
+    rate_type,
+    amount,
+    casual_match_key,
+    applies_to,
+    created_at,
+    updated_at;
+
+Update:
+UPDATE department_payment_rates
+SET
+    rate_type = $2,
+    amount = $3,
+    casual_match_key = $4,
+    applies_to = $5
+WHERE id = $1
+RETURNING
+    id,
+    department_id,
+    rate_type,
+    amount,
+    casual_match_key,
+    applies_to,
+    created_at,
+    updated_at;
+
+Delete:
+DELETE FROM department_payment_rates
+WHERE id = $1;
+
+Response mapping:
+
+- id <- id::text
+- departmentId <- department_id
+- rateType <- rate_type
+- amount <- amount as decimal/number
+- casualMatchKey <- casual_match_key
+- appliesTo <- applies_to
+- createdAt <- created_at in ISO format
+- updatedAt <- updated_at in ISO format
+
+Business behavior:
+
+- Casual rules are used by reports when employee_id contains the stored casualMatchKey substring.
+- Standard rules have no casualMatchKey.
+- Do not add label or isActive fields; the frontend no longer uses them.
+
+If this backend is ASP.NET Core, generate:
+
+- DepartmentPaymentRate entity/model
+- DepartmentPaymentRateDto
+- DepartmentPaymentRateInputDto
+- DepartmentPaymentRatesController
+- service/repository methods for the four endpoints
+- any SQL/data-access mapping needed for PostgreSQL
+
+If this backend uses Dapper or SQLx-like raw SQL access, prefer simple repository methods over unnecessary abstraction.
+
+Return the exact request and response JSON shapes expected by the frontend shown above.

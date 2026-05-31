@@ -21,6 +21,7 @@ import {
   DeptFormDialogComponent,
   DeptConfirmDialogComponent,
 } from './dialogs/dept-dialog/dept-dialog.component';
+import { PaymentRatesDialogComponent } from './dialogs/payment-rates-dialog/payment-rates-dialog.component';
 import { TimeOverridesDialogComponent } from './dialogs/time-overrides-dialog/time-overrides-dialog.component';
 
 export type DepartmentRow = Department;
@@ -149,6 +150,7 @@ export class DepartmentsComponent implements OnInit {
     ref.afterClosed().subscribe(async (result) => {
       if (!result) return;
       try {
+        console.log('Updating department with data:', result);
         const updated = await this.api.updateDepartment(dept.id, result);
         this.departments = this.departments.map(d => d.id === dept.id ? updated : d)
           .sort((a, b) => a.departmentName.localeCompare(b.departmentName));
@@ -156,6 +158,26 @@ export class DepartmentsComponent implements OnInit {
       } catch (e) {
         this.snackBar.open(String(e), 'Dismiss', { duration: 5000 });
       }
+    });
+  }
+
+  openPaymentRates(dept: DepartmentRow): void {
+    const ref = this.dialog.open(PaymentRatesDialogComponent, {
+      data: { departmentId: dept.id, departmentName: dept.departmentName },
+      width: '1040px',
+      maxWidth: '96vw',
+      panelClass: 'payment-rates-dialog-panel',
+    });
+
+    ref.afterClosed().subscribe((result) => {
+      if (!result?.updated) {
+        return;
+      }
+
+      const message = result.localOnly
+        ? 'Payment rates updated in local preview mode'
+        : 'Payment rates updated';
+      this.snackBar.open(message, 'OK', { duration: 3500 });
     });
   }
 
