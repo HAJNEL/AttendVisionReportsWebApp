@@ -10,6 +10,7 @@ import { MatNativeDateModule, provideNativeDateAdapter } from '@angular/material
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ApiService } from '../../../../services/api.service';
+import { DepartmentPaymentRate } from '../../../../models/department-payment-rate.model';
 import { Subject } from 'rxjs';
 import { debounceTime, takeUntil } from 'rxjs/operators';
 import { DepartmentEmployee } from '../../../../models/department-user-link.model';
@@ -32,6 +33,7 @@ export interface ReportFilters {
   dateFrom: string;
   dateTo: string;
   employeeId: string | null;
+  employeeType: string | null;
 }
 
 interface DepartmentOption {
@@ -60,11 +62,14 @@ interface DepartmentOption {
 })
 export class DynamicFilterDialogComponent implements OnInit, OnDestroy {
   form = new FormGroup({
-    department: new FormControl<string | null>(null),
+    department: new FormControl<string>(''),
     dateFrom: new FormControl<Date | null>(this.firstOfMonth(), Validators.required),
-    dateTo:   new FormControl<Date | null>(new Date(), Validators.required),
-    employeeId: new FormControl<string | null>(null),
+    dateTo: new FormControl<Date | null>(new Date(), Validators.required),
+    employeeId: new FormControl<string>({ value: '', disabled: true }),
+    employeeType: new FormControl<string>(''),
   });
+  paymentRates: DepartmentPaymentRate[] = [];
+  employeeTypeOptions: { label: string, value: string }[] = [];
 
   departments: DepartmentOption[] = [];
   employees: DepartmentEmployee[] = [];
@@ -78,49 +83,54 @@ export class DynamicFilterDialogComponent implements OnInit, OnDestroy {
     public dialogRef: MatDialogRef<DynamicFilterDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public config: DynamicFilterConfig,
     private api: ApiService,
-  ) {}
+  ) { }
 
   async ngOnInit(): Promise<void> {
+    // Load departments if required
     if (this.config.showDepartment !== false) {
       this.departments = await this.api.getDepartments();
-    }
+      // Set defaults to '' to match value="" on the All options
+      this.form.controls.department.setValue('');
+      this.showAllDepartmentsOption = this.departments.length > 1;
+      await this.loadEmployeeTypeOptions('');
+      this.form.controls.employeeType.setValue('');
 
-    // Setup department/employee logic to match EmployeeLeaveComponent
-    if (this.config.showEmployee !== false) {
+      // Subscribe to department changes to load employees and update type options
+
       this.form.controls.department.valueChanges
         .pipe(debounceTime(300), takeUntil(this.destroy$))
         .subscribe((deptId: string | null) => {
           (async () => {
             this.loadingEmployees = true;
-            // Find department id (not name) for API
             let departmentId: string | null = null;
-            if (deptId && deptId !== 'all') {
-              // If deptId is a department name, map to id
+            if (deptId && deptId !== '') {
               const deptObj = this.departments.find(d => d.departmentName === deptId || d.id === deptId);
               departmentId = deptObj ? deptObj.id : deptId;
             }
-            this.employees = await this.api.getEmployees(departmentId).catch(() => []);
-            // Clear employee selection when department changes (unless patching)
+            this.employees = this.deduplicateEmployees(await this.api.getEmployees(departmentId).catch(() => []));
             if (!this.patchingDepartment) {
               this.form.controls.employeeId.setValue('');
             }
-            this.form.controls.employeeId.enable();
             this.loadingEmployees = false;
+            if (this.employees.length > 0) {
+              this.form.controls.employeeId.enable();
+            } else {
+              this.form.controls.employeeId.disable();
+            }
+            await this.loadEmployeeTypeOptions(deptId);
           })();
         });
     } else {
-      // If showEmployee is false, disable the employeeId control
       this.form.controls.employeeId.disable();
     }
 
-    // Edit mode logic: patch form and ensure employee is present
+    // Edit mode: if filters are provided (e.g., via parent), patch form and ensure employee list includes selected employee
     if ((this as any).filters) {
       const entry = (this as any).filters;
       this.patchingDepartment = true;
       this.loadingEmployees = true;
-      // Always use department id for API
       const deptId = entry.department && entry.department !== 'all' ? entry.department : null;
-      this.employees = await this.api.getEmployees(deptId).catch(() => []);
+      this.employees = this.deduplicateEmployees(await this.api.getEmployees(deptId).catch(() => []));
       if (entry.employeeId && !this.employees.some(e => e.employeeId === entry.employeeId)) {
         const deptObj = this.departments.find(d => d.id === entry.department);
         this.employees.push({
@@ -132,7 +142,7 @@ export class DynamicFilterDialogComponent implements OnInit, OnDestroy {
       }
       this.showAllDepartmentsOption = this.departments.length > 1;
       this.form.patchValue({
-        department: entry.department || 'all',
+        department: entry.department || '',
         employeeId: entry.employeeId,
         dateFrom: entry.dateFrom ? new Date(entry.dateFrom) : null,
         dateTo: entry.dateTo ? new Date(entry.dateTo) : null,
@@ -140,19 +150,67 @@ export class DynamicFilterDialogComponent implements OnInit, OnDestroy {
       this.loadingEmployees = false;
       this.patchingDepartment = false;
     } else {
-      // Initial department/employee setup
+      // Initial load when not editing
       if (this.departments.length === 1) {
         this.form.controls.department.setValue(this.departments[0].id);
         this.showAllDepartmentsOption = false;
       } else {
-        this.form.controls.department.setValue('all');
+        this.form.controls.department.setValue('');
         this.showAllDepartmentsOption = true;
       }
-      // Initial employee load (no department filter)
-      this.loadingEmployees = true;
-      this.employees = await this.api.getEmployees(null).catch(() => []);
-      this.loadingEmployees = false;
+      // Load employee type options for 'All' selection
+      await this.loadEmployeeTypeOptions('');
+      // Set default Employee Type to All Types
+      this.form.controls.employeeType.setValue('');
     }
+  }
+
+
+
+  /**
+   * Loads and deduplicates payment rates for the Employee Type select.
+   * If a department is selected, fetches rates for that department.
+   * If no department, fetches all departments and deduplicates by label or appliesTo.
+   */
+  private async loadEmployeeTypeOptions(deptId: string | null) {
+    this.paymentRates = [];
+    this.employeeTypeOptions = [];
+    if (deptId && deptId !== '' && deptId !== 'all') {
+      // Find department id (not name) for API
+      let departmentId: string | null = null;
+      const deptObj = this.departments.find(d => d.departmentName === deptId || d.id === deptId);
+      departmentId = deptObj ? deptObj.id : deptId;
+      if (departmentId) {
+        this.paymentRates = await this.api.getDepartmentPaymentRates(departmentId).catch(() => []);
+      }
+    } else {
+      // No department selected: fetch all departments and aggregate rates
+      const allRates: DepartmentPaymentRate[] = [];
+      for (const dept of this.departments) {
+        const rates = await this.api.getDepartmentPaymentRates(dept.id).catch(() => []);
+        allRates.push(...rates);
+      }
+      // Deduplicate by label (or appliesTo if label is null)
+      const seen = new Set<string>();
+      for (const rate of allRates) {
+        const key = (rate.otherLabel && rate.otherLabel.trim()) ? rate.otherLabel.trim().toLowerCase() : rate.appliesTo;
+        if (!seen.has(key)) {
+          seen.add(key);
+          this.paymentRates.push(rate);
+        }
+      }
+    }
+    // Build options: label if present, else appliesTo
+    this.employeeTypeOptions = this.paymentRates.map(rate => ({
+      label: (rate.otherLabel && rate.otherLabel.trim()) ? rate.otherLabel : this.formatAppliesTo(rate.appliesTo),
+      value: rate.id
+    }));
+  }
+
+  private formatAppliesTo(appliesTo: string): string {
+    if (appliesTo === 'standard') return 'Standard';
+    if (appliesTo === 'other') return 'Other';
+    return appliesTo;
   }
 
   ngOnDestroy(): void {
@@ -160,16 +218,16 @@ export class DynamicFilterDialogComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  // Removed loadUsers, replaced by department valueChanges logic
-
+  // Handles form submission and closes the dialog with selected filters
   run(): void {
     if (this.form.invalid) return;
-    const { department, dateFrom, dateTo, employeeId } = this.form.value;
+    const { department, dateFrom, dateTo, employeeId, employeeType } = this.form.value;
     const filters: ReportFilters = {
-      department: department ?? null,
-      dateFrom:   this.formatDate(dateFrom!),
-      dateTo:     this.formatDate(dateTo!),
-      employeeId: employeeId ?? null,
+      department: department || null,
+      dateFrom: this.formatDate(dateFrom!),
+      dateTo: this.formatDate(dateTo!),
+      employeeId: this.form.controls.employeeId.value ?? null,
+      employeeType: employeeType || null,
     };
     this.dialogRef.close(filters);
   }
@@ -181,9 +239,20 @@ export class DynamicFilterDialogComponent implements OnInit, OnDestroy {
   }
 
   private formatDate(d: Date): string {
-    const y   = d.getFullYear();
-    const m   = String(d.getMonth() + 1).padStart(2, '0');
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
     const day = String(d.getDate()).padStart(2, '0');
     return `${y}-${m}-${day}`;
+  }
+
+  /** Deduplicates an employee list by employeeId, keeping the first occurrence. */
+  private deduplicateEmployees(employees: DepartmentEmployee[]): DepartmentEmployee[] {
+    const seen = new Set<string>();
+
+    return employees.filter(emp => {
+      if (seen.has(emp.employeeId)) return false;
+      seen.add(emp.employeeId);
+      return true;
+    });
   }
 }

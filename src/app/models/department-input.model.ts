@@ -9,4 +9,5 @@ export interface DepartmentInput {
   country: string | null;
   serialNo?: string | null;
   companyId?: string | null;
+  companyCode?: string | null;
 }

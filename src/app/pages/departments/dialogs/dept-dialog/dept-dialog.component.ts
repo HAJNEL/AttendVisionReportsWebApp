@@ -22,6 +22,7 @@ export interface DepartmentRow {
   country: string | null;
   serialNo?: string | null;
   companyId?: string | null;
+  companyCode?: string | null;
 }
 
 export interface DeptFormDialogData {
@@ -72,6 +73,7 @@ export class DeptFormDialogComponent implements OnInit {
       country:         new FormControl(d?.country ?? ''),
       serialNo:        new FormControl(d?.serialNo ?? ''),
       companyId:       new FormControl(d?.companyId ?? null),
+      companyCode:    new FormControl(d?.companyCode ?? ''),
     });
   }
 
@@ -94,6 +96,7 @@ export class DeptFormDialogComponent implements OnInit {
       country:        v.country || null,
       serialNo:       v.serialNo || null,
       companyId:      v.companyId || null,
+      companyCode:   v.companyCode || null,
     });
   }
 }

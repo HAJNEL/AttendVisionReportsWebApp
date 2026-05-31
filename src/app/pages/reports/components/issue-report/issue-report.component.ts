@@ -103,6 +103,7 @@ export class IssueReportComponent implements OnInit {
         this.filters.dateTo,
         this.filters.department ?? null,
         this.filters.employeeId ?? null,
+        this.filters.employeeType ?? null,
       );
     } catch (e) {
       this.error = String(e);

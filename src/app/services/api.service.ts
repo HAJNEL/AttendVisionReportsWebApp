@@ -1,3 +1,4 @@
+import { PayrollExportRow } from '../models/payroll-export-row.model';
 import { EmployeeLeave, CreateEmployeeLeave, UpdateEmployeeLeave, EmployeeLeaveRange } from '../models/employee-leave.model';
 import { DepartmentUserLink, DepartmentEmployee } from '../models/department-user-link.model';
 import { environment } from '../../environments/environment';
@@ -22,6 +23,8 @@ import { ClockingRow } from '../models/clocking-row.model';
 import { TimesheetRow } from '../models/timesheet-row.model';
 import { CompanyUserLink } from '../models/company-user-link.model';
 import { TimeOverride, CreateTimeOverride, UpdateTimeOverride } from '../models/time-override.model';
+import { DepartmentPaymentRate, DepartmentPaymentRateInput } from '../models/department-payment-rate.model';
+import { SageTimesheetRow } from '../models/sage-timesheet-row';
 
 // ── Service ───────────────────────────────────────────────────────────────────
 
@@ -123,24 +126,26 @@ export class ApiService {
 
   // ── Reports ───────────────────────────────────────────────────────────────
 
-  getIssues(dateFrom: string, dateTo: string, department: string | null, employeeId: string | null = null): Promise<IssueRow[]> {
+  getIssues(dateFrom: string, dateTo: string, department: string | null, employeeId: string | null = null, employeeType: string | null = null): Promise<IssueRow[]> {
     return firstValueFrom(this.http.get<IssueRow[]>(`${API_BASE}/reports/issues`, {
       params: {
         dateFrom,
         dateTo,
         ...(department ? { department } : {}),
-        ...(employeeId ? { employeeId } : {})
+        ...(employeeId ? { employeeId } : {}),
+        ...(employeeType ? { employeeType } : {})
       }
     }));
   }
 
-  getClockingsReport(dept: string | null, dateFrom: string, dateTo: string, employeeId: string | null): Promise<ClockingRow[]> {
+  getClockingsReport(dept: string | null, dateFrom: string, dateTo: string, employeeId: string | null, employeeType: string | null = null): Promise<ClockingRow[]> {
     return firstValueFrom(this.http.get<ClockingRow[]>(`${API_BASE}/reports/clockings`, {
       params: {
         dateFrom,
         dateTo,
         ...(dept ? { dept } : {}),
-        ...(employeeId ? { employeeId } : {})
+        ...(employeeId ? { employeeId } : {}),
+        ...(employeeType ? { employeeType } : {})
       }
     }));
   }
@@ -156,15 +161,29 @@ export class ApiService {
     }));
   }
 
-  getTimesheetReport(dept: string | null, dateFrom: string, dateTo: string, employeeId: string | null): Promise<TimesheetRow[]> {
+  getTimesheetReport(dept: string | null, dateFrom: string, dateTo: string, employeeId: string | null, employeeType: string | null = null): Promise<TimesheetRow[]> {
     return firstValueFrom(this.http.get<TimesheetRow[]>(`${API_BASE}/reports/timesheet`, {
       params: {
         dateFrom,
         dateTo,
         ...(dept ? { dept } : {}),
-        ...(employeeId ? { employeeId } : {})
+        ...(employeeId ? { employeeId } : {}),
+        ...(employeeType ? { employeeType } : {})
       }
     }));
+  }
+
+    // ── SAGE Timesheets Report ───────────────────────────────────────────────
+
+    getSageTimesheetReport(dept: string | null, dateFrom: string, dateTo: string, employeeId?: string | null, employeeType?: string | null): Promise<PayrollExportRow[]> {
+    const params: any = {
+      dateFrom,
+      dateTo,
+    };
+    if (dept && dept !== 'all') params.dept = dept;
+    if (employeeId) params.employeeId = employeeId;
+    if (employeeType) params.employeeType = employeeType;
+    return firstValueFrom(this.http.get<PayrollExportRow[]>(`${API_BASE}/reports/sage-timesheet`, { params }));
   }
 
   // ── Companies ──────────────────────────────────────────────────────────────
@@ -342,6 +361,24 @@ export class ApiService {
 
   deleteTimeOverride(id: string): Promise<void> {
     return firstValueFrom(this.http.delete<void>(`${API_BASE}/timeoverrides/${id}`));
+  }
+
+  // ── Department Payment Rates ──────────────────────────────────────────────
+
+  getDepartmentPaymentRates(departmentId: string): Promise<DepartmentPaymentRate[]> {
+    return firstValueFrom(this.http.get<DepartmentPaymentRate[]>(`${API_BASE}/departments/${departmentId}/payment-rates`));
+  }
+
+  createDepartmentPaymentRate(departmentId: string, input: DepartmentPaymentRateInput): Promise<DepartmentPaymentRate> {
+    return firstValueFrom(this.http.post<DepartmentPaymentRate>(`${API_BASE}/departments/${departmentId}/payment-rates`, input));
+  }
+
+  updateDepartmentPaymentRate(id: string, input: DepartmentPaymentRateInput): Promise<DepartmentPaymentRate> {
+    return firstValueFrom(this.http.put<DepartmentPaymentRate>(`${API_BASE}/department-payment-rates/${id}`, input));
+  }
+
+  deleteDepartmentPaymentRate(id: string): Promise<void> {
+    return firstValueFrom(this.http.delete<void>(`${API_BASE}/department-payment-rates/${id}`));
   }
 
   // ── Employee Leave ──────────────────────────────────────────────────────────
