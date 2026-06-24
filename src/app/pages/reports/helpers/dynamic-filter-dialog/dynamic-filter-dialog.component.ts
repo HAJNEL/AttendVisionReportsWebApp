@@ -200,11 +200,19 @@ export class DynamicFilterDialogComponent implements OnInit, OnDestroy {
         }
       }
     }
-    // Build options: label if present, else appliesTo
-    this.employeeTypeOptions = this.paymentRates.map(rate => ({
-      label: (rate.otherLabel && rate.otherLabel.trim()) ? rate.otherLabel : this.formatAppliesTo(rate.appliesTo),
-      value: rate.id
-    }));
+    // Build grouped options — one entry per unique audience group (Standard or each 'other' matchKey)
+    const seen = new Set<string>();
+    this.employeeTypeOptions = [];
+    for (const rate of this.paymentRates) {
+      const label = (rate.otherLabel && rate.otherLabel.trim())
+        ? rate.otherLabel.trim()
+        : this.formatAppliesTo(rate.appliesTo);
+      const value = rate.appliesTo === 'other' ? (rate.matchKey ?? label.toLowerCase()) : 'standard';
+      if (!seen.has(value)) {
+        seen.add(value);
+        this.employeeTypeOptions.push({ label, value });
+      }
+    }
   }
 
   private formatAppliesTo(appliesTo: string): string {

@@ -11,6 +11,8 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ReportFilters, DynamicFilterDialogComponent } from '../../helpers/dynamic-filter-dialog/dynamic-filter-dialog.component';
 import { ApiService } from '../../../../services/api.service';
 import { PayrollExportRow } from '../../../../models/payroll-export-row.model';
+import { DepartmentPaymentRate } from '../../../../models/department-payment-rate.model';
+import { DepartmentEmployee } from '../../../../models/department-user-link.model';
 import * as XLSX from 'xlsx';
 
 @Component({
@@ -31,8 +33,10 @@ import * as XLSX from 'xlsx';
   styleUrl: './sage-timesheet-report.component.scss',
 })
 export class SageTimesheetReportComponent implements OnInit {
-  displayedColumns = ['company_code', 'empno', 'emp_fullname', 'normal_Hours', 'overtime_Hours', 'public_Holiday_Hours'];
+  displayedColumns = ['company_code', 'empno', 'emp_fullname', 'normal_Hours', 'overtime_Hours', 'public_Holiday_Hours', 'total_amount'];
   rows: PayrollExportRow[] = [];
+  private employeeDeptMap = new Map<string, string>();         // empno → departmentId
+  private departmentRatesMap = new Map<string, DepartmentPaymentRate[]>(); // departmentId → rates
   loading = true;
   error: string | null = null;
   exporting = false;
@@ -72,25 +76,71 @@ export class SageTimesheetReportComponent implements OnInit {
     this.loading = true;
     this.error = null;
     try {
-      const apiRows = await this.api.getSageTimesheetReport(
-        this.filters.department ?? null,
-        this.filters.dateFrom,
-        this.filters.dateTo,
-        this.filters.employeeId ?? null,
-        this.filters.employeeType ?? null,
-      );
-      // Map snake_case API keys to camelCase for display/export
-      this.rows = apiRows.map((r: any) => ({
-        company_code: r.company_code,
+      // Resolve department name → UUID (filter dialog stores name, not ID)
+      const allDepts = await this.api.getDepartments();
+      const targetDepts = this.filters.department
+        ? allDepts.filter(d => d.departmentName === this.filters.department || d.id === this.filters.department)
+        : allDepts;
+
+      console.log('[PayrollReport] targetDepts:', targetDepts.map(d => d.departmentName));
+
+      // Fetch employees and rates per department in parallel, then build lookup maps
+      const [employeeLists, rateLists, apiRows] = await Promise.all([
+        Promise.all(targetDepts.map(d =>
+          this.api.getEmployees(d.id).catch(() => [] as DepartmentEmployee[]).then(emps => ({ deptId: d.id, emps }))
+        )),
+        Promise.all(targetDepts.map(d =>
+          this.api.getDepartmentPaymentRates(d.id).catch(() => [] as DepartmentPaymentRate[]).then(rates => ({ deptId: d.id, rates }))
+        )),
+        this.api.getSageTimesheetReport(
+          this.filters.department ?? null,
+          this.filters.dateFrom,
+          this.filters.dateTo,
+          this.filters.employeeId ?? null,
+          null,
+        ),
+      ]);
+
+      // Build empno → departmentId map
+      this.employeeDeptMap = new Map();
+      for (const { deptId, emps } of employeeLists) {
+        for (const emp of emps) {
+          this.employeeDeptMap.set(emp.employeeId, deptId);
+        }
+      }
+
+      // Build departmentId → rates map
+      this.departmentRatesMap = new Map();
+      for (const { deptId, rates } of rateLists) {
+        this.departmentRatesMap.set(deptId, rates);
+      }
+
+      console.log('[PayrollReport] employeeDeptMap size:', this.employeeDeptMap.size);
+      console.log('[PayrollReport] departmentRatesMap:', Object.fromEntries(
+        [...this.departmentRatesMap.entries()].map(([k, v]) => [k, v.map(r => `${r.rateType}/${r.appliesTo}=${r.amount}`)])
+      ));
+
+      this.rows = apiRows
+        .map((r: any) => ({
+          company_code: r.company_code,
+          empno: r.empno,
+          emp_fullname: r.emp_fullname,
+          normal_Hours: r.normal_hours,
+          overtime_Hours: r.overtime_hours,
+          public_Holiday_Hours: r.public_holiday_hours,
+          date: r.date,
+        }))
+        .filter(r => this.rowMatchesEmployeeType(r.empno));
+
+      console.log('[PayrollReport] rows sample (first 3):', this.rows.slice(0, 3).map(r => ({
         empno: r.empno,
-        emp_fullname: r.emp_fullname,
-        normal_Hours: r.normal_hours,
-        overtime_Hours: r.overtime_hours,
-        public_Holiday_Hours: r.public_holiday_hours,
-        date: r.date, // Ensure your API provides this property
-      }));
-      // Debug: log the data displayed in the table
-      console.log('Table rows:', this.rows);
+        deptId: this.employeeDeptMap.get(r.empno),
+        standardRate: this.resolveRateForEmployee(r.empno, 'standard'),
+        phRate: this.resolveRateForEmployee(r.empno, 'public_holiday'),
+        normalAmount: this.normalAmount(r),
+        phAmount: this.phAmount(r),
+        totalAmount: this.totalAmount(r),
+      })));
     } catch (e) {
       this.error = String(e);
     } finally {
@@ -98,13 +148,47 @@ export class SageTimesheetReportComponent implements OnInit {
     }
   }
 
+  get employeeTypeLabel(): string {
+    const type = this.filters.employeeType;
+    if (!type) return 'All Types';
+    if (type === 'standard') return 'Standard';
+    for (const rates of this.departmentRatesMap.values()) {
+      const rate = rates.find(r => r.appliesTo === 'other' && r.matchKey === type);
+      if (rate?.otherLabel) return rate.otherLabel;
+    }
+    return type;
+  }
+
+  private formatRand(value: number): string {
+    return 'R ' + value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
   exportToExcel(): void {
     if (!this.rows.length) return;
     const data = [
-      ['EmpNo', 'Employee Name', 'Normal Hours', 'Overtime Hours', 'Public Holiday Hours'],
-      ...this.rows.map(r => [r.empno, r.emp_fullname, r.normal_Hours, r.overtime_Hours, r.public_Holiday_Hours]),
+      ['Payroll Export Report'],
+      ['Department:', this.filters.department ?? 'All Departments'],
+      ['Date From:', this.filters.dateFrom],
+      ['Date To:', this.filters.dateTo],
+      ['Employee:', this.filters.employeeId || 'All Employees'],
+      ['Employee Type:', this.employeeTypeLabel],
+      ['Generated:', new Date().toLocaleString('en-ZA')],
       [],
-      ['Total', '', this.totalNormal, this.totalOvertime, this.totalPublicHoliday],
+      ['EmpNo', 'Employee Name', 'Standard Rate', 'Public Holiday Rate', 'Normal Hours', 'Overtime Hours', 'Public Holiday Hours', 'Normal Amount', 'Public Holiday Amount', 'Total Amount'],
+      ...this.rows.map(r => [
+        r.empno,
+        r.emp_fullname,
+        this.formatRand(this.resolveRateForEmployee(r.empno, 'standard')),
+        this.formatRand(this.resolveRateForEmployee(r.empno, 'public_holiday')),
+        r.normal_Hours,
+        r.overtime_Hours,
+        r.public_Holiday_Hours,
+        this.formatRand(this.normalAmount(r)),
+        this.formatRand(this.phAmount(r)),
+        this.formatRand(this.totalAmount(r)),
+      ]),
+      [],
+      ['Total', '', '', '', this.totalNormal, this.totalOvertime, this.totalPublicHoliday, this.formatRand(this.totalNormalAmount), this.formatRand(this.totalPhAmount), this.formatRand(this.totalTotalAmount)],
     ];
     const ws = XLSX.utils.aoa_to_sheet(data);
     const wb = XLSX.utils.book_new();
@@ -143,6 +227,69 @@ export class SageTimesheetReportComponent implements OnInit {
   }
   get totalPublicHoliday(): number {
     return this.rows.reduce((sum, r) => sum + (r.public_Holiday_Hours ?? 0), 0);
+  }
+  get totalNormalAmount(): number {
+    return this.rows.reduce((sum, r) => sum + this.normalAmount(r), 0);
+  }
+  get totalPhAmount(): number {
+    return this.rows.reduce((sum, r) => sum + this.phAmount(r), 0);
+  }
+  get totalTotalAmount(): number {
+    return this.rows.reduce((sum, r) => sum + this.totalAmount(r), 0);
+  }
+
+  normalAmount(row: PayrollExportRow): number {
+    return (row.normal_Hours ?? 0) * this.resolveRateForEmployee(row.empno, 'standard');
+  }
+
+  phAmount(row: PayrollExportRow): number {
+    return (row.public_Holiday_Hours ?? 0) * this.resolveRateForEmployee(row.empno, 'public_holiday');
+  }
+
+  totalAmount(row: PayrollExportRow): number {
+    return this.normalAmount(row) + this.phAmount(row);
+  }
+
+  private rowMatchesEmployeeType(empno: string): boolean {
+    const type = this.filters.employeeType;
+    if (!type) return true;
+
+    if (type === 'standard') {
+      // Standard employees: empno must NOT contain any 'other' matchKey
+      for (const rates of this.departmentRatesMap.values()) {
+        for (const rate of rates.filter(r => r.appliesTo === 'other' && r.matchKey)) {
+          if (empno.toLowerCase().includes(rate.matchKey!.toLowerCase())) return false;
+        }
+      }
+      return true;
+    }
+
+    // Specific group: empno must contain the matchKey
+    return empno.toLowerCase().includes(type.toLowerCase());
+  }
+
+  resolveRateForEmployee(empno: string, rateType: 'standard' | 'public_holiday'): number {
+    // Look up the employee's specific department, then use only that department's rates
+    const deptId = this.employeeDeptMap.get(empno);
+    const rates = deptId ? (this.departmentRatesMap.get(deptId) ?? []) : [];
+
+    if (!rates.length) return 0;
+
+    // Check if the employee's ID contains any 'other' group's matchKey
+    const otherRates = rates.filter(r => r.appliesTo === 'other' && r.matchKey);
+    for (const candidate of otherRates) {
+      if (empno.toLowerCase().includes(candidate.matchKey!.toLowerCase())) {
+        const match = rates.find(r =>
+          r.appliesTo === 'other' &&
+          r.matchKey === candidate.matchKey &&
+          r.rateType === rateType
+        );
+        if (match) return match.amount;
+      }
+    }
+
+    // Fall back to standard audience rates for this department
+    return rates.find(r => r.rateType === rateType && r.appliesTo === 'standard')?.amount ?? 0;
   }
 
     /**

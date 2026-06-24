@@ -1,4 +1,4 @@
-export type PaymentRateType = 'hourly' | 'daily' | 'monthly' | 'overtime' | 'custom';
+export type PaymentRateType = 'standard' | 'public_holiday';
 
 export type PaymentRateAppliesTo = 'standard' | 'other';
 

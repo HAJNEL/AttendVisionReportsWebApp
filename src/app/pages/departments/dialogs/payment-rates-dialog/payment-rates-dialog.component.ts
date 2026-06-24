@@ -49,11 +49,8 @@ type PaymentRateDialogResult = {
 })
 export class PaymentRatesDialogComponent implements OnInit {
   readonly rateTypes: Array<{ value: PaymentRateType; label: string; hint: string }> = [
-    { value: 'hourly', label: 'Hourly', hint: 'Used for standard per-hour payroll calculations.' },
-    { value: 'daily', label: 'Daily', hint: 'Applies a single rate for a completed work day.' },
-    { value: 'monthly', label: 'Monthly', hint: 'Useful for salaried or fixed-rate reporting.' },
-    { value: 'overtime', label: 'Overtime', hint: 'Captures separate overtime compensation.' },
-    { value: 'custom', label: 'Custom', hint: 'Use a custom category when the standard rate types do not fit.' },
+    { value: 'standard', label: 'Standard', hint: 'Used for standard per-hour payroll calculations.' },
+    { value: 'public_holiday', label: 'Public Holiday', hint: 'Rate applied to hours worked on public holidays.' },
   ];
 
   readonly appliesToOptions: Array<{ value: PaymentRateAppliesTo; label: string; note: string }> = [
@@ -81,7 +78,7 @@ export class PaymentRatesDialogComponent implements OnInit {
   ) {
     this.form = this.fb.group({
       appliesTo: ['standard' as PaymentRateAppliesTo, Validators.required],
-      rateType: ['hourly' as PaymentRateType, Validators.required],
+      rateType: ['standard' as PaymentRateType, Validators.required],
       amount: [null as number | null, [Validators.required, Validators.min(0.01)]],
       otherLabel: [''],
       matchKey: [''],
@@ -100,7 +97,7 @@ export class PaymentRatesDialogComponent implements OnInit {
   }
 
   get isCustomRate(): boolean {
-    return this.form.controls.rateType.value === 'custom';
+    return false;
   }
 
   get isOtherRate(): boolean {
@@ -128,7 +125,7 @@ export class PaymentRatesDialogComponent implements OnInit {
     this.error = null;
     this.form.reset({
       appliesTo: 'standard',
-      rateType: 'hourly',
+      rateType: 'standard',
       amount: null,
       otherLabel: '',
       matchKey: '',
@@ -289,7 +286,7 @@ export class PaymentRatesDialogComponent implements OnInit {
 
   private toPayload(): DepartmentPaymentRateInput {
     const rawAmount = this.form.controls.amount.value ?? 0;
-    const rateType = this.form.controls.rateType.value ?? 'hourly';
+    const rateType = this.form.controls.rateType.value ?? 'standard';
     const appliesTo = this.form.controls.appliesTo.value ?? 'standard';
     const otherLabel = appliesTo === 'other' ? this.normalizeText(this.form.controls.otherLabel.value) : null;
     const matchKey = appliesTo === 'other' ? this.normalizeText(this.form.controls.matchKey.value) : null;
