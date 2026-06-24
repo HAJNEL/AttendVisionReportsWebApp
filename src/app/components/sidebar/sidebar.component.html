@@ -31,6 +31,10 @@
       <mat-icon matListItemIcon>event_busy</mat-icon>
       <span matListItemTitle>Employee Leave</span>
     </a>
+    <a *ngIf="authService.hasPermission('time_management')" mat-list-item routerLink="/time-management" routerLinkActive="active-link" [routerLinkActiveOptions]="{exact: false}" (click)="handleNavClick()">
+      <mat-icon matListItemIcon>manage_history</mat-icon>
+      <span matListItemTitle>Time Management</span>
+    </a>
     <a *ngIf="authService.hasPermission('roles')" mat-list-item routerLink="/roles" routerLinkActive="active-link" (click)="handleNavClick()">
       <mat-icon matListItemIcon>security</mat-icon>
       <span matListItemTitle>Roles</span>

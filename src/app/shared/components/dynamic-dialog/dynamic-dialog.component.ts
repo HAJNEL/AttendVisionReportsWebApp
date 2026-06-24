@@ -23,7 +23,7 @@ export interface DynamicDialogConfig {
 @Component({
   selector: 'app-dynamic-dialog',
   standalone: true,
-  imports: [MatDialogModule, MatButtonModule, MatIconModule, NgIf, NgFor, NgTemplateOutlet],
+  imports: [MatDialogModule, MatButtonModule, MatIconModule, NgIf, NgFor],
   template: `
     <h2 mat-dialog-title *ngIf="data.title">
       <mat-icon *ngIf="data.icon">{{ data.icon }}</mat-icon>

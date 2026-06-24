@@ -42,8 +42,7 @@ type PaymentRateDialogResult = {
     MatButtonModule,
     MatIconModule,
     MatProgressSpinnerModule,
-    MatButtonToggleModule,
-    DynamicDialogComponent,
+    MatButtonToggleModule
   ],
   templateUrl: './payment-rates-dialog.component.html',
   styleUrls: ['./payment-rates-dialog.component.scss'],

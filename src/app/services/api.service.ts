@@ -25,6 +25,7 @@ import { CompanyUserLink } from '../models/company-user-link.model';
 import { TimeOverride, CreateTimeOverride, UpdateTimeOverride } from '../models/time-override.model';
 import { DepartmentPaymentRate, DepartmentPaymentRateInput } from '../models/department-payment-rate.model';
 import { SageTimesheetRow } from '../models/sage-timesheet-row';
+import { DaySummaryRow, AccessRecordDto, CreateAccessRecordDto, UpdateAccessRecordDto, AutoFixPreviewResponse, AutoFixApplyRequest, TimeManagementConfig } from '../models/time-management.model';
 
 // ── Service ───────────────────────────────────────────────────────────────────
 
@@ -415,6 +416,51 @@ export class ApiService {
 
   deleteEmployeeLeaveRange(params: { userId: string; startDate: string; endDate: string }): Promise<number> {
     return firstValueFrom(this.http.delete<number>(`${API_BASE}/employeeleave/range`, { params }));
+  }
+
+  // ── Time Management ───────────────────────────────────────────────────────
+
+  getTimeManagementDaySummary(date: string, departmentId: string | null, employeeId: string | null): Promise<DaySummaryRow[]> {
+    const params: any = { date };
+    if (departmentId) params.departmentId = departmentId;
+    if (employeeId) params.employeeId = employeeId;
+    return firstValueFrom(this.http.get<DaySummaryRow[]>(`${API_BASE}/time-management/day-summary`, { params }));
+  }
+
+  getTimeManagementUserRecords(date: string, employeeId: string): Promise<AccessRecordDto[]> {
+    return firstValueFrom(this.http.get<AccessRecordDto[]>(`${API_BASE}/time-management/user-records`, { params: { date, employeeId } }));
+  }
+
+  getTimeManagementUserIssues(date: string, employeeId: string): Promise<import('../models/time-management.model').TimeManagementIssue[]> {
+    return firstValueFrom(this.http.get<import('../models/time-management.model').TimeManagementIssue[]>(`${API_BASE}/time-management/user-issues`, { params: { date, employeeId } }));
+  }
+
+  createAccessRecord(dto: CreateAccessRecordDto): Promise<AccessRecordDto> {
+    return firstValueFrom(this.http.post<AccessRecordDto>(`${API_BASE}/time-management/access-record`, dto));
+  }
+
+  updateAccessRecord(id: number, dto: UpdateAccessRecordDto): Promise<AccessRecordDto> {
+    return firstValueFrom(this.http.put<AccessRecordDto>(`${API_BASE}/time-management/access-record/${id}`, dto));
+  }
+
+  deleteAccessRecord(id: number): Promise<void> {
+    return firstValueFrom(this.http.delete<void>(`${API_BASE}/time-management/access-record/${id}`));
+  }
+
+  getAutoFixPreview(date: string, employeeId: string): Promise<AutoFixPreviewResponse> {
+    return firstValueFrom(this.http.get<AutoFixPreviewResponse>(`${API_BASE}/time-management/auto-fix-preview`, { params: { date, employeeId } }));
+  }
+
+  applyAutoFix(request: AutoFixApplyRequest): Promise<void> {
+    return firstValueFrom(this.http.post<void>(`${API_BASE}/time-management/auto-fix-apply`, request));
+  }
+
+  getTimeManagementConfig(): Promise<TimeManagementConfig> {
+    return firstValueFrom(this.http.get<TimeManagementConfig>(`${API_BASE}/time-management/config`));
+  }
+
+  saveTimeManagementConfig(config: TimeManagementConfig): Promise<TimeManagementConfig> {
+    return firstValueFrom(this.http.put<TimeManagementConfig>(`${API_BASE}/time-management/config`, config));
   }
 
   // ── Filters ─────────────────────────────────────────────────────────────

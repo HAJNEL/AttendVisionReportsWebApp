@@ -1,0 +1,313 @@
+.detail-container {
+  padding: 24px;
+  min-height: 100%;
+  background: #0d1117;
+  color: #c9d1d9;
+}
+
+.page-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 24px;
+
+  .back-btn {
+    color: #58a6ff;
+    flex-shrink: 0;
+    margin-top: 4px;
+  }
+
+  .header-info {
+    flex: 1;
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 22px;
+      font-weight: 600;
+      color: #e6edf3;
+    }
+
+    .header-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .meta-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 10px;
+      background: #21262d;
+      border: 1px solid #30363d;
+      border-radius: 16px;
+      font-size: 12px;
+      color: #8b949e;
+
+      mat-icon {
+        font-size: 14px;
+        width: 14px;
+        height: 14px;
+        color: #58a6ff;
+      }
+    }
+  }
+
+  .header-actions {
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .issue-count-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    background: #fff;
+    color: #b91c1c;
+    border-radius: 50%;
+    font-size: 11px;
+    font-weight: 700;
+    margin-left: 4px;
+    line-height: 1;
+  }
+}
+
+.center-spinner {
+  display: flex;
+  justify-content: center;
+  padding: 64px;
+}
+
+.error-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: rgba(248, 81, 73, 0.1);
+  border: 1px solid rgba(248, 81, 73, 0.4);
+  border-radius: 6px;
+  color: #f85149;
+  margin-bottom: 16px;
+
+  mat-icon { flex-shrink: 0; }
+  span { flex: 1; }
+}
+
+.content-grid {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 20px;
+  align-items: start;
+
+  @media (max-width: 900px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.records-card, .issues-card {
+  background: #161b22 !important;
+  border: 1px solid #30363d;
+  border-radius: 8px;
+  overflow: hidden;
+  padding: 0;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 16px;
+  border-bottom: 1px solid #30363d;
+  background: #0d1117;
+  font-size: 13px;
+  font-weight: 600;
+  color: #8b949e;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    color: #58a6ff;
+  }
+
+  .count-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+    background: #21262d;
+    border-radius: 10px;
+    font-size: 11px;
+    color: #8b949e;
+    margin-left: auto;
+  }
+
+  .warn-badge {
+    background: rgba(210, 153, 34, 0.15);
+    color: #d29922;
+  }
+}
+
+.full-width { width: 100%; background: transparent; }
+
+::ng-deep .detail-container {
+  .mat-mdc-header-cell {
+    background: #0d1117;
+    color: #8b949e;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    border-bottom: 1px solid #30363d;
+  }
+
+  .mat-mdc-cell {
+    color: #c9d1d9;
+    border-bottom: 1px solid #21262d;
+  }
+
+  .mat-mdc-row:hover .mat-mdc-cell {
+    background: rgba(88, 166, 255, 0.04);
+  }
+}
+
+.time-val {
+  font-family: monospace;
+  font-size: 15px;
+  font-weight: 600;
+  color: #e6edf3;
+  background: #21262d;
+  padding: 3px 10px;
+  border-radius: 4px;
+}
+
+.inline-edit {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+
+  .time-input {
+    background: #21262d;
+    border: 1px solid #58a6ff;
+    border-radius: 4px;
+    color: #e6edf3;
+    padding: 4px 8px;
+    font-size: 14px;
+    font-family: monospace;
+    outline: none;
+    width: 110px;
+  }
+
+  .status-select {
+    background: #21262d;
+    border: 1px solid #58a6ff;
+    border-radius: 4px;
+    color: #e6edf3;
+    padding: 4px 8px;
+    font-size: 13px;
+    outline: none;
+    cursor: pointer;
+
+    option { background: #21262d; color: #e6edf3; }
+  }
+}
+
+.status-chip {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1px solid;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.auth-chip {
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 10px;
+
+  &.auth-success { background: rgba(63, 185, 80, 0.12); color: #3fb950; }
+  &.auth-failed  { background: rgba(248, 81, 73, 0.12);  color: #f85149; }
+}
+
+.actions-cell {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.no-data-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px;
+  color: #8b949e;
+  text-align: center;
+
+  mat-icon { font-size: 36px; width: 36px; height: 36px; margin-bottom: 8px; }
+  p { margin: 0; font-size: 14px; }
+}
+
+// Issues panel
+.issues-ok {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 28px 16px;
+  color: #3fb950;
+  text-align: center;
+
+  mat-icon { font-size: 40px; width: 40px; height: 40px; margin-bottom: 8px; }
+  p { margin: 0; font-size: 14px; color: #8b949e; }
+}
+
+.icon-ok  { color: #3fb950 !important; }
+.icon-warn { color: #d29922 !important; }
+
+.issue-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 16px;
+  border-bottom: 1px solid #21262d;
+
+  &:last-of-type { border-bottom: none; }
+
+  .issue-icon-wrap {
+    mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+      color: #d29922;
+      flex-shrink: 0;
+    }
+  }
+
+  .issue-body {
+    .issue-desc { font-size: 13px; color: #c9d1d9; line-height: 1.4; }
+    .issue-time { font-size: 12px; color: #8b949e; font-family: monospace; margin-top: 2px; }
+  }
+}
+
+.auto-fix-hint {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 16px;
+  background: rgba(88, 166, 255, 0.06);
+  border-top: 1px solid #30363d;
+  font-size: 12px;
+  color: #8b949e;
+
+  mat-icon { font-size: 16px; width: 16px; height: 16px; color: #58a6ff; flex-shrink: 0; }
+  strong { color: #58a6ff; }
+}

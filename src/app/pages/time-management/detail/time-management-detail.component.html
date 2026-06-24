@@ -1,0 +1,156 @@
+<div class="detail-container">
+
+  <!-- Header -->
+  <div class="page-header">
+    <button mat-icon-button (click)="goBack()" class="back-btn" matTooltip="Back to Time Management">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <div class="header-info">
+      <h1>{{ personName || employeeId }}</h1>
+      <div class="header-meta">
+        <span class="meta-chip">
+          <mat-icon>badge</mat-icon> {{ employeeId }}
+        </span>
+        <span class="meta-chip" *ngIf="department">
+          <mat-icon>business</mat-icon> {{ department }}
+        </span>
+        <span class="meta-chip">
+          <mat-icon>calendar_today</mat-icon> {{ date }}
+        </span>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button mat-stroked-button (click)="openAddRecord()" [disabled]="loading">
+        <mat-icon>add</mat-icon> Add Record
+      </button>
+      <button mat-flat-button color="warn" (click)="openAutoFix()" [disabled]="loading || fixingAuto || issues.length === 0">
+        <mat-icon>auto_fix_high</mat-icon>
+        {{ fixingAuto ? 'Checking...' : 'Auto Fix' }}
+        <span *ngIf="issues.length > 0" class="issue-count-badge">{{ issues.length }}</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="center-spinner">
+    <mat-spinner diameter="48"></mat-spinner>
+  </div>
+
+  <!-- Error -->
+  <div *ngIf="!loading && error" class="error-banner">
+    <mat-icon>error_outline</mat-icon>
+    <span>{{ error }}</span>
+    <button mat-button (click)="loadAll()">Retry</button>
+  </div>
+
+  <div class="content-grid" *ngIf="!loading && !error">
+
+    <!-- Access Records -->
+    <mat-card class="records-card">
+      <div class="card-header">
+        <mat-icon>history</mat-icon>
+        <span>Access Records</span>
+        <span class="count-badge">{{ records.length }}</span>
+      </div>
+
+      <table mat-table [dataSource]="records" class="full-width">
+
+        <ng-container matColumnDef="time">
+          <th mat-header-cell *matHeaderCellDef>Time</th>
+          <td mat-cell *matCellDef="let row">
+            <ng-container *ngIf="editingId === row.id; else displayTime">
+              <div class="inline-edit">
+                <input type="time" [(ngModel)]="editTime" class="time-input" step="60" title="Time" aria-label="Time">
+              </div>
+            </ng-container>
+            <ng-template #displayTime>
+              <span class="time-val">{{ row.time }}</span>
+            </ng-template>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="status">
+          <th mat-header-cell *matHeaderCellDef>Status</th>
+          <td mat-cell *matCellDef="let row">
+            <ng-container *ngIf="editingId === row.id; else displayStatus">
+              <div class="inline-edit">
+                <select [(ngModel)]="editStatus" class="status-select" title="Status" aria-label="Status">
+                  <option *ngFor="let s of statusOptions" [value]="s.value">{{ s.label }}</option>
+                </select>
+                <button mat-icon-button color="primary" (click)="saveEdit(row)" [disabled]="savingId === row.id" matTooltip="Save">
+                  <mat-icon>check</mat-icon>
+                </button>
+                <button mat-icon-button (click)="cancelEdit()" matTooltip="Cancel">
+                  <mat-icon>close</mat-icon>
+                </button>
+              </div>
+            </ng-container>
+            <ng-template #displayStatus>
+              <span class="status-chip" [style.color]="statusDef(row.attendanceStatus).color" [style.border-color]="statusDef(row.attendanceStatus).color + '55'">
+                {{ statusDef(row.attendanceStatus).label }}
+              </span>
+            </ng-template>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="authResult">
+          <th mat-header-cell *matHeaderCellDef>Auth</th>
+          <td mat-cell *matCellDef="let row">
+            <span class="auth-chip" [class.auth-success]="row.authenticationResult?.toLowerCase() === 'success'" [class.auth-failed]="row.authenticationResult?.toLowerCase() !== 'success' && row.authenticationResult">
+              {{ row.authenticationResult || '—' }}
+            </span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef></th>
+          <td mat-cell *matCellDef="let row" class="actions-cell">
+            <button mat-icon-button matTooltip="Edit time" (click)="startEdit(row)" [disabled]="editingId !== null" *ngIf="editingId !== row.id">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button mat-icon-button color="warn" matTooltip="Delete record" (click)="deleteRecord(row)" [disabled]="deletingId === row.id || editingId !== null">
+              <mat-icon>delete_outline</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+        <tr class="mat-row" *matNoDataRow>
+          <td class="no-data-cell" [attr.colspan]="displayedColumns.length">
+            <mat-icon>event_busy</mat-icon>
+            <p>No records found for this day. Use <em>Add Record</em> to add entries.</p>
+          </td>
+        </tr>
+      </table>
+    </mat-card>
+
+    <!-- Issues Panel -->
+    <mat-card class="issues-card">
+      <div class="card-header">
+        <mat-icon [class.icon-ok]="issues.length === 0" [class.icon-warn]="issues.length > 0">
+          {{ issues.length === 0 ? 'check_circle' : 'warning_amber' }}
+        </mat-icon>
+        <span>Issues</span>
+        <span class="count-badge warn-badge" *ngIf="issues.length > 0">{{ issues.length }}</span>
+      </div>
+
+      <div *ngIf="issues.length === 0" class="issues-ok">
+        <mat-icon>verified</mat-icon>
+        <p>No issues detected for this day.</p>
+      </div>
+
+      <div *ngFor="let issue of issues" class="issue-item">
+        <div class="issue-icon-wrap">
+          <mat-icon>{{ issueIcon(issue.issueType) }}</mat-icon>
+        </div>
+        <div class="issue-body">
+          <div class="issue-desc">{{ issue.description }}</div>
+          <div class="issue-time" *ngIf="issue.relatedTime">at {{ issue.relatedTime }}</div>
+        </div>
+      </div>
+    </mat-card>
+
+  </div>
+</div>

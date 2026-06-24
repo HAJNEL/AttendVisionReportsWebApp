@@ -23,6 +23,8 @@ export const routes: Routes = [
       { path: "roles", loadComponent: () => import("./pages/roles/roles.component").then(m => m.RolesComponent) },
       { path: "permissions", loadComponent: () => import("./pages/permissions/permissions.component").then(m => m.PermissionsComponent) },
       { path: "employee-leave", loadComponent: () => import("./pages/EmployeeLeave/employee-leave.component").then(m => m.EmployeeLeaveComponent) },
+      { path: "time-management", loadComponent: () => import("./pages/time-management/time-management.component").then(m => m.TimeManagementComponent) },
+      { path: "time-management/:employeeId/:date", loadComponent: () => import("./pages/time-management/detail/time-management-detail.component").then(m => m.TimeManagementDetailComponent) },
       { path: "", redirectTo: "/dashboard", pathMatch: "full" },
     ],
   },
