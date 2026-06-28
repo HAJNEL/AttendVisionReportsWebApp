@@ -8,6 +8,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { ReportFilters, DynamicFilterDialogComponent } from '../../helpers/dynamic-filter-dialog/dynamic-filter-dialog.component';
 import { ApiService } from '../../../../services/api.service';
 import { PayrollExportRow } from '../../../../models/payroll-export-row.model';
@@ -28,18 +29,65 @@ import * as XLSX from 'xlsx';
     MatChipsModule,
     MatTooltipModule,
     MatSnackBarModule,
+    MatCheckboxModule,
   ],
   templateUrl: './sage-timesheet-report.component.html',
   styleUrl: './sage-timesheet-report.component.scss',
 })
 export class SageTimesheetReportComponent implements OnInit {
-  displayedColumns = ['company_code', 'empno', 'emp_fullname', 'normal_Hours', 'overtime_Hours', 'public_Holiday_Hours', 'total_amount'];
+  private readonly baseColumns = ['company_code', 'empno', 'emp_fullname', 'normal_Hours', 'overtime_Hours', 'public_Holiday_Hours', 'total_amount'];
   rows: PayrollExportRow[] = [];
-  private employeeDeptMap = new Map<string, string>();         // empno → departmentId
-  private departmentRatesMap = new Map<string, DepartmentPaymentRate[]>(); // departmentId → rates
+  private employeeDeptMap = new Map<string, string>();
+  private departmentRatesMap = new Map<string, DepartmentPaymentRate[]>();
   loading = true;
   error: string | null = null;
   exporting = false;
+  selectionMode = false;
+  selectedEmpnos = new Set<string>();
+
+  get displayedColumns(): string[] {
+    return this.selectionMode ? ['select', ...this.baseColumns] : this.baseColumns;
+  }
+
+  get isAllSelected(): boolean {
+    return this.rows.length > 0 && this.rows.every(r => this.selectedEmpnos.has(r.empno));
+  }
+
+  get isIndeterminate(): boolean {
+    const count = this.rows.filter(r => this.selectedEmpnos.has(r.empno)).length;
+    return count > 0 && count < this.rows.length;
+  }
+
+  get exportRows(): PayrollExportRow[] {
+    return this.selectionMode
+      ? this.rows.filter(r => this.selectedEmpnos.has(r.empno))
+      : this.rows;
+  }
+
+  toggleSelectionMode(): void {
+    this.selectionMode = !this.selectionMode;
+    if (!this.selectionMode) this.selectedEmpnos.clear();
+  }
+
+  isSelected(row: PayrollExportRow): boolean {
+    return this.selectedEmpnos.has(row.empno);
+  }
+
+  toggleRow(row: PayrollExportRow): void {
+    if (this.selectedEmpnos.has(row.empno)) {
+      this.selectedEmpnos.delete(row.empno);
+    } else {
+      this.selectedEmpnos.add(row.empno);
+    }
+  }
+
+  toggleAll(): void {
+    if (this.isAllSelected) {
+      this.selectedEmpnos.clear();
+    } else {
+      this.rows.forEach(r => this.selectedEmpnos.add(r.empno));
+    }
+  }
 
   constructor(
     public dialogRef: MatDialogRef<SageTimesheetReportComponent>,
@@ -164,7 +212,14 @@ export class SageTimesheetReportComponent implements OnInit {
   }
 
   exportToExcel(): void {
-    if (!this.rows.length) return;
+    const rows = this.exportRows;
+    if (!rows.length) return;
+    const totalNormal = rows.reduce((s, r) => s + (r.normal_Hours ?? 0), 0);
+    const totalOvertime = rows.reduce((s, r) => s + (r.overtime_Hours ?? 0), 0);
+    const totalPh = rows.reduce((s, r) => s + (r.public_Holiday_Hours ?? 0), 0);
+    const totalNormalAmt = rows.reduce((s, r) => s + this.normalAmount(r), 0);
+    const totalPhAmt = rows.reduce((s, r) => s + this.phAmount(r), 0);
+    const totalAmt = rows.reduce((s, r) => s + this.totalAmount(r), 0);
     const data = [
       ['Payroll Export Report'],
       ['Department:', this.filters.department ?? 'All Departments'],
@@ -175,7 +230,7 @@ export class SageTimesheetReportComponent implements OnInit {
       ['Generated:', new Date().toLocaleString('en-ZA')],
       [],
       ['EmpNo', 'Employee Name', 'Standard Rate', 'Public Holiday Rate', 'Normal Hours', 'Overtime Hours', 'Public Holiday Hours', 'Normal Amount', 'Public Holiday Amount', 'Total Amount'],
-      ...this.rows.map(r => [
+      ...rows.map(r => [
         r.empno,
         r.emp_fullname,
         this.formatRand(this.resolveRateForEmployee(r.empno, 'standard')),
@@ -188,7 +243,7 @@ export class SageTimesheetReportComponent implements OnInit {
         this.formatRand(this.totalAmount(r)),
       ]),
       [],
-      ['Total', '', '', '', this.totalNormal, this.totalOvertime, this.totalPublicHoliday, this.formatRand(this.totalNormalAmount), this.formatRand(this.totalPhAmount), this.formatRand(this.totalTotalAmount)],
+      ['Total', '', '', '', totalNormal, totalOvertime, totalPh, this.formatRand(totalNormalAmt), this.formatRand(totalPhAmt), this.formatRand(totalAmt)],
     ];
     const ws = XLSX.utils.aoa_to_sheet(data);
     const wb = XLSX.utils.book_new();
@@ -314,23 +369,21 @@ export class SageTimesheetReportComponent implements OnInit {
    * Export to Sage VIP Payroll Batch TXT (fixed-width, 99 chars per line, no delimiters)
    */
   exportToSageVipTxt(): void {
-    if (!this.rows.length) return;
-    // Configurable fields
-    const batchNumber = '1'; // Change as needed
+    const rows = this.exportRows;
+    if (!rows.length) return;
+    const batchNumber = '1';
 
-    // Helper to format a value as Sage VIP field (11 digits, *100, sign, zero-padded)
     function formatValue(val: any): string {
       let num = Number(val);
       if (isNaN(num) || num <= 0) num = 0;
       const intVal = Math.round(num * 100);
-      const sign = '+'; // Always positive for this export
+      const sign = '+';
       return intVal.toString().padStart(11, '0') + sign;
     }
 
-    // Prepare detail lines
     const lines: string[] = [];
     let total1 = 0, total2 = 0, total3 = 0, total4 = 0, total5 = 0, total6 = 0;
-    for (const row of this.rows) {
+    for (const row of rows) {
       const companyCode = (row.company_code || '001').padStart(3, '0');
       const empCode = (row.empno || '').padEnd(8, ' ');
       // Only first 3 values used: normal, overtime, public holiday
