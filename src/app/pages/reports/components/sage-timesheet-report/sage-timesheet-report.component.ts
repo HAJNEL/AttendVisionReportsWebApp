@@ -384,7 +384,7 @@ export class SageTimesheetReportComponent implements OnInit {
     const lines: string[] = [];
     let total1 = 0, total2 = 0, total3 = 0, total4 = 0, total5 = 0, total6 = 0;
     for (const row of rows) {
-      const companyCode = (row.company_code || '001').padStart(3, '0');
+      const companyCode = (row.empno || '').toUpperCase().includes('WE') ? '003' : (row.company_code || '001').padStart(3, '0');
       const empCode = (row.empno || '').padEnd(8, ' ');
       // Only first 3 values used: normal, overtime, public holiday
       const v1 = Number(row.normal_Hours) > 0 ? Number(row.normal_Hours) : 0;
