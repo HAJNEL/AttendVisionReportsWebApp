@@ -35,7 +35,7 @@ import * as XLSX from 'xlsx';
   styleUrl: './sage-timesheet-report.component.scss',
 })
 export class SageTimesheetReportComponent implements OnInit {
-  private readonly baseColumns = ['company_code', 'empno', 'emp_fullname', 'normal_Hours', 'overtime_Hours', 'public_Holiday_Hours', 'total_amount'];
+  private readonly baseColumns = ['company_code', 'empno', 'emp_fullname', 'status', 'normal_Hours', 'overtime_Hours', 'public_Holiday_Hours', 'total_amount'];
   rows: PayrollExportRow[] = [];
   private employeeDeptMap = new Map<string, string>();
   private departmentRatesMap = new Map<string, DepartmentPaymentRate[]>();
@@ -173,6 +173,7 @@ export class SageTimesheetReportComponent implements OnInit {
           company_code: r.company_code,
           empno: r.empno,
           emp_fullname: r.emp_fullname,
+          status: r.status,
           normal_Hours: r.normal_hours,
           overtime_Hours: r.overtime_hours,
           public_Holiday_Hours: r.public_holiday_hours,
@@ -229,10 +230,11 @@ export class SageTimesheetReportComponent implements OnInit {
       ['Employee Type:', this.employeeTypeLabel],
       ['Generated:', new Date().toLocaleString('en-ZA')],
       [],
-      ['EmpNo', 'Employee Name', 'Standard Rate', 'Public Holiday Rate', 'Normal Hours', 'Overtime Hours', 'Public Holiday Hours', 'Normal Amount', 'Public Holiday Amount', 'Total Amount'],
+      ['EmpNo', 'Employee Name', 'Status', 'Standard Rate', 'Public Holiday Rate', 'Normal Hours', 'Overtime Hours', 'Public Holiday Hours', 'Normal Amount', 'Public Holiday Amount', 'Total Amount'],
       ...rows.map(r => [
         r.empno,
         r.emp_fullname,
+        r.status,
         this.formatRand(this.resolveRateForEmployee(r.empno, 'standard')),
         this.formatRand(this.resolveRateForEmployee(r.empno, 'public_holiday')),
         r.normal_Hours,
@@ -243,7 +245,7 @@ export class SageTimesheetReportComponent implements OnInit {
         this.formatRand(this.totalAmount(r)),
       ]),
       [],
-      ['Total', '', '', '', totalNormal, totalOvertime, totalPh, this.formatRand(totalNormalAmt), this.formatRand(totalPhAmt), this.formatRand(totalAmt)],
+      ['Total', '', '', '', '', totalNormal, totalOvertime, totalPh, this.formatRand(totalNormalAmt), this.formatRand(totalPhAmt), this.formatRand(totalAmt)],
     ];
     const ws = XLSX.utils.aoa_to_sheet(data);
     const wb = XLSX.utils.book_new();

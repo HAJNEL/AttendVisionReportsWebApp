@@ -5,6 +5,14 @@
   display: flex;
   align-items: center;
   margin-bottom: 24px;
+
+  .header-spacer {
+    flex: 1;
+  }
+
+  .settings-btn {
+    flex-shrink: 0;
+  }
 }
 h1 {
   margin: 0;

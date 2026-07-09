@@ -9,8 +9,10 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule, provideNativeDateAdapter } from '@angular/material/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSlideToggleModule, MatSlideToggleChange } from '@angular/material/slide-toggle';
 import { ApiService } from '../../../../services/api.service';
 import { DepartmentPaymentRate } from '../../../../models/department-payment-rate.model';
+import { ReportConfigSettings } from '../../../../models/reports.model';
 import { Subject } from 'rxjs';
 import { debounceTime, takeUntil } from 'rxjs/operators';
 import { DepartmentEmployee } from '../../../../models/department-user-link.model';
@@ -56,6 +58,7 @@ interface DepartmentOption {
     MatNativeDateModule,
     MatButtonModule,
     MatProgressSpinnerModule,
+    MatSlideToggleModule,
   ],
   templateUrl: './dynamic-filter-dialog.component.html',
   styleUrl: './dynamic-filter-dialog.component.scss',
@@ -77,6 +80,9 @@ export class DynamicFilterDialogComponent implements OnInit, OnDestroy {
   showAllDepartmentsOption = false;
   private patchingDepartment = false;
 
+  reportConfig: ReportConfigSettings | null = null;
+  useConfiguredRange = false;
+
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -86,6 +92,8 @@ export class DynamicFilterDialogComponent implements OnInit, OnDestroy {
   ) { }
 
   async ngOnInit(): Promise<void> {
+    this.reportConfig = await this.api.getReportConfig().catch(() => null);
+
     // Load departments if required
     if (this.config.showDepartment !== false) {
       this.departments = await this.api.getDepartments();
@@ -238,6 +246,36 @@ export class DynamicFilterDialogComponent implements OnInit, OnDestroy {
       employeeType: employeeType || null,
     };
     this.dialogRef.close(filters);
+  }
+
+  onRangeToggleChange(event: MatSlideToggleChange): void {
+    this.useConfiguredRange = event.checked;
+    if (this.useConfiguredRange) {
+      const range = this.buildConfiguredRange();
+      if (range) {
+        this.form.patchValue({ dateFrom: range.from, dateTo: range.to });
+      }
+    } else {
+      this.form.patchValue({ dateFrom: this.firstOfMonth(), dateTo: new Date() });
+    }
+  }
+
+  /** Previous month's "Month start day" through current month's "Month end day". */
+  private buildConfiguredRange(): { from: Date; to: Date } | null {
+    const startDay = this.reportConfig?.monthStartDay;
+    const endDay = this.reportConfig?.monthEndDay;
+    if (!startDay || !endDay) return null;
+
+    const now = new Date();
+    const from = this.dayInMonth(now.getFullYear(), now.getMonth() - 1, startDay);
+    const to = this.dayInMonth(now.getFullYear(), now.getMonth(), endDay);
+    return { from, to };
+  }
+
+  /** Builds a date for `day` in the given month, clamped to that month's last day. */
+  private dayInMonth(year: number, month: number, day: number): Date {
+    const lastDay = new Date(year, month + 1, 0).getDate();
+    return new Date(year, month, Math.min(day, lastDay));
   }
 
   private firstOfMonth(): Date {

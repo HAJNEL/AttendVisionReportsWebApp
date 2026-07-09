@@ -63,6 +63,14 @@
         }
       </mat-form-field>
     </div>
+
+    @if (reportConfig?.monthStartDay && reportConfig?.monthEndDay) {
+    <div class="range-toggle-row">
+      <mat-slide-toggle [checked]="useConfiguredRange" color="primary" (change)="onRangeToggleChange($event)">
+        Month End
+      </mat-slide-toggle>
+    </div>
+    }
     }
 
   </form>

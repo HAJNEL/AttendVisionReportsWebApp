@@ -1,6 +1,11 @@
 <div class="reports-container">
   <div class="header">
     <h1>Reports</h1>
+    <span class="header-spacer"></span>
+    <button type="button" mat-stroked-button class="settings-btn" (click)="openSettings()" [disabled]="loadingConfig" matTooltip="Configure report period settings">
+      <mat-icon>settings</mat-icon>
+      Settings
+    </button>
   </div>
 
   <mat-card class="table-card">

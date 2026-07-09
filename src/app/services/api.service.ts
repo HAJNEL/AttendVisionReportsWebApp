@@ -26,6 +26,7 @@ import { TimeOverride, CreateTimeOverride, UpdateTimeOverride } from '../models/
 import { DepartmentPaymentRate, DepartmentPaymentRateInput } from '../models/department-payment-rate.model';
 import { SageTimesheetRow } from '../models/sage-timesheet-row';
 import { DaySummaryRow, AccessRecordDto, CreateAccessRecordDto, UpdateAccessRecordDto, AutoFixPreviewResponse, AutoFixApplyRequest, TimeManagementConfig } from '../models/time-management.model';
+import { ReportConfigSettings } from '../models/reports.model';
 
 // ── Service ───────────────────────────────────────────────────────────────────
 
@@ -185,6 +186,14 @@ export class ApiService {
     if (employeeId) params.employeeId = employeeId;
     if (employeeType) params.employeeType = employeeType;
     return firstValueFrom(this.http.get<PayrollExportRow[]>(`${API_BASE}/reports/sage-timesheet`, { params }));
+  }
+
+  getReportConfig(): Promise<ReportConfigSettings> {
+    return firstValueFrom(this.http.get<ReportConfigSettings>(`${API_BASE}/reports/config`));
+  }
+
+  saveReportConfig(config: ReportConfigSettings): Promise<ReportConfigSettings> {
+    return firstValueFrom(this.http.put<ReportConfigSettings>(`${API_BASE}/reports/config`, config));
   }
 
   // ── Companies ──────────────────────────────────────────────────────────────

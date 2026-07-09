@@ -6,12 +6,16 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatCardModule } from '@angular/material/card';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { DynamicFilterDialogComponent, ReportFilters } from './helpers/dynamic-filter-dialog/dynamic-filter-dialog.component';
 import { TimesheetReportComponent } from './components/timesheet-report/timesheet-report.component';
 import { SageTimesheetReportComponent } from './components/sage-timesheet-report/sage-timesheet-report.component';
 import { IssueReportComponent } from './components/issue-report/issue-report.component';
 import { ClockingsReportComponent } from './components/clockings-report/clockings-report.component';
+import { ReportSettingsDialogComponent } from './dialogs/report-settings-dialog.component';
 import { ReportConfig } from '../../models/reports.model';
+import { ApiService } from '../../services/api.service';
 
 @Component({
   selector: 'app-reports',
@@ -24,12 +28,15 @@ import { ReportConfig } from '../../models/reports.model';
     MatDialogModule,
     MatCardModule,
     MatMenuModule,
+    MatTooltipModule,
+    MatSnackBarModule,
   ],
   templateUrl: './reports.component.html',
   styleUrl: './reports.component.scss',
 })
 export class ReportsComponent {
   displayedColumns: string[] = ['name', 'type', 'description', 'actions'];
+  loadingConfig = false;
 
   reports: ReportConfig[] = [
     {
@@ -78,7 +85,22 @@ export class ReportsComponent {
     },
   ];
 
-  constructor(private dialog: MatDialog) {}
+  constructor(private dialog: MatDialog, private api: ApiService, private snackBar: MatSnackBar) {}
+
+  openSettings(): void {
+    this.loadingConfig = true;
+    this.api.getReportConfig()
+      .then(config => {
+        this.dialog.open(ReportSettingsDialogComponent, {
+          width: '480px',
+          data: { config },
+        });
+      })
+      .catch((e: any) => {
+        this.snackBar.open(e?.error?.error || e?.message || 'Failed to load settings.', 'Dismiss', { duration: 4000 });
+      })
+      .finally(() => { this.loadingConfig = false; });
+  }
 
   runReport(report: ReportConfig): void {
     const filterRef = this.dialog.open(DynamicFilterDialogComponent, {
