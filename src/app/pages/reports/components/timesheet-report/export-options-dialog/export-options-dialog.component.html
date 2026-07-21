@@ -1,0 +1,18 @@
+<h2 mat-dialog-title>Export to Excel</h2>
+<mat-dialog-content>
+  <mat-radio-group class="export-mode-group" [(ngModel)]="selectedMode">
+    <mat-radio-button value="single">
+      Single sheet — all users combined
+    </mat-radio-button>
+    <mat-radio-button value="per-user-sheets">
+      One workbook — separate sheet per user
+    </mat-radio-button>
+    <mat-radio-button value="per-user-zip">
+      Separate .xlsx file per user (zipped together)
+    </mat-radio-button>
+  </mat-radio-group>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button (click)="onCancel()">Cancel</button>
+  <button mat-flat-button color="primary" (click)="onExport()">Export</button>
+</mat-dialog-actions>

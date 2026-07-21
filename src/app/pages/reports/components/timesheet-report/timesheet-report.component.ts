@@ -9,8 +9,10 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import * as XLSX from 'xlsx';
+import JSZip from 'jszip';
 import { ReportFilters, DynamicFilterDialogComponent } from '../../helpers/dynamic-filter-dialog/dynamic-filter-dialog.component';
 import { ApiService } from '../../../../services/api.service';
+import { ExportOptionsDialogComponent, TimesheetExportMode } from './export-options-dialog/export-options-dialog.component';
 
 export interface TimesheetRow {
   person: string;
@@ -128,11 +130,15 @@ export class TimesheetReportComponent implements OnInit {
     return `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`;
   }
 
-  async exportToExcel(): Promise<void> {
+  private buildTimesheetSheet(rows: TimesheetRow[]): XLSX.WorkSheet {
     const dept = this.filters.department ?? 'All Departments';
     const from = this.filters.dateFrom;
     const to = this.filters.dateTo;
     const employeeId = this.filters.employeeId ?? 'All Users';
+
+    const totalHours = rows.reduce((sum, r) => sum + (r.hours_worked ?? 0), 0);
+    const totalBreakHours = rows.reduce((sum, r) => sum + (r.break_hours ?? 0), 0);
+    const totalNetHours = totalHours - totalBreakHours;
 
     const data: (string | number)[][] = [
       ['Timesheet Report'],
@@ -142,7 +148,7 @@ export class TimesheetReportComponent implements OnInit {
       ['Employee ID', employeeId],
       [],
       ['Date', 'Employee', 'Employee ID', 'Status', 'Department', 'First Entry', 'Last Entry', 'Total Span', 'Break Time', 'Net Hours'],
-      ...this.rows.map(r => [
+      ...rows.map(r => [
         r.date,
         r.person,
         r.employee_id,
@@ -157,9 +163,9 @@ export class TimesheetReportComponent implements OnInit {
       [],
       ['', '', '', '', '', '', '', 'Total Span', 'Total Break', 'Net Hours'],
       ['', '', '', '', '', '', '',
-        this.formatHHMM(this.totalHours),
-        this.formatHHMM(this.totalBreakHours),
-        this.formatHHMM(this.totalNetHours),
+        this.formatHHMM(totalHours),
+        this.formatHHMM(totalBreakHours),
+        this.formatHHMM(totalNetHours),
       ],
     ];
 
@@ -168,28 +174,111 @@ export class TimesheetReportComponent implements OnInit {
       { wch: 12 }, { wch: 28 }, { wch: 16 }, { wch: 14 },
       { wch: 22 }, { wch: 12 }, { wch: 12 }, { wch: 16 }, { wch: 16 }, { wch: 16 },
     ];
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Timesheet');
-
-    const buf: ArrayBuffer = XLSX.write(wb, { type: 'array', bookType: 'xlsx' });
-    const bytes = Array.from(new Uint8Array(buf));
-    const defaultName = `Timesheet_${dept.replace(/\s+/g, '_')}_${from}_${to}.xlsx`;
-
-    this.exporting = true;
-    try {
-      this.triggerBrowserDownload(defaultName, bytes);
-      this.snackBar.open('Export saved successfully', 'OK', { duration: 3000 });
-    } catch (e) {
-      this.snackBar.open(`Export failed: ${String(e)}`, 'Dismiss', { duration: 5000 });
-    } finally {
-      this.exporting = false;
-    }
+    return ws;
   }
 
-  private triggerBrowserDownload(filename: string, bytes: number[]): void {
-    const blob = new Blob([new Uint8Array(bytes)], {
-      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  private groupRowsByEmployee(rows: TimesheetRow[]): Map<string, TimesheetRow[]> {
+    const groups = new Map<string, TimesheetRow[]>();
+    for (const r of rows) {
+      const key = r.employee_id || r.person;
+      if (!groups.has(key)) groups.set(key, []);
+      groups.get(key)!.push(r);
+    }
+    return groups;
+  }
+
+  private sanitizeSheetName(name: string): string {
+    return (name || 'Unknown').replace(/[:\\/?*[\]]/g, '_').slice(0, 31);
+  }
+
+  private sanitizeFileName(name: string): string {
+    return (name || 'Unknown').replace(/[\\/:*?"<>|]/g, '_');
+  }
+
+  private uniqueName(base: string, usedNames: Set<string>, maxLen: number): string {
+    let candidate = base;
+    let n = 1;
+    while (usedNames.has(candidate)) {
+      const suffix = `_${++n}`;
+      candidate = base.slice(0, Math.max(0, maxLen - suffix.length)) + suffix;
+    }
+    usedNames.add(candidate);
+    return candidate;
+  }
+
+  async exportToExcel(): Promise<void> {
+    const ref = this.dialog.open(ExportOptionsDialogComponent, { width: '440px' });
+    ref.afterClosed().subscribe(async (mode: TimesheetExportMode | undefined) => {
+      if (!mode) return;
+
+      const dept = this.filters.department ?? 'All Departments';
+      const from = this.filters.dateFrom;
+      const to = this.filters.dateTo;
+      const baseName = `Timesheet_${dept.replace(/\s+/g, '_')}_${from}_${to}`;
+
+      this.exporting = true;
+      try {
+        if (mode === 'single') {
+          this.exportSingleSheet(baseName);
+        } else if (mode === 'per-user-sheets') {
+          this.exportPerUserSheets(baseName);
+        } else {
+          await this.exportPerUserZip(baseName);
+        }
+        this.snackBar.open('Export saved successfully', 'OK', { duration: 3000 });
+      } catch (e) {
+        this.snackBar.open(`Export failed: ${String(e)}`, 'Dismiss', { duration: 5000 });
+      } finally {
+        this.exporting = false;
+      }
     });
+  }
+
+  private exportSingleSheet(baseName: string): void {
+    const ws = this.buildTimesheetSheet(this.rows);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Timesheet');
+    const buf: ArrayBuffer = XLSX.write(wb, { type: 'array', bookType: 'xlsx' });
+    this.triggerBrowserDownload(`${baseName}.xlsx`, Array.from(new Uint8Array(buf)));
+  }
+
+  private exportPerUserSheets(baseName: string): void {
+    const groups = this.groupRowsByEmployee(this.rows);
+    const wb = XLSX.utils.book_new();
+    const usedNames = new Set<string>();
+    for (const groupRows of groups.values()) {
+      const ws = this.buildTimesheetSheet(groupRows);
+      const displayName = groupRows[0]?.person || 'Unknown';
+      const sheetName = this.uniqueName(this.sanitizeSheetName(displayName), usedNames, 31);
+      XLSX.utils.book_append_sheet(wb, ws, sheetName);
+    }
+    const buf: ArrayBuffer = XLSX.write(wb, { type: 'array', bookType: 'xlsx' });
+    this.triggerBrowserDownload(`${baseName}.xlsx`, Array.from(new Uint8Array(buf)));
+  }
+
+  private async exportPerUserZip(baseName: string): Promise<void> {
+    const zip = new JSZip();
+    const groups = this.groupRowsByEmployee(this.rows);
+    const usedFileNames = new Set<string>();
+    for (const groupRows of groups.values()) {
+      const ws = this.buildTimesheetSheet(groupRows);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Timesheet');
+      const buf: ArrayBuffer = XLSX.write(wb, { type: 'array', bookType: 'xlsx' });
+      const displayName = groupRows[0]?.person || 'Unknown';
+      const fileName = this.uniqueName(this.sanitizeFileName(displayName), usedFileNames, 200);
+      zip.file(`${fileName}.xlsx`, buf);
+    }
+    const zipBlob = await zip.generateAsync({ type: 'blob' });
+    this.triggerBrowserDownload(`${baseName}.zip`, zipBlob);
+  }
+
+  private triggerBrowserDownload(filename: string, bytesOrBlob: number[] | Blob): void {
+    const blob = bytesOrBlob instanceof Blob
+      ? bytesOrBlob
+      : new Blob([new Uint8Array(bytesOrBlob)], {
+          type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
