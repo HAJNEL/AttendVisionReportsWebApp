@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
@@ -109,8 +110,7 @@ export class DepartmentsComponent implements OnInit {
     this.loading = true;
     this.error = null;
     try {
-      this.departments = await this.api.getDepartments();
-      console.log('Loaded departments:', this.departments);
+      this.departments = await this.api.getAllDepartments();
     } catch (e) {
       this.error = String(e);
     } finally {
@@ -131,9 +131,16 @@ export class DepartmentsComponent implements OnInit {
           a.departmentName.localeCompare(b.departmentName));
         this.snackBar.open('Department created', 'OK', { duration: 3000 });
       } catch (e) {
-        this.snackBar.open(String(e), 'Dismiss', { duration: 5000 });
+        this.snackBar.open(this.errorMessage(e), 'Dismiss', { duration: 5000 });
       }
     });
+  }
+
+  private errorMessage(e: unknown): string {
+    if (e instanceof HttpErrorResponse) {
+      return e.error ?? e.message ?? 'Something went wrong.';
+    }
+    return String(e);
   }
 
   openEdit(dept: DepartmentRow): void {
@@ -156,7 +163,7 @@ export class DepartmentsComponent implements OnInit {
           .sort((a, b) => a.departmentName.localeCompare(b.departmentName));
         this.snackBar.open('Department saved', 'OK', { duration: 3000 });
       } catch (e) {
-        this.snackBar.open(String(e), 'Dismiss', { duration: 5000 });
+        this.snackBar.open(this.errorMessage(e), 'Dismiss', { duration: 5000 });
       }
     });
   }
