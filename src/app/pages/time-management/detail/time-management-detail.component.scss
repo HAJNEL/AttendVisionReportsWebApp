@@ -311,3 +311,103 @@
   mat-icon { font-size: 16px; width: 16px; height: 16px; color: #58a6ff; flex-shrink: 0; }
   strong { color: #58a6ff; }
 }
+
+/* ===== Mobile record list ===== */
+.mobile-records {
+  display: none;
+}
+
+@media (max-width: 599px) {
+  .detail-container {
+    padding: 12px;
+  }
+
+  .page-header {
+    flex-wrap: wrap;
+    gap: 8px 12px;
+
+    .header-info h1 { font-size: 19px; }
+
+    .header-actions {
+      width: 100%;
+
+      button {
+        flex: 1;
+        min-width: 0;
+      }
+    }
+  }
+
+  .records-card table {
+    display: none;
+  }
+
+  .mobile-records {
+    display: block;
+  }
+
+  .mobile-record {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 10px 12px;
+    border-bottom: 1px solid #21262d;
+
+    &:last-of-type { border-bottom: none; }
+  }
+
+  .mobile-record-main {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    min-width: 0;
+  }
+
+  .mobile-record-actions {
+    display: flex;
+    flex-shrink: 0;
+  }
+
+  .mobile-edit {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    .mobile-edit-fields {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+
+      .time-input,
+      .status-select {
+        flex: 1;
+        min-width: 130px;
+      }
+    }
+
+    .mobile-edit-actions {
+      display: flex;
+      gap: 8px;
+
+      button {
+        flex: 1;
+        min-width: 0;
+      }
+    }
+  }
+
+  .mobile-no-data {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 16px;
+    color: #8b949e;
+    text-align: center;
+
+    mat-icon { font-size: 36px; width: 36px; height: 36px; margin-bottom: 8px; }
+    p { margin: 0; font-size: 14px; }
+  }
+}

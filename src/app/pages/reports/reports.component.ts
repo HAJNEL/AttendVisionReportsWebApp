@@ -35,7 +35,7 @@ import { ApiService } from '../../services/api.service';
   styleUrl: './reports.component.scss',
 })
 export class ReportsComponent {
-  displayedColumns: string[] = ['name', 'type', 'description', 'actions'];
+  displayedColumns: string[] = ['name', 'description', 'actions'];
   loadingConfig = false;
 
   reports: ReportConfig[] = [
@@ -105,6 +105,7 @@ export class ReportsComponent {
   runReport(report: ReportConfig): void {
     const filterRef = this.dialog.open(DynamicFilterDialogComponent, {
       width: '500px',
+      maxWidth: 'calc(100vw - 24px)',
       data: report.filterConfig,
     });
     filterRef.afterClosed().subscribe((filters: ReportFilters | undefined) => {

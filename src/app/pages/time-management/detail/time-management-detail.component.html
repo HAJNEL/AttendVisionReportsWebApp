@@ -124,6 +124,54 @@
           </td>
         </tr>
       </table>
+
+      <!-- Mobile record list (shown instead of the table on small screens) -->
+      <div class="mobile-records">
+        <div class="mobile-record" *ngFor="let row of records">
+          <ng-container *ngIf="editingId === row.id; else mobileDisplay">
+            <div class="mobile-edit">
+              <div class="mobile-edit-fields">
+                <input type="time" [(ngModel)]="editTime" class="time-input" step="60" title="Time" aria-label="Time">
+                <select [(ngModel)]="editStatus" class="status-select" title="Status" aria-label="Status">
+                  <option *ngFor="let s of statusOptions" [value]="s.value">{{ s.label }}</option>
+                </select>
+              </div>
+              <div class="mobile-edit-actions">
+                <button mat-stroked-button color="primary" (click)="saveEdit(row)" [disabled]="savingId === row.id">
+                  <mat-icon>check</mat-icon> Save
+                </button>
+                <button mat-stroked-button (click)="cancelEdit()">
+                  <mat-icon>close</mat-icon> Cancel
+                </button>
+              </div>
+            </div>
+          </ng-container>
+          <ng-template #mobileDisplay>
+            <div class="mobile-record-main">
+              <span class="time-val">{{ row.time }}</span>
+              <span class="status-chip" [style.color]="statusDef(row.attendanceStatus).color" [style.border-color]="statusDef(row.attendanceStatus).color + '55'">
+                {{ statusDef(row.attendanceStatus).label }}
+              </span>
+              <span class="auth-chip" [class.auth-success]="row.authenticationResult?.toLowerCase() === 'success'" [class.auth-failed]="row.authenticationResult?.toLowerCase() !== 'success' && row.authenticationResult">
+                {{ row.authenticationResult || '—' }}
+              </span>
+            </div>
+            <div class="mobile-record-actions">
+              <button mat-icon-button matTooltip="Edit time" (click)="startEdit(row)" [disabled]="editingId !== null">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button mat-icon-button color="warn" matTooltip="Delete record" (click)="deleteRecord(row)" [disabled]="deletingId === row.id || editingId !== null">
+                <mat-icon>delete_outline</mat-icon>
+              </button>
+            </div>
+          </ng-template>
+        </div>
+
+        <div class="mobile-no-data" *ngIf="records.length === 0">
+          <mat-icon>event_busy</mat-icon>
+          <p>No records found for this day. Use <em>Add Record</em> to add entries.</p>
+        </div>
+      </div>
     </mat-card>
 
     <!-- Issues Panel -->

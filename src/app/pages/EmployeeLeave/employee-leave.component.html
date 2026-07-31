@@ -65,20 +65,20 @@
         <td mat-cell *matCellDef="let row">{{ row.fullName }}</td>
       </ng-container>
       <ng-container matColumnDef="department">
-        <th mat-header-cell *matHeaderCellDef>Department</th>
-        <td mat-cell *matCellDef="let row">{{ row.departmentName }}</td>
+        <th mat-header-cell *matHeaderCellDef class="hide-mobile">Department</th>
+        <td mat-cell *matCellDef="let row" class="hide-mobile">{{ row.departmentName }}</td>
       </ng-container>
       <ng-container matColumnDef="leaveType">
-        <th mat-header-cell *matHeaderCellDef>Leave Type</th>
-        <td mat-cell *matCellDef="let row">{{ row.type }}</td>
+        <th mat-header-cell *matHeaderCellDef class="hide-mobile">Leave Type</th>
+        <td mat-cell *matCellDef="let row" class="hide-mobile">{{ row.type }}</td>
       </ng-container>
       <ng-container matColumnDef="fromTime">
-        <th mat-header-cell *matHeaderCellDef>From Time</th>
-        <td mat-cell *matCellDef="let row">{{ row.fromTime || '—' }}</td>
+        <th mat-header-cell *matHeaderCellDef class="hide-mobile">From Time</th>
+        <td mat-cell *matCellDef="let row" class="hide-mobile">{{ row.fromTime || '—' }}</td>
       </ng-container>
       <ng-container matColumnDef="toTime">
-        <th mat-header-cell *matHeaderCellDef>To Time</th>
-        <td mat-cell *matCellDef="let row">{{ row.toTime || '—' }}</td>
+        <th mat-header-cell *matHeaderCellDef class="hide-mobile">To Time</th>
+        <td mat-cell *matCellDef="let row" class="hide-mobile">{{ row.toTime || '—' }}</td>
       </ng-container>
       <ng-container matColumnDef="dateRange">
         <th mat-header-cell *matHeaderCellDef>Date Range</th>

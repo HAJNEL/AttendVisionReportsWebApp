@@ -23,9 +23,11 @@ import { AuthService } from '../../services/auth.service';
       display: flex;
       flex-direction: column;
       height: 100%;
+      padding-bottom: env(safe-area-inset-bottom);
+      box-sizing: border-box;
     }
     .sidebar-header {
-      padding: 24px 16px;
+      padding: calc(24px + env(safe-area-inset-top)) 16px 24px;
       display: flex;
       align-items: center;
       gap: 12px;

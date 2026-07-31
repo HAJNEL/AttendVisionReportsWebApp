@@ -14,8 +14,8 @@
   .create-fab {
     display: none;
     position: fixed;
-    bottom: 24px;
-    right: 24px;
+    bottom: calc(80px + env(safe-area-inset-bottom));
+    right: calc(24px + env(safe-area-inset-right));
     z-index: 100;
     box-shadow: 0 4px 16px rgba(21,101,192,0.18);
   }

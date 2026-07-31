@@ -42,6 +42,7 @@ mat-selection-list {
 @media (max-width: 600px) {
   .user-list-container {
     max-height: 50vh;
+    max-height: 50dvh;
     overflow-y: auto;
   }
   mat-selection-list {

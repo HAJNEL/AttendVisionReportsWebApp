@@ -18,11 +18,29 @@ html {
 }
 
 html, body { height: 100%; }
+html, body {
+  touch-action: manipulation;
+  /* Stop rubber-band overscroll exposing the WKWebView backing color */
+  overscroll-behavior-y: none;
+}
+html {
+  /* Match body so toolbar collapse / overscroll gaps never show black */
+  background-color: #0d1117;
+}
 body {
   margin: 0;
   font-family: Roboto, "Helvetica Neue", sans-serif;
   background-color: #0d1117;
   color: #e6edf3;
+}
+
+/* Highlight the current route inside the bottom-nav "More" menu (overlay panel) */
+.bottom-nav-more-menu .active-more-link {
+  color: #58a6ff !important;
+  .mat-icon,
+  .mat-mdc-menu-item-text {
+    color: #58a6ff !important;
+  }
 }
 
 /* Fullscreen dialog */
@@ -32,6 +50,22 @@ body {
   border-radius: 0 !important;
   max-width: 100vw !important;
   max-height: 100vh !important;
+  max-height: 100dvh !important;
+}
+
+/* Clamp the overlay pane itself too — its inline height:100vh from the dialog
+   config would otherwise overshoot the dynamic viewport when Safari's toolbar
+   is expanded (the !important class rule wins over non-important inline styles). */
+.cdk-overlay-pane.fullscreen-dialog {
+  height: 100dvh !important;
+  max-height: 100dvh !important;
+}
+
+/* Keep fullscreen dialog content clear of the notch / home indicator */
+.fullscreen-dialog .mdc-dialog__surface {
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
 }
 
 /* Ensure sidenav surfaces stay dark */

@@ -1,5 +1,6 @@
 .layout-container {
   height: 100vh;
+  height: 100dvh;
   background-color: #0d1117;
 }
 .sidebar {
@@ -11,6 +12,7 @@
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  min-height: 100dvh;
 }
 .mobile-toolbar {
   background-color: #161b22;
@@ -19,9 +21,10 @@
   position: sticky;
   top: 0;
   z-index: 100;
+  padding-top: env(safe-area-inset-top);
+  height: auto;
 }
 .toolbar-title {
-  margin-left: 8px;
   font-size: 18px;
   font-weight: 500;
   color: #58a6ff;
@@ -32,6 +35,13 @@ main {
   margin: 0 auto;
   width: 100%;
   box-sizing: border-box;
+}
+
+/* Reserve space for the fixed bottom-nav bar so content doesn't render underneath it.
+   Not gated by a width media query — isHandset$ (which shows the bar) can be true
+   up to ~959px via Angular CDK's Breakpoints.Small, wider than our 599px CSS breakpoint. */
+main.has-bottom-nav {
+  padding-bottom: calc(56px + env(safe-area-inset-bottom));
 }
 
 @media (max-width: 599px) {

@@ -14,8 +14,8 @@
   .create-fab {
     display: none;
     position: fixed;
-    bottom: 24px;
-    right: 24px;
+    bottom: calc(80px + env(safe-area-inset-bottom));
+    right: calc(24px + env(safe-area-inset-right));
     z-index: 100;
     box-shadow: 0 4px 16px rgba(21,101,192,0.18);
   }
@@ -109,4 +109,11 @@ table {
   text-align: center;
   padding: 40px 16px;
   color: #6e7681;
+}
+
+// Hide Leave Type / From Time / To Time columns on small screens
+@media (max-width: 600px) {
+  .hide-mobile {
+    display: none !important;
+  }
 }

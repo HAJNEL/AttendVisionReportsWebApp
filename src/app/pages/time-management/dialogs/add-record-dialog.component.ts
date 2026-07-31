@@ -68,6 +68,9 @@ const STATUS_OPTIONS = [
   `,
   styles: [`
     mat-dialog-content { min-width: 320px; padding-top: 8px; }
+    @media (max-width: 599px) {
+      mat-dialog-content { min-width: 0; }
+    }
     .form-row { margin-bottom: 8px; }
     .full-width { width: 100%; }
     .validation-error {

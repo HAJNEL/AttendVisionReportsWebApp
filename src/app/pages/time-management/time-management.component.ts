@@ -19,9 +19,10 @@ import { MatMenuModule } from '@angular/material/menu';
 import { ApiService } from '../../services/api.service';
 import { Department } from '../../models/department.model';
 import { DepartmentEmployee } from '../../models/department-user-link.model';
-import { DaySummaryRow, AutoFixApplyRequest, AutoFixAction, AccessRecordDto, TimeManagementConfig } from '../../models/time-management.model';
+import { DaySummaryRow, AutoFixApplyRequest, AutoFixAction, AccessRecordDto, TimeManagementConfig, CreateAccessRecordDto } from '../../models/time-management.model';
 import { AutoFixConfirmDialogComponent } from './dialogs/auto-fix-confirm-dialog.component';
 import { TimeManagementSettingsDialogComponent } from './dialogs/time-management-settings-dialog.component';
+import { AddTimeEntryDialogComponent } from './dialogs/add-time-entry-dialog.component';
 
 @Component({
   selector: 'app-time-management',
@@ -106,6 +107,7 @@ export class TimeManagementComponent implements OnInit {
         this.config = config;
         const ref = this.dialog.open(TimeManagementSettingsDialogComponent, {
           width: '600px',
+          maxWidth: 'calc(100vw - 24px)',
           data: { config },
         });
         ref.afterClosed().subscribe(async (saved: TimeManagementConfig | null) => {
@@ -170,6 +172,7 @@ export class TimeManagementComponent implements OnInit {
       }
       const ref = this.dialog.open(AutoFixConfirmDialogComponent, {
         width: '600px',
+        maxWidth: 'calc(100vw - 24px)',
         data: { preview, personName: row.personName, date, records, config: this.config },
       });
       ref.afterClosed().subscribe(async (editedActions: AutoFixAction[] | null) => {
@@ -202,6 +205,25 @@ export class TimeManagementComponent implements OnInit {
     } finally {
       this.fixingEmployeeId = null;
     }
+  }
+
+  openAddEntry(): void {
+    const ref = this.dialog.open(AddTimeEntryDialogComponent, {
+      width: '480px',
+      maxWidth: 'calc(100vw - 24px)',
+      data: { departments: this.departments, defaultDate: this.selectedDate },
+    });
+    ref.afterClosed().subscribe(async (dto: CreateAccessRecordDto | undefined) => {
+      if (!dto) return;
+      try {
+        await this.api.createAccessRecord(dto);
+        this.snackBar.open('Time entry added.', 'OK', { duration: 2500 });
+        await this.loadEmployees();
+        await this.load();
+      } catch (e: any) {
+        this.snackBar.open(e?.error?.error || e.message || 'Failed to add time entry.', 'Dismiss', { duration: 4000 });
+      }
+    });
   }
 
   manageUser(row: DaySummaryRow): void {

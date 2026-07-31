@@ -170,6 +170,7 @@ export class TimeManagementDetailComponent implements OnInit {
   openAddRecord(): void {
     const ref = this.dialog.open(AddRecordDialogComponent, {
       width: '400px',
+      maxWidth: 'calc(100vw - 24px)',
       data: {},
     });
     ref.afterClosed().subscribe(async (result: AddRecordDialogResult | undefined) => {
@@ -204,7 +205,7 @@ export class TimeManagementDetailComponent implements OnInit {
         { label: 'Delete', color: 'warn', value: true, icon: 'delete' },
       ],
     };
-    const ref = this.dialog.open(DynamicDialogComponent, { width: '400px', data: config });
+    const ref = this.dialog.open(DynamicDialogComponent, { width: '400px', maxWidth: 'calc(100vw - 24px)', data: config });
     ref.afterClosed().subscribe(async (confirmed: boolean) => {
       if (!confirmed) return;
       this.deletingId = record.id;
@@ -237,6 +238,7 @@ export class TimeManagementDetailComponent implements OnInit {
 
       const ref = this.dialog.open(AutoFixConfirmDialogComponent, {
         width: '600px',
+        maxWidth: 'calc(100vw - 24px)',
         data: { preview, personName: this.personName, date: this.date, records: this.records, config },
       });
 

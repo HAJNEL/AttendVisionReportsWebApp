@@ -146,7 +146,12 @@ const DUPLICATE_STATUSES = new Set(['check_in', 'check_out', 'break_out', 'break
       display: flex; align-items: center; gap: 8px;
       .title-icon { color: #58a6ff; }
     }
-    mat-dialog-content { min-width: 480px; max-width: 600px; max-height: 70vh; overflow-y: auto; }
+    mat-dialog-content { min-width: 480px; max-width: 600px; max-height: 70vh; max-height: 70dvh; overflow-y: auto; }
+    @media (max-width: 599px) {
+      mat-dialog-content { min-width: 0; max-width: none; }
+      .status-select { min-width: 0; flex: 1; }
+      .time-input { width: 100px; }
+    }
     .section { padding: 16px 0; }
     .section-title {
       display: flex; align-items: center; gap: 6px;

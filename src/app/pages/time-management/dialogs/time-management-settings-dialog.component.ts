@@ -151,7 +151,16 @@ export interface TimeManagementSettingsDialogData {
       display: flex; align-items: center; gap: 8px;
       .title-icon { color: #58a6ff; }
     }
-    mat-dialog-content { min-width: 460px; max-width: 560px; max-height: 72vh; }
+    mat-dialog-content { min-width: 460px; max-width: 560px; max-height: 72vh; max-height: 72dvh; }
+    @media (max-width: 599px) {
+      mat-dialog-content { min-width: 0; max-width: none; }
+      .param-row {
+        flex-wrap: wrap;
+        label { flex: 1 1 100%; }
+      }
+      .num-input { width: 100%; text-align: left; box-sizing: border-box; }
+      .select-input { min-width: 0; width: 100%; }
+    }
     .subtitle { color: #8b949e; font-size: 13px; margin: 4px 0 12px; }
     .section { padding: 14px 0; }
     .section-disabled { opacity: 0.5; }

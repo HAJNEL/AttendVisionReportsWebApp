@@ -2,9 +2,8 @@
   <div class="header">
     <h1>Reports</h1>
     <span class="header-spacer"></span>
-    <button type="button" mat-stroked-button class="settings-btn" (click)="openSettings()" [disabled]="loadingConfig" matTooltip="Configure report period settings">
+    <button type="button" mat-icon-button class="settings-btn" (click)="openSettings()" [disabled]="loadingConfig" matTooltip="Configure report period settings">
       <mat-icon>settings</mat-icon>
-      Settings
     </button>
   </div>
 
@@ -15,12 +14,6 @@
       <ng-container matColumnDef="name">
         <th mat-header-cell *matHeaderCellDef>Report Name</th>
         <td mat-cell *matCellDef="let report" class="report-name">{{ report.name }}</td>
-      </ng-container>
-
-      <!-- Type Column -->
-      <ng-container matColumnDef="type">
-        <th mat-header-cell *matHeaderCellDef>Type</th>
-        <td mat-cell *matCellDef="let report">{{ report.type }}</td>
       </ng-container>
 
       <!-- Description Column (hidden on mobile) -->

@@ -3,9 +3,15 @@
     <mat-icon class="header-icon">manage_history</mat-icon>
     <h1>Time Management</h1>
     <span class="header-spacer"></span>
-    <button type="button" mat-stroked-button class="settings-btn" (click)="openSettings()" [disabled]="loadingConfig" matTooltip="Configure time management rules">
+    <button type="button" mat-flat-button color="primary" (click)="openAddEntry()" class="add-entry-btn">
+      <mat-icon>add</mat-icon>
+      Add Entry
+    </button>
+    <button type="button" mat-fab color="primary" (click)="openAddEntry()" class="add-entry-fab" aria-label="Add Time Entry">
+      <mat-icon>add</mat-icon>
+    </button>
+    <button type="button" mat-icon-button class="settings-btn" (click)="openSettings()" [disabled]="loadingConfig" matTooltip="Configure time management rules">
       <mat-icon>settings</mat-icon>
-      Settings
     </button>
   </div>
 
@@ -139,4 +145,44 @@
       </tr>
     </table>
   </mat-card>
+
+  <!-- Mobile card list (shown instead of the table on small screens) -->
+  <div class="mobile-cards" *ngIf="!loading && !error && selectedDate">
+    <mat-card class="row-card" *ngFor="let row of rows" [class.card-has-issues]="row.issueCount > 0">
+      <div class="row-card-main" (click)="manageUser(row)">
+        <div class="row-card-top">
+          <span class="employee-name">{{ row.personName }}</span>
+          <span class="issues-badge" [class.has-issues]="row.issueCount > 0" [class.no-issues]="row.issueCount === 0">
+            <mat-icon class="badge-icon">{{ row.issueCount > 0 ? 'warning' : 'check_circle' }}</mat-icon>
+            {{ row.issueCount > 0 ? row.issueCount : 'OK' }}
+          </span>
+        </div>
+        <div class="row-card-meta">
+          <span class="employee-id">{{ row.employeeId }}</span>
+          <span class="meta-dot" *ngIf="row.department">·</span>
+          <span *ngIf="row.department">{{ row.department }}</span>
+        </div>
+        <div class="row-card-times">
+          <span class="time-pair"><span class="time-label">First</span> <span class="time-val">{{ row.firstEntry || '—' }}</span></span>
+          <span class="time-pair"><span class="time-label">Last</span> <span class="time-val">{{ row.lastEntry || '—' }}</span></span>
+          <span class="time-pair"><span class="time-label">Records</span> <span class="records-count">{{ row.totalRecords }}</span></span>
+        </div>
+      </div>
+      <div class="row-card-actions">
+        <button type="button" mat-stroked-button (click)="manageUser(row)">
+          <mat-icon>edit_calendar</mat-icon> Manage
+        </button>
+        <button type="button" mat-stroked-button color="warn" *ngIf="row.issueCount > 0"
+                [disabled]="fixingEmployeeId === row.employeeId" (click)="autoFix(row)">
+          <mat-icon>auto_fix_high</mat-icon>
+          {{ fixingEmployeeId === row.employeeId ? 'Checking...' : 'Auto Fix' }}
+        </button>
+      </div>
+    </mat-card>
+
+    <div class="mobile-no-data" *ngIf="rows.length === 0">
+      <mat-icon>person_search</mat-icon>
+      <p>No attendance records found for the selected filters.</p>
+    </div>
+  </div>
 </div>
