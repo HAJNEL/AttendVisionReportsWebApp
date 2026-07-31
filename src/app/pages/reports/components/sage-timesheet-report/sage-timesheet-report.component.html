@@ -49,9 +49,9 @@
       <td mat-footer-cell *matFooterCellDef></td>
     </ng-container>
     <ng-container matColumnDef="company_code">
-      <th mat-header-cell *matHeaderCellDef>Company Code</th>
-      <td mat-cell *matCellDef="let row">{{ row.company_code }}</td>
-      <td mat-footer-cell *matFooterCellDef></td>
+      <th mat-header-cell *matHeaderCellDef class="hide-mobile">Company Code</th>
+      <td mat-cell *matCellDef="let row" class="hide-mobile">{{ row.company_code }}</td>
+      <td mat-footer-cell *matFooterCellDef class="hide-mobile"></td>
     </ng-container>
     <ng-container matColumnDef="empno">
       <th mat-header-cell *matHeaderCellDef>EmpNo</th>
@@ -64,9 +64,9 @@
       <td mat-footer-cell *matFooterCellDef></td>
     </ng-container>
     <ng-container matColumnDef="status">
-      <th mat-header-cell *matHeaderCellDef>Status</th>
-      <td mat-cell *matCellDef="let row">{{ row.status }}</td>
-      <td mat-footer-cell *matFooterCellDef></td>
+      <th mat-header-cell *matHeaderCellDef class="hide-mobile">Status</th>
+      <td mat-cell *matCellDef="let row" class="hide-mobile">{{ row.status }}</td>
+      <td mat-footer-cell *matFooterCellDef class="hide-mobile"></td>
     </ng-container>
     <ng-container matColumnDef="normal_Hours">
       <th mat-header-cell *matHeaderCellDef>Normal Hours</th>

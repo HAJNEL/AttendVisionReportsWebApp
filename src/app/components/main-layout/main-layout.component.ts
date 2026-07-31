@@ -10,13 +10,12 @@ import { map, shareReplay, take } from 'rxjs/operators';
 import { Observable } from 'rxjs';
 import { AsyncPipe } from '@angular/common';
 import { SidebarComponent } from '../sidebar/sidebar.component';
-import { BottomNavComponent } from '../bottom-nav/bottom-nav.component';
 import { SessionService } from '../../services/session.service';
 
 @Component({
   selector: 'app-main-layout',
   standalone: true,
-  imports: [CommonModule, AsyncPipe, RouterModule, MatSidenavModule, MatToolbarModule, MatButtonModule, MatIconModule, SidebarComponent, BottomNavComponent],
+  imports: [CommonModule, AsyncPipe, RouterModule, MatSidenavModule, MatToolbarModule, MatButtonModule, MatIconModule, SidebarComponent],
   providers: [SessionService],
   templateUrl: './main-layout.component.html',
   styleUrl: './main-layout.component.scss',

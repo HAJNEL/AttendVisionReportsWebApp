@@ -31,7 +31,18 @@ h2[mat-dialog-title].dialog-title-row {
 mat-dialog-content {
   flex: 1;
   overflow-y: auto;
+  overflow-x: auto; /* explicit horizontal scroll for the min-width table, not incidental */
+  -webkit-overflow-scrolling: touch;
   padding: 0 !important;
+}
+
+/* Employee ID shown under the name only on phones (the ID column is hidden there) */
+.mobile-only-id { display: none; }
+
+@media (max-width: 599px) {
+  .hide-mobile { display: none !important; }
+  .mobile-only-id { display: block; }
+  .timesheet-table { min-width: 560px; }
 }
 
 .center-spinner {

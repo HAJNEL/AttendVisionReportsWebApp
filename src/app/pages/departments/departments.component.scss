@@ -139,3 +139,10 @@ table {
   color: #f85149 !important;
   .mat-icon { color: #f85149 !important; }
 }
+
+// Hide secondary columns on small screens (mob-audit MOB fixes, issue #5)
+@media (max-width: 600px) {
+  .hide-mobile {
+    display: none !important;
+  }
+}

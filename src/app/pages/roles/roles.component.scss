@@ -137,3 +137,10 @@ table {
   color: #c9d1d9;
   border-bottom-color: #21262d;
 }
+
+// Hide secondary columns on small screens (mob-audit MOB fixes, issue #5)
+@media (max-width: 600px) {
+  .hide-mobile {
+    display: none !important;
+  }
+}

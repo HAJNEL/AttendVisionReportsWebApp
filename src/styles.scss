@@ -34,15 +34,6 @@ body {
   color: #e6edf3;
 }
 
-/* Highlight the current route inside the bottom-nav "More" menu (overlay panel) */
-.bottom-nav-more-menu .active-more-link {
-  color: #58a6ff !important;
-  .mat-icon,
-  .mat-mdc-menu-item-text {
-    color: #58a6ff !important;
-  }
-}
-
 /* Fullscreen dialog */
 .fullscreen-dialog .mat-mdc-dialog-container,
 .fullscreen-dialog .mdc-dialog__container,

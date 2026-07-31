@@ -19,7 +19,14 @@ h2[mat-dialog-title].dialog-title-row {
 mat-dialog-content {
   flex: 1;
   overflow-y: auto;
+  overflow-x: auto; /* explicit horizontal scroll for the min-width table, not incidental */
+  -webkit-overflow-scrolling: touch;
   padding: 0 !important;
+}
+
+@media (max-width: 599px) {
+  .hide-mobile { display: none !important; }
+  .issue-table { min-width: 480px; }
 }
 
 .center-spinner {
