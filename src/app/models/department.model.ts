@@ -11,4 +11,5 @@ export interface Department {
   serialNo?: string | null;
   companyId?: string | null;
   companyCode?: string | null;
+  hikCentralOrgIndexCode?: string | null;
 }

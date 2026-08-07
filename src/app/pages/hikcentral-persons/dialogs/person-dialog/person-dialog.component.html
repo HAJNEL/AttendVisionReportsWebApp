@@ -1,0 +1,56 @@
+<h2 mat-dialog-title>{{ isEdit ? 'Edit Person' : 'Add Person' }}</h2>
+<mat-dialog-content>
+  <form [formGroup]="form" class="person-form">
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Person Code</mat-label>
+      <input matInput formControlName="personCode" required />
+      <mat-error *ngIf="form.get('personCode')?.hasError('required')">Required</mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Person Name</mat-label>
+      <input matInput formControlName="personName" required />
+      <mat-error *ngIf="form.get('personName')?.hasError('required')">Required</mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Organization</mat-label>
+      <mat-select formControlName="orgIndexCode" required>
+        <mat-option *ngFor="let o of organizations" [value]="o.orgIndexCode">{{ o.orgName }}</mat-option>
+      </mat-select>
+      <mat-error *ngIf="form.get('orgIndexCode')?.hasError('required')">Required</mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Gender</mat-label>
+      <mat-select formControlName="gender">
+        <mat-option [value]="null">Unspecified</mat-option>
+        <mat-option [value]="1">Male</mat-option>
+        <mat-option [value]="2">Female</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <div class="row-fields">
+      <mat-form-field appearance="outline" class="half-field">
+        <mat-label>Phone Number</mat-label>
+        <input matInput formControlName="phoneNo" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="half-field">
+        <mat-label>Job Number</mat-label>
+        <input matInput formControlName="jobNo" />
+      </mat-form-field>
+    </div>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Email</mat-label>
+      <input matInput formControlName="email" type="email" />
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button (click)="dialogRef.close()">Cancel</button>
+  <button mat-flat-button color="primary" (click)="save()" [disabled]="form.invalid">
+    {{ isEdit ? 'Save Changes' : 'Add Person' }}
+  </button>
+</mat-dialog-actions>

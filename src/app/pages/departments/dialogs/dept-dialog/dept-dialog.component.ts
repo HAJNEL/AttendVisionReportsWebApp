@@ -23,6 +23,7 @@ export interface DepartmentRow {
   serialNo?: string | null;
   companyId?: string | null;
   companyCode?: string | null;
+  hikCentralOrgIndexCode?: string | null;
 }
 
 export interface DeptFormDialogData {
@@ -74,6 +75,7 @@ export class DeptFormDialogComponent implements OnInit {
       serialNo:        new FormControl(d?.serialNo ?? ''),
       companyId:       new FormControl(d?.companyId ?? null),
       companyCode:    new FormControl(d?.companyCode ?? ''),
+      hikCentralOrgIndexCode: new FormControl(d?.hikCentralOrgIndexCode ?? ''),
     });
   }
 
@@ -97,6 +99,7 @@ export class DeptFormDialogComponent implements OnInit {
       serialNo:       v.serialNo || null,
       companyId:      v.companyId || null,
       companyCode:   v.companyCode || null,
+      hikCentralOrgIndexCode: v.hikCentralOrgIndexCode || null,
     });
   }
 }

@@ -25,6 +25,7 @@ export const routes: Routes = [
       { path: "employee-leave", loadComponent: () => import("./pages/EmployeeLeave/employee-leave.component").then(m => m.EmployeeLeaveComponent) },
       { path: "time-management", loadComponent: () => import("./pages/time-management/time-management.component").then(m => m.TimeManagementComponent) },
       { path: "time-management/:employeeId/:date", loadComponent: () => import("./pages/time-management/detail/time-management-detail.component").then(m => m.TimeManagementDetailComponent) },
+      { path: "hikcentral-persons", loadComponent: () => import("./pages/hikcentral-persons/hikcentral-persons.component").then(m => m.HikCentralPersonsComponent) },
       { path: "", redirectTo: "/dashboard", pathMatch: "full" },
     ],
   },

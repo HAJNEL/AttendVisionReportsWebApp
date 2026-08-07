@@ -1,0 +1,115 @@
+<div class="persons-container">
+  <div class="page-header">
+    <h1>HikCentral Persons</h1>
+    <button mat-flat-button color="primary" (click)="openCreate()" [disabled]="loading" class="create-btn desktop-only">
+      <mat-icon>add</mat-icon>
+      Add Person
+    </button>
+    <button mat-fab color="primary" (click)="openCreate()" [disabled]="loading" class="create-fab mobile-only" aria-label="Add Person">
+      <mat-icon>add</mat-icon>
+    </button>
+  </div>
+
+  <!-- Filters -->
+  <div class="persons-filters">
+    <mat-form-field appearance="outline" class="filter-field">
+      <mat-label>Organization</mat-label>
+      <mat-select [(ngModel)]="selectedOrgIndexCode" (selectionChange)="onOrgFilterChange()">
+        <mat-option [value]="null">All Organizations</mat-option>
+        <mat-option *ngFor="let o of organizations" [value]="o.orgIndexCode">{{ o.orgName }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field appearance="outline" class="filter-field">
+      <mat-label>Search</mat-label>
+      <input matInput placeholder="Person name" [(ngModel)]="searchQuery" (keyup.enter)="onSearchChange()">
+      <button mat-icon-button matSuffix (click)="onSearchChange()" aria-label="Search">
+        <mat-icon>search</mat-icon>
+      </button>
+    </mat-form-field>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="center-spinner">
+    <mat-spinner diameter="48"></mat-spinner>
+  </div>
+
+  <!-- Error -->
+  <div *ngIf="!loading && error" class="error-banner">
+    <mat-icon>error_outline</mat-icon>
+    <span>{{ error }}</span>
+  </div>
+
+  <!-- Table -->
+  <mat-card class="table-card" *ngIf="!loading && !error">
+    <table mat-table [dataSource]="persons" class="mat-elevation-z0">
+
+      <ng-container matColumnDef="personName">
+        <th mat-header-cell *matHeaderCellDef>Name</th>
+        <td mat-cell *matCellDef="let p">
+          <span class="person-name">{{ p.personName || '—' }}</span>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="personCode">
+        <th mat-header-cell *matHeaderCellDef>Person Code</th>
+        <td mat-cell *matCellDef="let p" class="muted">{{ p.personCode || '—' }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="orgName">
+        <th mat-header-cell *matHeaderCellDef class="hide-mobile">Organization</th>
+        <td mat-cell *matCellDef="let p" class="hide-mobile">{{ orgName(p.orgIndexCode) }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="phoneNo">
+        <th mat-header-cell *matHeaderCellDef class="hide-mobile">Phone</th>
+        <td mat-cell *matCellDef="let p" class="hide-mobile muted">{{ p.phoneNo || '—' }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="email">
+        <th mat-header-cell *matHeaderCellDef class="hide-mobile">Email</th>
+        <td mat-cell *matCellDef="let p" class="hide-mobile muted">{{ p.email || '—' }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef></th>
+        <td mat-cell *matCellDef="let p" class="actions-cell">
+          <button mat-icon-button [matMenuTriggerFor]="rowMenu" [matMenuTriggerData]="{ person: p }"
+                  aria-label="Row actions">
+            <mat-icon>more_vert</mat-icon>
+          </button>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+      <tr class="mat-row" *matNoDataRow>
+        <td class="no-data-cell" [attr.colspan]="displayedColumns.length">
+          No persons found. Click <em>Add Person</em> to add one.
+        </td>
+      </tr>
+    </table>
+
+    <mat-paginator
+      [length]="total"
+      [pageSize]="pageSize"
+      [pageIndex]="pageNo - 1"
+      [pageSizeOptions]="[20, 50, 100]"
+      (page)="onPage($event)">
+    </mat-paginator>
+  </mat-card>
+</div>
+
+<!-- Shared row-actions menu -->
+<mat-menu #rowMenu="matMenu">
+  <ng-template matMenuContent let-person="person">
+    <button mat-menu-item (click)="openEdit(person)">
+      <mat-icon>edit</mat-icon>
+      <span>Edit</span>
+    </button>
+    <button mat-menu-item class="delete-item" (click)="confirmDelete(person)">
+      <mat-icon>delete</mat-icon>
+      <span>Delete</span>
+    </button>
+  </ng-template>
+</mat-menu>

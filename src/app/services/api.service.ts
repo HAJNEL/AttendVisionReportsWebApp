@@ -27,6 +27,7 @@ import { DepartmentPaymentRate, DepartmentPaymentRateInput } from '../models/dep
 import { SageTimesheetRow } from '../models/sage-timesheet-row';
 import { DaySummaryRow, AccessRecordDto, CreateAccessRecordDto, UpdateAccessRecordDto, AutoFixPreviewResponse, AutoFixApplyRequest, TimeManagementConfig } from '../models/time-management.model';
 import { ReportConfigSettings } from '../models/reports.model';
+import { HikCentralPerson, HikCentralPersonListData, HikCentralAddPersonRequest, HikCentralUpdatePersonRequest, HikCentralOrgListData, HikCentralAccessLevelListData } from '../models/hikcentral-person.model';
 
 // ── Service ───────────────────────────────────────────────────────────────────
 
@@ -478,5 +479,42 @@ export class ApiService {
     const params: any = {};
     if (departmentId && departmentId !== 'all') params.departmentId = departmentId;
     return firstValueFrom(this.http.get<DepartmentEmployee[]>(`${API_BASE}/filter/employees`, { params }));
+  }
+
+  // ── HikCentral Persons ───────────────────────────────────────────────────
+
+  getHikCentralPersons(pageNo: number, pageSize: number, orgIndexCode?: string | null, personName?: string | null): Promise<HikCentralPersonListData> {
+    const params: any = { pageNo, pageSize };
+    if (orgIndexCode) params.orgIndexCode = orgIndexCode;
+    if (personName) params.personName = personName;
+    return firstValueFrom(this.http.get<HikCentralPersonListData>(`${API_BASE}/hikcentral/persons`, { params }));
+  }
+
+  getHikCentralPerson(personId: string): Promise<HikCentralPerson> {
+    return firstValueFrom(this.http.get<HikCentralPerson>(`${API_BASE}/hikcentral/persons/${personId}`));
+  }
+
+  createHikCentralPerson(request: HikCentralAddPersonRequest): Promise<{ personId: string }> {
+    return firstValueFrom(this.http.post<{ personId: string }>(`${API_BASE}/hikcentral/persons`, request));
+  }
+
+  updateHikCentralPerson(personId: string, request: HikCentralUpdatePersonRequest): Promise<void> {
+    return firstValueFrom(this.http.put<void>(`${API_BASE}/hikcentral/persons/${personId}`, request));
+  }
+
+  deleteHikCentralPerson(personId: string): Promise<void> {
+    return firstValueFrom(this.http.delete<void>(`${API_BASE}/hikcentral/persons/${personId}`));
+  }
+
+  getHikCentralOrganizations(pageNo = 1, pageSize = 100): Promise<HikCentralOrgListData> {
+    return firstValueFrom(this.http.get<HikCentralOrgListData>(`${API_BASE}/hikcentral/organizations`, { params: { pageNo, pageSize } }));
+  }
+
+  getHikCentralAccessLevels(pageNo = 1, pageSize = 100): Promise<HikCentralAccessLevelListData> {
+    return firstValueFrom(this.http.get<HikCentralAccessLevelListData>(`${API_BASE}/hikcentral/access-levels`, { params: { pageNo, pageSize } }));
+  }
+
+  assignHikCentralAccessLevel(privilegeGroupId: string, personId: string): Promise<void> {
+    return firstValueFrom(this.http.post<void>(`${API_BASE}/hikcentral/access-levels/${privilegeGroupId}/assign`, { personId }));
   }
 }

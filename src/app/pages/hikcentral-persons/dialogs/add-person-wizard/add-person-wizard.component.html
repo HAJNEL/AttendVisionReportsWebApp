@@ -1,0 +1,130 @@
+<h2 mat-dialog-title>Add Person</h2>
+
+<div *ngIf="loading" class="center-spinner">
+  <mat-spinner diameter="40"></mat-spinner>
+</div>
+
+<mat-dialog-content *ngIf="!loading">
+  <mat-stepper orientation="vertical" linear #stepper>
+
+    <!-- Step 1: Basic Information -->
+    <mat-step [stepControl]="basicInfoForm" label="Basic Information">
+      <form [formGroup]="basicInfoForm" class="wizard-form">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Department</mat-label>
+          <mat-select formControlName="departmentId" required>
+            <mat-option *ngFor="let d of departments" [value]="d.id">{{ d.departmentName }}</mat-option>
+          </mat-select>
+          <mat-error *ngIf="basicInfoForm.get('departmentId')?.hasError('required')">Required</mat-error>
+        </mat-form-field>
+
+        <div class="org-warning" *ngIf="basicInfoForm.value.departmentId && !resolvedOrgIndexCode">
+          <mat-icon>warning</mat-icon>
+          <span>This department isn't linked to a HikCentral organization yet. Set it on the department's edit screen, or rename the HikCentral organization to match.</span>
+        </div>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Person Code</mat-label>
+          <input matInput formControlName="personCode" required />
+          <mat-error *ngIf="basicInfoForm.get('personCode')?.hasError('required')">Required</mat-error>
+        </mat-form-field>
+
+        <div class="row-fields">
+          <mat-form-field appearance="outline" class="half-field">
+            <mat-label>First Name</mat-label>
+            <input matInput formControlName="firstName" required />
+            <mat-error *ngIf="basicInfoForm.get('firstName')?.hasError('required')">Required</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="half-field">
+            <mat-label>Last Name</mat-label>
+            <input matInput formControlName="lastName" required />
+            <mat-error *ngIf="basicInfoForm.get('lastName')?.hasError('required')">Required</mat-error>
+          </mat-form-field>
+        </div>
+
+        <p class="effective-period-note">
+          <mat-icon inline>event</mat-icon>
+          Effective Period is set automatically: today through 10 years from today.
+        </p>
+
+        <div class="step-actions">
+          <button mat-flat-button color="primary" matStepperNext [disabled]="basicInfoForm.invalid">Next</button>
+        </div>
+      </form>
+    </mat-step>
+
+    <!-- Step 2: Private Information -->
+    <mat-step [stepControl]="privateInfoForm" label="Private Information">
+      <form [formGroup]="privateInfoForm" class="wizard-form">
+        <div class="gender-field">
+          <label class="gender-label">Gender</label>
+          <mat-radio-group formControlName="gender">
+            <mat-radio-button [value]="1">Male</mat-radio-button>
+            <mat-radio-button [value]="2">Female</mat-radio-button>
+            <mat-radio-button [value]="null">Unknown</mat-radio-button>
+          </mat-radio-group>
+        </div>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Email</mat-label>
+          <input matInput formControlName="email" type="email" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Phone No.</mat-label>
+          <input matInput formControlName="phoneNo" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Remark</mat-label>
+          <textarea matInput formControlName="remark" rows="2"></textarea>
+        </mat-form-field>
+
+        <div class="step-actions">
+          <button mat-button matStepperPrevious>Back</button>
+          <button mat-flat-button color="primary" matStepperNext>Next</button>
+        </div>
+      </form>
+    </mat-step>
+
+    <!-- Step 3: Access Level -->
+    <mat-step label="Access Level">
+      <div class="wizard-form">
+        <mat-checkbox [(ngModel)]="showAllAccessLevels" [ngModelOptions]="{standalone: true}">
+          Show all access levels (not just this department's)
+        </mat-checkbox>
+
+        <div class="access-level-list">
+          <mat-checkbox
+            *ngFor="let level of filteredAccessLevels"
+            [checked]="selectedAccessLevelIds.has(level.privilegeGroupId!)"
+            (change)="toggleAccessLevel(level.privilegeGroupId)">
+            {{ level.privilegeGroupName }}
+          </mat-checkbox>
+
+          <p *ngIf="filteredAccessLevels.length === 0" class="no-levels">
+            No access levels matched this department. Try "Show all access levels".
+          </p>
+        </div>
+
+        <div class="submit-error" *ngIf="submitError">
+          <mat-icon>error_outline</mat-icon>
+          <span>{{ submitError }}</span>
+        </div>
+
+        <div class="step-actions">
+          <button mat-button matStepperPrevious [disabled]="submitting">Back</button>
+          <button mat-flat-button color="primary" (click)="submit()" [disabled]="submitting">
+            <mat-spinner *ngIf="submitting" diameter="18" class="btn-spinner"></mat-spinner>
+            <span *ngIf="!submitting">Add Person</span>
+          </button>
+        </div>
+      </div>
+    </mat-step>
+  </mat-stepper>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" *ngIf="!loading">
+  <button mat-button (click)="dialogRef.close()" [disabled]="submitting">Cancel</button>
+</mat-dialog-actions>

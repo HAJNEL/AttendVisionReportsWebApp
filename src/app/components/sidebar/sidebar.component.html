@@ -35,6 +35,10 @@
       <mat-icon matListItemIcon>manage_history</mat-icon>
       <span matListItemTitle>Time Management</span>
     </a>
+    <a *ngIf="authService.hasPermission('hikcentral_persons')" mat-list-item routerLink="/hikcentral-persons" routerLinkActive="active-link" (click)="handleNavClick()">
+      <mat-icon matListItemIcon>badge</mat-icon>
+      <span matListItemTitle>HikCentral Persons</span>
+    </a>
     <a *ngIf="authService.hasPermission('roles')" mat-list-item routerLink="/roles" routerLinkActive="active-link" (click)="handleNavClick()">
       <mat-icon matListItemIcon>security</mat-icon>
       <span matListItemTitle>Roles</span>
